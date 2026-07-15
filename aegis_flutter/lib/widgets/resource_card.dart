@@ -4,11 +4,13 @@ import '../constants/aegis_colors.dart';
 
 class ResourceCard extends StatelessWidget {
   final ResourceItem item;
+  final String actionLabel;
   final VoidCallback? onReplyTap;
 
   const ResourceCard({
     super.key,
     required this.item,
+    this.actionLabel = 'Reply',
     this.onReplyTap,
   });
 
@@ -73,7 +75,7 @@ class ResourceCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Green Reply Action Button
+            // Green Action Button
             GestureDetector(
               onTap: onReplyTap,
               child: Container(
@@ -86,9 +88,9 @@ class ResourceCard extends StatelessWidget {
                     width: 1.0,
                   ),
                 ),
-                child: const Text(
-                  'Reply',
-                  style: TextStyle(
+                child: Text(
+                  actionLabel,
+                  style: const TextStyle(
                     fontSize: 11.0,
                     fontWeight: FontWeight.bold,
                     color: AegisColors.activeGreen,

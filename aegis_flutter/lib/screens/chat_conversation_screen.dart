@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
+import 'share_file_screen.dart';
+import 'voice_message_screen.dart';
 
 class ChatConversationScreen extends StatefulWidget {
   final String nodeId;
@@ -117,7 +119,50 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                backgroundColor: const Color(0xFF161B22),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(16.0),
+                                    topRight: Radius.circular(16.0),
+                                  ),
+                                ),
+                                builder: (context) => SafeArea(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ListTile(
+                                        leading: const Icon(Icons.file_present_rounded, color: AegisColors.busyPurple),
+                                        title: const Text('Share File', style: TextStyle(color: Colors.white, fontSize: 14.0)),
+                                        onTap: () {
+                                          Navigator.of(context).pop();
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) => const ShareFileScreen(),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      const Divider(color: Color(0xFF1E293B), height: 1.0),
+                                      ListTile(
+                                        leading: const Icon(Icons.mic_none_rounded, color: AegisColors.busyPurple),
+                                        title: const Text('Voice Message', style: TextStyle(color: Colors.white, fontSize: 14.0)),
+                                        onTap: () {
+                                          Navigator.of(context).pop();
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) => const VoiceMessageScreen(),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                             child: const Icon(
                               Icons.attach_file_rounded,
                               color: AegisColors.textSecondary,

@@ -11,47 +11,66 @@ class ResourceFeedScreen extends StatefulWidget {
 }
 
 class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
-  int _selectedTab = 0;
+  int _selectedFilterPill = 0;
+
+  final List<String> _filterPills = const [
+    'All',
+    'Food',
+    'Medical',
+    'Water',
+    'Battery',
+    'Other',
+  ];
 
   final List<ResourceItem> _items = const [
     ResourceItem(
       id: '1',
-      category: ResourceCategory.water,
-      title: 'Water',
-      detail: '5 bottles available',
+      category: ResourceCategory.food,
+      title: 'Food Pack',
+      detail: '12 available',
       nodeId: 'SIG-8AF3',
       hops: 2,
-      timeAgo: '3m ago',
+      timeAgo: '300 m away • 2 hops',
       type: ResourceType.offered,
     ),
     ResourceItem(
       id: '2',
-      category: ResourceCategory.food,
-      title: 'Food',
-      detail: 'Canned food available',
+      category: ResourceCategory.medical,
+      title: 'Medicine Kit',
+      detail: '4 available',
       nodeId: 'SIG-1A9D',
       hops: 3,
-      timeAgo: '8m ago',
+      timeAgo: '450 m away • 3 hops',
       type: ResourceType.offered,
     ),
     ResourceItem(
       id: '3',
-      category: ResourceCategory.medical,
-      title: 'Medical Supplies',
-      detail: 'Bandages, Antiseptic',
-      nodeId: 'SIG-4D2F',
+      category: ResourceCategory.water,
+      title: 'Water Bottle',
+      detail: '25 available',
+      nodeId: 'SIG-B2C1',
       hops: 1,
-      timeAgo: '10m ago',
+      timeAgo: '200 m away • 1 hop',
       type: ResourceType.offered,
     ),
     ResourceItem(
       id: '4',
       category: ResourceCategory.battery,
-      title: 'Battery',
-      detail: 'Power bank available',
-      nodeId: 'SIG-B2C1',
+      title: 'Power Bank',
+      detail: '6 available',
+      nodeId: 'SIG-C4E1',
       hops: 2,
-      timeAgo: '15m ago',
+      timeAgo: '150 m away • 2 hops',
+      type: ResourceType.offered,
+    ),
+    ResourceItem(
+      id: '5',
+      category: ResourceCategory.other,
+      title: 'Blankets',
+      detail: '10 available',
+      nodeId: 'SIG-9E10',
+      hops: 3,
+      timeAgo: '600 m away • 3 hops',
       type: ResourceType.offered,
     ),
   ];
@@ -73,7 +92,7 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'RESOURCES',
+                        'Resources',
                         style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.w900,
@@ -97,71 +116,38 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
                   ),
                   const SizedBox(height: 12.0),
 
-                  // 2. Sub-bar Status Row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 6.0,
-                            height: 6.0,
-                            decoration: const BoxDecoration(
-                              color: AegisColors.activeGreen,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 6.0),
-                          const Text(
-                            '8 Nodes Online',
-                            style: TextStyle(
-                              color: AegisColors.textSecondary,
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: const [
-                          Icon(
-                            Icons.wifi_tethering_rounded,
-                            color: AegisColors.textSecondary,
-                            size: 13.0,
-                          ),
-                          SizedBox(width: 5.0),
-                          Text(
-                            '127 Relayed',
-                            style: TextStyle(
-                              color: AegisColors.textSecondary,
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20.0),
-
-                  // 3. Tabs Offered / Requested / All
-                  Row(
-                    children: [
-                      _buildTabItem(0, 'Offered'),
-                      _buildTabItem(1, 'Requested'),
-                      _buildTabItem(2, 'All'),
-                    ],
+                  // 2. Horizontally Scrolling Filter Pills
+                  SizedBox(
+                    height: 34.0,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _filterPills.length,
+                      itemBuilder: (context, index) {
+                        return _buildFilterPillItem(index, _filterPills[index]);
+                      },
+                    ),
                   ),
                   const SizedBox(height: 16.0),
 
-                  // 4. Resource Cards Feed List
+                  // 3. Resource Cards Feed List
                   Expanded(
                     child: ListView.builder(
                       itemCount: _items.length,
-                      padding: const EdgeInsets.only(bottom: 80.0), // Padding to avoid overlap with FAB
+                      padding: const EdgeInsets.only(bottom: 80.0), // space for bottom FAB button
                       itemBuilder: (context, index) {
+                        final item = _items[index];
+                        // Optional: Filter items based on selected pill
+                        if (_selectedFilterPill > 0) {
+                          final String categoryName = item.category.name.toLowerCase();
+                          final String pillName = _filterPills[_selectedFilterPill].toLowerCase();
+                          if (categoryName != pillName) {
+                            return const SizedBox.shrink();
+                          }
+                        }
+
                         return ResourceCard(
-                          item: _items[index],
+                          item: item,
+                          actionLabel: 'View',
                           onReplyTap: () {},
                         );
                       },
@@ -171,7 +157,7 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
               ),
             ),
 
-            // Bottom Green Centered Add Resource Action Pill Button
+            // Bottom Green Centered Add Resource Action Pill Button (+ OFFER RESOURCE)
             Positioned(
               left: 24.0,
               right: 24.0,
@@ -181,11 +167,15 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
                 child: Container(
                   height: 44.0,
                   decoration: BoxDecoration(
-                    color: AegisColors.activeGreen,
+                    color: const Color(0xFF042F1A).withOpacity(0.4),
                     borderRadius: BorderRadius.circular(22.0),
+                    border: Border.all(
+                      color: AegisColors.activeGreen.withOpacity(0.4),
+                      width: 1.0,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: AegisColors.activeGreen.withOpacity(0.35),
+                        color: AegisColors.activeGreen.withOpacity(0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -196,14 +186,14 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
                     children: const [
                       Icon(
                         Icons.add_rounded,
-                        color: Colors.white,
+                        color: AegisColors.activeGreen,
                         size: 20.0,
                       ),
                       SizedBox(width: 6.0),
                       Text(
-                        'OFFER / REQUEST',
+                        'OFFER RESOURCE',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AegisColors.activeGreen,
                           fontSize: 12.0,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 0.5,
@@ -220,33 +210,34 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
     );
   }
 
-  Widget _buildTabItem(int index, String title) {
-    final bool isSelected = _selectedTab == index;
+  Widget _buildFilterPillItem(int index, String label) {
+    final bool isSelected = _selectedFilterPill == index;
+    final Color bgColor = isSelected ? AegisColors.busyPurple : Colors.transparent;
+    final Color strokeColor = isSelected ? AegisColors.busyPurple : const Color(0xFF1E293B);
+    final Color textColor = isSelected ? Colors.white : AegisColors.textSecondary;
+
     return GestureDetector(
       onTap: () {
         setState(() {
-          _selectedTab = index;
+          _selectedFilterPill = index;
         });
       },
       child: Container(
-        margin: const EdgeInsets.only(right: 24.0),
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        margin: const EdgeInsets.only(right: 8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 6.0),
         decoration: BoxDecoration(
-          border: isSelected
-              ? const Border(
-                  bottom: BorderSide(
-                    color: AegisColors.activeGreen,
-                    width: 2.5,
-                  ),
-                )
-              : null,
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16.0),
+          border: Border.all(color: strokeColor, width: 1.0),
         ),
-        child: Text(
-          title,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AegisColors.textMuted,
-            fontSize: 13.0,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 11.5,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            ),
           ),
         ),
       ),

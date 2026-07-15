@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 import 'chat_conversation_screen.dart';
+import 'broadcast_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -121,7 +122,45 @@ class _ChatScreenState extends State<ChatScreen> {
                 backgroundColor: AegisColors.busyPurple,
                 shape: const CircleBorder(),
                 elevation: 4.0,
-                onPressed: () {},
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: const Color(0xFF161B22),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16.0),
+                        topRight: Radius.circular(16.0),
+                      ),
+                    ),
+                    builder: (context) => SafeArea(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.chat_bubble_outline_rounded, color: AegisColors.busyPurple),
+                            title: const Text('New Chat', style: TextStyle(color: Colors.white, fontSize: 14.0)),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          const Divider(color: Color(0xFF1E293B), height: 1.0),
+                          ListTile(
+                            leading: const Icon(Icons.podcasts_rounded, color: AegisColors.busyPurple),
+                            title: const Text('Broadcast Message', style: TextStyle(color: Colors.white, fontSize: 14.0)),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const BroadcastScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
                 child: const Icon(
                   Icons.add_rounded,
                   color: Colors.white,
