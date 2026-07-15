@@ -7,6 +7,7 @@ import 'identity_screen.dart';
 import 'notifications_screen.dart';
 import 'node_details_screen.dart';
 import 'settings_screen.dart';
+import 'sos_incoming_overlay.dart';
 
 class RadarScreen extends StatefulWidget {
   const RadarScreen({super.key});
@@ -16,6 +17,8 @@ class RadarScreen extends StatefulWidget {
 }
 
 class _RadarScreenState extends State<RadarScreen> {
+  bool _isEmptyRadar = false;
+
   final List<SurvivorNode> _nodes = const [
     SurvivorNode(id: 'SIG-7F3A', hops: 0, status: NodeStatus.online, isUser: true, dx: 0.0, dy: 0.0),
     SurvivorNode(id: 'SIG-8AF3', hops: 2, status: NodeStatus.online, dx: 0.0, dy: -0.65),
@@ -61,6 +64,20 @@ class _RadarScreenState extends State<RadarScreen> {
                     ),
                     Row(
                       children: [
+                        // WiFi/Signal Toggle Button
+                        IconButton(
+                          icon: Icon(
+                            _isEmptyRadar ? Icons.wifi_off_rounded : Icons.wifi_rounded,
+                            color: _isEmptyRadar ? AegisColors.sosRed : AegisColors.activeGreen,
+                            size: 22.0,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isEmptyRadar = !_isEmptyRadar;
+                            });
+                          },
+                        ),
+                        const SizedBox(width: 8.0),
                         // Notification icon with red badge dot
                         GestureDetector(
                           onTap: () {
@@ -167,9 +184,9 @@ class _RadarScreenState extends State<RadarScreen> {
                         color: AegisColors.purpleLightBg,
                         borderRadius: BorderRadius.circular(6.0),
                       ),
-                      child: const Text(
-                        '8 Nodes',
-                        style: TextStyle(
+                      child: Text(
+                        _isEmptyRadar ? '0 Nodes' : '8 Nodes',
+                        style: const TextStyle(
                           color: AegisColors.busyPurple,
                           fontSize: 10.5,
                           fontWeight: FontWeight.bold,
@@ -196,79 +213,151 @@ class _RadarScreenState extends State<RadarScreen> {
 
                 // 3. Central Radar Graphic
                 RadarVisualization(
-                  nodes: _nodes,
+                  nodes: _isEmptyRadar ? _nodes.where((n) => n.isUser).toList() : _nodes,
                   onLocateTap: () {},
                   onNodeTap: (node) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => NodeDetailsScreen(nodeId: node.id),
-                      ),
-                    );
+                    if (node.id == 'SIG-1D9A') {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const SosIncomingOverlayScreen(),
+                        ),
+                      );
+                    } else {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => NodeDetailsScreen(nodeId: node.id),
+                        ),
+                      );
+                    }
                   },
                 ),
                 const SizedBox(height: 16.0),
 
-                // 4. Network Overview Section
-                const MeshStatsBar(),
-                const SizedBox(height: 24.0),
-
-                // 5. Recent Activity Section Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'RECENT ACTIVITY',
+                if (_isEmptyRadar) ...[
+                  // 4. "0 nodes detected" and subtitle warnings
+                  const Center(
+                    child: Text(
+                      '0 nodes detected',
                       style: TextStyle(
-                        fontSize: 11.0,
-                        fontWeight: FontWeight.w900,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
                         color: Colors.white,
-                        letterSpacing: 0.5,
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: const Text(
-                        'View all',
+                  ),
+                  const SizedBox(height: 6.0),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Text(
+                      'Make sure other AEGIS devices are on the same WiFi network.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: AegisColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32.0),
+
+                  // Legend Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildLegendItem(AegisColors.activeGreen, 'Strong'),
+                      _buildLegendItem(AegisColors.warningOrange, 'Medium'),
+                      _buildLegendItem(AegisColors.sosRed, 'Weak'),
+                      _buildLegendItem(const Color(0xFF64748B), 'Offline'),
+                    ],
+                  ),
+                  const SizedBox(height: 12.0),
+                ] else ...[
+                  // 4. Network Overview Section
+                  const MeshStatsBar(),
+                  const SizedBox(height: 24.0),
+
+                  // 5. Recent Activity Section Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'RECENT ACTIVITY',
                         style: TextStyle(
                           fontSize: 11.0,
-                          fontWeight: FontWeight.w600,
-                          color: AegisColors.primaryBlue,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12.0),
+                      GestureDetector(
+                        onTap: () {},
+                        child: const Text(
+                          'View all',
+                          style: TextStyle(
+                            fontSize: 11.0,
+                            fontWeight: FontWeight.w600,
+                            color: AegisColors.primaryBlue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12.0),
 
-                // 6. Recent Activity Log List
-                _buildActivityLog(
-                  color: AegisColors.activeGreen,
-                  text: 'SIG-8AF3 joined the network',
-                  time: '2m ago',
-                ),
-                const SizedBox(height: 8.0),
-                _buildActivityLog(
-                  color: AegisColors.primaryBlue,
-                  text: 'Packet relayed to SIG-B2C1',
-                  time: '3m ago',
-                ),
-                const SizedBox(height: 8.0),
-                _buildActivityLog(
-                  color: AegisColors.sosRed,
-                  text: 'SOS from SIG-1D9A received',
-                  time: '5m ago',
-                ),
-                const SizedBox(height: 8.0),
-                _buildActivityLog(
-                  color: AegisColors.textMuted,
-                  text: 'Resource from SIG-C4E1 relayed',
-                  time: '7m ago',
-                ),
+                  // 6. Recent Activity Log List
+                  _buildActivityLog(
+                    color: AegisColors.activeGreen,
+                    text: 'SIG-8AF3 joined the network',
+                    time: '2m ago',
+                  ),
+                  const SizedBox(height: 8.0),
+                  _buildActivityLog(
+                    color: AegisColors.primaryBlue,
+                    text: 'Packet relayed to SIG-B2C1',
+                    time: '3m ago',
+                  ),
+                  const SizedBox(height: 8.0),
+                  _buildActivityLog(
+                    color: AegisColors.sosRed,
+                    text: 'SOS from SIG-1D9A received',
+                    time: '5m ago',
+                  ),
+                  const SizedBox(height: 8.0),
+                  _buildActivityLog(
+                    color: AegisColors.textMuted,
+                    text: 'Resource from SIG-C4E1 relayed',
+                    time: '7m ago',
+                  ),
+                ],
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 7.0,
+          height: 7.0,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 6.0),
+        Text(
+          text,
+          style: const TextStyle(
+            color: AegisColors.textSecondary,
+            fontSize: 11.0,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 

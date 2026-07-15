@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 import 'share_file_screen.dart';
@@ -15,7 +16,10 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
   final TextEditingController _messageController = TextEditingController();
 
   @override
+  @override
   Widget build(BuildContext context) {
+    final bool isOfflineNode = widget.nodeId == 'SIG-4D2F';
+
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
@@ -41,15 +45,15 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                 Container(
                   width: 6.0,
                   height: 6.0,
-                  decoration: const BoxDecoration(
-                    color: AegisColors.activeGreen,
+                  decoration: BoxDecoration(
+                    color: isOfflineNode ? const Color(0xFF64748B) : AegisColors.activeGreen,
                     shape: BoxShape.circle,
                   ),
                 ),
                 const SizedBox(width: 5.0),
-                const Text(
-                  'Online  •  2 hops away',
-                  style: TextStyle(
+                Text(
+                  isOfflineNode ? 'Offline' : 'Online  •  2 hops away',
+                  style: const TextStyle(
                     fontSize: 10.5,
                     color: AegisColors.textSecondary,
                   ),
@@ -72,18 +76,29 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(16.0),
-                children: [
-                  _buildIncomingBubble('Are you safe?', '10:21 AM'),
-                  _buildOutgoingBubble('Yes, we are safe.', '10:22 AM'),
-                  _buildHopPathIndicator('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
-                  _buildIncomingBubble('Do you have any medical supplies?', '10:23 AM'),
-                  _buildOutgoingBubble('Yes, we have some basic medications.', '10:24 AM'),
-                  _buildHopPathIndicator('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
-                  _buildWarningBubble('Can you send bandages?', '10:25 AM'),
-                  _buildQueueIndicator(),
-                ],
+                children: isOfflineNode
+                    ? [
+                        _buildIncomingBubble('Hello! Are you safe?', '10:18 AM'),
+                        _buildOutgoingBubble('Yes, I\'m safe here.', '10:19 AM', doubleTickGreen: false),
+                        _buildIncomingBubble('We need medical supplies.', '10:20 AM'),
+                        _buildQueuedBubble('I can help. I have some basic medicines.', '10:21 AM'),
+                      ]
+                    : [
+                        _buildIncomingBubble('Are you safe?', '10:21 AM'),
+                        _buildOutgoingBubble('Yes, we are safe.', '10:22 AM'),
+                        _buildHopPathIndicator('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
+                        _buildIncomingBubble('Do you have any medical supplies?', '10:23 AM'),
+                        _buildOutgoingBubble('Yes, we have some basic medications.', '10:24 AM'),
+                        _buildHopPathIndicator('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
+                        _buildWarningBubble('Can you send bandages?', '10:25 AM'),
+                        _buildQueueIndicator(),
+                      ],
               ),
             ),
+
+            // Warning bottom message banner
+            if (isOfflineNode)
+              _buildQueuedMessageWarningBanner(),
 
             // Message Input Bar
             Container(
@@ -233,7 +248,7 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
     );
   }
 
-  Widget _buildOutgoingBubble(String text, String time) {
+  Widget _buildOutgoingBubble(String text, String time, {bool doubleTickGreen = true}) {
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
@@ -264,15 +279,126 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                   style: const TextStyle(color: AegisColors.textSecondary, fontSize: 9.0),
                 ),
                 const SizedBox(width: 4.0),
-                const Icon(
+                Icon(
                   Icons.done_all_rounded,
-                  color: AegisColors.activeGreen,
+                  color: doubleTickGreen ? AegisColors.activeGreen : const Color(0xFF64748B),
                   size: 12.0,
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildQueuedBubble(String text, String time) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12.0, left: 48.0),
+        child: CustomPaint(
+          painter: DashedRectPainter(
+            color: const Color(0xFFD97706).withOpacity(0.65), // Orange/Brown border
+            strokeWidth: 1.2,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(12.0),
+            decoration: const BoxDecoration(
+              color: Color(0xFF2D1F10), // Dark brown/orange bg matching mockup
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12.0),
+                bottomLeft: Radius.circular(12.0),
+                bottomRight: Radius.circular(12.0),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  text,
+                  style: const TextStyle(color: Colors.white, fontSize: 13.0),
+                ),
+                const SizedBox(height: 6.0),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      time,
+                      style: const TextStyle(color: AegisColors.textSecondary, fontSize: 9.0),
+                    ),
+                    const SizedBox(width: 4.0),
+                    const Icon(
+                      Icons.access_time_rounded,
+                      color: AegisColors.warningOrange,
+                      size: 11.0,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2.0),
+                const Text(
+                  'Queued',
+                  style: TextStyle(
+                    color: AegisColors.warningOrange,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQueuedMessageWarningBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+      margin: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 8.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1710), // Dark orange/grey background matching mockup
+        borderRadius: BorderRadius.circular(6.0),
+        border: Border.all(
+          color: const Color(0xFFD97706).withOpacity(0.35),
+          width: 1.0,
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.access_time_rounded,
+            color: AegisColors.warningOrange,
+            size: 18.0,
+          ),
+          const SizedBox(width: 12.0),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text(
+                  'Queued Message',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12.0,
+                  ),
+                ),
+                SizedBox(height: 2.0),
+                Text(
+                  'Will deliver when SIG-4D2F comes back online.',
+                  style: TextStyle(
+                    color: AegisColors.textSecondary,
+                    fontSize: 10.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -377,5 +503,54 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
         ],
       ),
     );
+  }
+}
+
+class DashedRectPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double gap;
+
+  DashedRectPainter({
+    required this.color,
+    this.strokeWidth = 1.0,
+    this.gap = 4.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final Path path = Path();
+    path.addRRect(RRect.fromRectAndCorners(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      topLeft: const Radius.circular(12.0),
+      bottomLeft: const Radius.circular(12.0),
+      bottomRight: const Radius.circular(12.0),
+    ));
+
+    _drawDashedPath(canvas, path, paint);
+  }
+
+  void _drawDashedPath(Canvas canvas, Path path, Paint paint) {
+    final double dashLength = 4.0;
+    final double spaceLength = 3.0;
+
+    for (final PathMetric metric in path.computeMetrics()) {
+      double start = 0.0;
+      while (start < metric.length) {
+        final double end = (start + dashLength).clamp(0.0, metric.length);
+        canvas.drawPath(metric.extractPath(start, end), paint);
+        start += dashLength + spaceLength;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant DashedRectPainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.strokeWidth != strokeWidth;
   }
 }

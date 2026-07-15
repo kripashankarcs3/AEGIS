@@ -258,6 +258,40 @@ class RadarVisualization extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // Empty scanning indicator overlay
+              if (nodes.length == 1)
+                Positioned(
+                  left: center.dx - 90.0,
+                  top: center.dy + maxRadius * 0.35,
+                  child: SizedBox(
+                    width: 180.0,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Text(
+                          'Scanning for survivors...',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white70,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        SizedBox(height: 12.0),
+                        SizedBox(
+                          width: 20.0,
+                          height: 20.0,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            valueColor: AlwaysStoppedAnimation<Color>(AegisColors.activeGreen),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           );
         },
