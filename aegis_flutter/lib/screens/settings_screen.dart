@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
+import 'auto_sync_screen.dart';
+import 'language_screen.dart';
+import 'help_support_screen.dart';
+import 'about_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -62,6 +66,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Mesh Network',
                     statusText: 'Connected',
                     statusColor: AegisColors.activeGreen,
+                    onTap: () {},
                   ),
                   _buildDivider(),
                   _buildNavigationRow(
@@ -69,6 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Offline Mode',
                     statusText: 'Enabled',
                     statusColor: AegisColors.activeGreen,
+                    onTap: () {},
                   ),
                   _buildDivider(),
                   _buildNavigationRow(
@@ -76,6 +82,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Battery Saver',
                     statusText: 'Enabled',
                     statusColor: AegisColors.activeGreen,
+                    onTap: () {},
                   ),
                   _buildDivider(),
                   _buildNavigationRow(
@@ -83,6 +90,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Auto Sync',
                     statusText: 'When Connected',
                     statusColor: AegisColors.activeGreen,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const AutoSyncScreen(),
+                        ),
+                      );
+                    },
                   ),
                   _buildDivider(),
                   _buildNavigationRow(
@@ -90,6 +104,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Language',
                     statusText: 'English',
                     statusColor: AegisColors.textSecondary,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const LanguageScreen(),
+                        ),
+                      );
+                    },
                   ),
                   _buildDivider(),
                   _buildNavigationRow(
@@ -97,6 +118,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Theme',
                     statusText: 'Dark',
                     statusColor: AegisColors.textSecondary,
+                    onTap: () {},
+                  ),
+                  _buildDivider(),
+                  _buildNavigationRow(
+                    icon: Icons.help_outline_rounded,
+                    label: 'Help & Support',
+                    statusText: 'Guides',
+                    statusColor: AegisColors.textSecondary,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const HelpSupportScreen(),
+                        ),
+                      );
+                    },
                   ),
                   _buildDivider(),
                   _buildNavigationRow(
@@ -104,6 +140,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'About AEGIS',
                     statusText: 'v1.0.0',
                     statusColor: AegisColors.textMuted,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const AboutScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -206,47 +249,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String label,
     required String statusText,
     required Color statusColor,
+    required VoidCallback onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: AegisColors.textSecondary, size: 18.0),
-              const SizedBox(width: 10.0),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: AegisColors.textSecondary,
-                  fontSize: 13.0,
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: AegisColors.textSecondary, size: 18.0),
+                const SizedBox(width: 10.0),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: AegisColors.textSecondary,
+                    fontSize: 13.0,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                statusText,
-                style: TextStyle(
-                  color: statusColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12.0,
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  statusText,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12.0,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 6.0),
-              const Icon(
-                Icons.chevron_right,
-                size: 14.0,
-                color: AegisColors.textMuted,
-              ),
-            ],
-          ),
-        ],
+                const SizedBox(width: 6.0),
+                const Icon(
+                  Icons.chevron_right,
+                  size: 14.0,
+                  color: AegisColors.textMuted,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
+
 
   Widget _buildToggleRow({
     required IconData icon,
