@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
 
   # P2P / WebRTC
-  flutter_webrtc: ^0.9.47
+  flutter_webrtc: ^1.1.1
   
   # LAN Discovery
   multicast_dns: ^0.3.2+4
@@ -42,7 +42,7 @@ dependencies:
   audioplayers: ^5.2.1
   
   # Notifications
-  flutter_local_notifications: ^16.1.0
+  flutter_local_notifications: ^18.0.1
   
   # Background Service
   flutter_background_service: ^5.0.5

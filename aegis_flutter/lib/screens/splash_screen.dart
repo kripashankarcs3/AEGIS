@@ -4,6 +4,51 @@ import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 import 'onboarding_screen.dart';
 
+class LogoShieldPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    
+    // Create gradient shader from top-left to bottom-right
+    final Paint paint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFF8B5CF6), // Purple
+          Color(0xFF2563EB), // Blue
+        ],
+      ).createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0;
+
+    final w = size.width;
+    final h = size.height;
+    
+    final path = Path();
+    path.moveTo(w / 2, 0); // Top center
+    path.lineTo(w * 0.88, 0); // Top right shoulder
+    path.quadraticBezierTo(w, h * 0.25, w * 0.94, h * 0.45); // Right side curve
+    path.quadraticBezierTo(w * 0.88, h * 0.82, w / 2, h); // Bottom right curve to point
+    path.quadraticBezierTo(w * 0.12, h * 0.82, w * 0.06, h * 0.45); // Bottom left curve from point
+    path.quadraticBezierTo(0, h * 0.25, w * 0.12, 0); // Left side curve to shoulder
+    path.close();
+
+    // Draw shadow glow path
+    final shadowPaint = Paint()
+      ..color = const Color(0xFF3B82F6).withOpacity(0.25)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 7.0
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10.0);
+    canvas.drawPath(path, shadowPaint);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 class MeshGlobePainter extends CustomPainter {
   final double rotationAngle;
 
@@ -11,20 +56,26 @@ class MeshGlobePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height + 40.0);
+    final center = Offset(size.width / 2, size.height + 35.0);
     final double radius = size.width * 0.95;
 
-    // Draw the main glowing arc outline
+    // Draw glow backdrop behind the globe horizon
+    final glowPaint = Paint()
+      ..color = const Color(0xFF1D4ED8).withOpacity(0.18)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 35.0);
+    canvas.drawCircle(center, radius, glowPaint);
+
+    // Draw the main glowing arc outline (planet horizon)
     final arcPaint = Paint()
-      ..color = AegisColors.primaryBlue.withOpacity(0.4)
+      ..color = const Color(0xFF3B82F6).withOpacity(0.55)
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
     
     canvas.drawCircle(center, radius, arcPaint);
 
-    // Draw inner concentric earth grid arches
+    // Draw inner concentric earth grid arches (latitude curves)
     final gridPaint = Paint()
-      ..color = AegisColors.primaryBlue.withOpacity(0.12)
+      ..color = const Color(0xFF2563EB).withOpacity(0.15)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
 
@@ -38,9 +89,7 @@ class MeshGlobePainter extends CustomPainter {
     final int lineCount = 18;
 
     for (int i = 0; i <= lineCount; i++) {
-      // Calculate fraction and wrap it around using rotationAngle to create sliding grid effect
       final double baseFraction = i / lineCount;
-      // Add rotationAngle offset (scaled to fit slide cycle)
       final double fraction = (baseFraction + (rotationAngle / (2 * pi))) % 1.0;
       final double angle = startAngle + (endAngle - startAngle) * fraction;
       
@@ -51,7 +100,7 @@ class MeshGlobePainter extends CustomPainter {
       
       canvas.drawLine(
         topPoint,
-        Offset(center.dx + radius * 0.72 * cos(angle), center.dy + radius * 0.72 * sin(angle)),
+        Offset(center.dx + radius * 0.75 * cos(angle), center.dy + radius * 0.75 * sin(angle)),
         gridPaint,
       );
     }
@@ -59,14 +108,13 @@ class MeshGlobePainter extends CustomPainter {
     // Draw rotating mesh points
     final Random rand = Random(42);
     final List<Offset> points = [];
-    final int pointCount = 28;
+    final int pointCount = 30;
 
     for (int i = 0; i < pointCount; i++) {
       final double baseAngleFraction = rand.nextDouble();
-      // Add rotation angle drift based on node offset
       final double angleFraction = (baseAngleFraction + (rotationAngle / (2 * pi))) % 1.0;
       final double angle = startAngle + (endAngle - startAngle) * angleFraction;
-      final double radFraction = 0.85 + rand.nextDouble() * 0.14;
+      final double radFraction = 0.84 + rand.nextDouble() * 0.15;
       final double r = radius * radFraction;
 
       points.add(Offset(
@@ -75,35 +123,29 @@ class MeshGlobePainter extends CustomPainter {
       ));
     }
 
-    // Draw connecting lines between close points
+    // Draw connecting lines between close points to form the mesh grid network
     final lineConnPaint = Paint()
-      ..color = AegisColors.primaryBlue.withOpacity(0.18)
+      ..color = const Color(0xFF3B82F6).withOpacity(0.25)
       ..strokeWidth = 0.8;
 
     for (int i = 0; i < points.length; i++) {
       for (int j = i + 1; j < points.length; j++) {
         final double dist = (points[i] - points[j]).distance;
-        if (dist < 55.0) {
+        if (dist < 60.0) {
           canvas.drawLine(points[i], points[j], lineConnPaint);
         }
       }
     }
 
-    // Draw shining node dots
+    // Draw shining node dots (blue, orange, white)
     for (int i = 0; i < points.length; i++) {
-      final double size = i % 4 == 0 ? 3.0 : 1.5;
+      final double size = i % 5 == 0 ? 3.0 : 1.5;
       final Color color = i % 3 == 0 
-          ? AegisColors.warningOrange 
-          : (i % 2 == 0 ? AegisColors.primaryBlue : Colors.white);
+          ? const Color(0xFFF97316) // Warning Orange
+          : (i % 2 == 0 ? const Color(0xFF60A5FA) : Colors.white);
 
-      final Paint dotPaint = Paint()..color = color.withOpacity(0.8);
+      final Paint dotPaint = Paint()..color = color.withOpacity(0.85);
       canvas.drawCircle(points[i], size, dotPaint);
-
-      // Glowing aura for larger dots
-      if (i % 4 == 0) {
-        final Paint glowPaint = Paint()..color = color.withOpacity(0.18);
-        canvas.drawCircle(points[i], size * 3.0, glowPaint);
-      }
     }
   }
 
@@ -156,14 +198,14 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     _logoController.forward();
 
-    // 3. Twinkle controller
+    // 3. Twinkle controller for stars
     _twinkleController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
     )..repeat(reverse: true);
 
-    // Transition timer
-    Timer(const Duration(seconds: 3), () {
+    // Transition to onboarding after 3.5 seconds
+    Timer(const Duration(milliseconds: 3500), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
@@ -205,96 +247,88 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               },
             ),
 
-            // Main Contents (Animated Logo, Title, Slogan)
+            // Main Contents (Animated Logo, Title, Subtitle)
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 40.0),
+                  const SizedBox(height: 20.0),
                   
-                  // Pulse Scale Logo
+                  // Premium Custom Painted Shield Logo
                   ScaleTransition(
                     scale: _logoScale,
                     child: FadeTransition(
                       opacity: _logoFade,
-                      child: Container(
-                        width: 104.0,
+                      child: SizedBox(
+                        width: 90.0,
                         height: 104.0,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AegisColors.primaryBlue.withOpacity(0.12),
-                              blurRadius: 28,
-                              spreadRadius: 2,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Custom Shield Painter
+                            Positioned.fill(
+                              child: CustomPaint(
+                                painter: LogoShieldPainter(),
+                              ),
+                            ),
+                            // Shield inner 'A' text
+                            const Positioned(
+                              top: 20.0,
+                              child: Text(
+                                'A',
+                                style: TextStyle(
+                                  fontSize: 38.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontFamily: 'sans-serif',
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                            // WiFi Waves inside bottom of Shield
+                            const Positioned(
+                              bottom: 18.0,
+                              child: Icon(
+                                Icons.wifi,
+                                color: Color(0xFF2563EB),
+                                size: 16.0,
+                              ),
                             ),
                           ],
-                        ),
-                        child: Center(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Icon(
-                                Icons.shield_outlined,
-                                size: 96.0,
-                                color: AegisColors.primaryBlue,
-                              ),
-                              const Positioned(
-                                top: 26.0,
-                                child: Text(
-                                  'A',
-                                  style: TextStyle(
-                                    fontSize: 32.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontFamily: 'Monospace',
-                                  ),
-                                ),
-                              ),
-                              const Positioned(
-                                bottom: 24.0,
-                                child: Icon(
-                                  Icons.wifi_tethering_rounded,
-                                  color: AegisColors.primaryBlue,
-                                  size: 18.0,
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24.0),
+                  const SizedBox(height: 28.0),
 
-                  // Slogan Title text
+                  // Slogan Title text (matches mockup 1)
                   const Text(
                     'AEGIS',
                     style: TextStyle(
-                      fontSize: 32.0,
+                      fontSize: 34.0,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
-                      letterSpacing: 2.0,
+                      letterSpacing: 3.0,
                     ),
                   ),
-                  const SizedBox(height: 12.0),
+                  const SizedBox(height: 14.0),
                   const Text(
                     'The Autonomous\nHuman Communication\nNetwork',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 13.0,
+                      fontSize: 13.5,
                       fontWeight: FontWeight.w500,
                       color: Colors.white,
-                      height: 1.5,
+                      height: 1.45,
                       letterSpacing: 0.5,
                     ),
                   ),
-                  const SizedBox(height: 100.0),
+                  const SizedBox(height: 140.0),
                 ],
               ),
             ),
 
-            // 3D Rotating Earth Globe Mesh
+            // 3D Rotating Earth Globe Mesh (Horizon style)
             AnimatedBuilder(
               animation: _globeController,
               builder: (context, child) {
@@ -302,7 +336,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  height: 150.0,
+                  height: 160.0,
                   child: CustomPaint(
                     painter: MeshGlobePainter(rotationAngle: _globeController.value * 2 * pi),
                   ),
@@ -314,15 +348,15 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             Positioned(
               left: 24.0,
               right: 24.0,
-              bottom: 28.0,
+              bottom: 24.0,
               child: const Text(
                 'When the Internet dies,\nhumanity still speaks.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AegisColors.textSecondary,
-                  fontSize: 12.0,
+                  fontSize: 11.5,
                   height: 1.4,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -342,14 +376,13 @@ class StarsBackgroundPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rand = Random(12);
     
-    for (int i = 0; i < 45; i++) {
+    for (int i = 0; i < 50; i++) {
       final x = rand.nextDouble() * size.width;
       final y = rand.nextDouble() * size.height;
-      final radius = rand.nextDouble() * 0.9;
+      final radius = rand.nextDouble() * 0.95;
       
-      // Calculate individual star twinkle opacity offset
       final double twinkleOffset = rand.nextDouble();
-      final double opacity = ((twinkleValue + twinkleOffset) % 1.0).clamp(0.15, 0.75);
+      final double opacity = ((twinkleValue + twinkleOffset) % 1.0).clamp(0.12, 0.8);
 
       final Paint paint = Paint()..color = Colors.white.withOpacity(opacity);
       canvas.drawCircle(Offset(x, y), radius, paint);

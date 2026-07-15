@@ -44,21 +44,21 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
     _btn1Fade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _buttonsController, curve: const Interval(0.0, 0.45, curve: Curves.easeIn)),
     );
-    _btn1Slide = Tween<Offset>(begin: const Offset(0.0, 0.25), end: Offset.zero).animate(
+    _btn1Slide = Tween<Offset>(begin: const Offset(0.0, 0.2), end: Offset.zero).animate(
       CurvedAnimation(parent: _buttonsController, curve: const Interval(0.0, 0.45, curve: Curves.easeOut)),
     );
 
     _btn2Fade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _buttonsController, curve: const Interval(0.3, 0.75, curve: Curves.easeIn)),
     );
-    _btn2Slide = Tween<Offset>(begin: const Offset(0.0, 0.25), end: Offset.zero).animate(
+    _btn2Slide = Tween<Offset>(begin: const Offset(0.0, 0.2), end: Offset.zero).animate(
       CurvedAnimation(parent: _buttonsController, curve: const Interval(0.3, 0.75, curve: Curves.easeOut)),
     );
 
     _btn3Fade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _buttonsController, curve: const Interval(0.6, 1.0, curve: Curves.easeIn)),
     );
-    _btn3Slide = Tween<Offset>(begin: const Offset(0.0, 0.25), end: Offset.zero).animate(
+    _btn3Slide = Tween<Offset>(begin: const Offset(0.0, 0.2), end: Offset.zero).animate(
       CurvedAnimation(parent: _buttonsController, curve: const Interval(0.6, 1.0, curve: Curves.easeOut)),
     );
 
@@ -98,7 +98,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
               },
             ),
 
-            // Earth Globe mesh bottom rotating graphic layout
+            // Earth Globe mesh bottom rotating graphic (Matches mockup 3)
             AnimatedBuilder(
               animation: _globeController,
               builder: (context, child) {
@@ -106,7 +106,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  height: 150.0,
+                  height: 160.0,
                   child: CustomPaint(
                     painter: MeshGlobePainter(rotationAngle: _globeController.value * 2 * pi),
                   ),
@@ -120,7 +120,8 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 32.0),
+                  const SizedBox(height: 48.0),
+                  
                   // Title details
                   const Text(
                     'Join the Network',
@@ -139,53 +140,56 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                       color: AegisColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 48.0),
+                  const SizedBox(height: 52.0),
 
-                  // Option Button 1: Continue with Phone (Fade + Slide)
+                  // Option Button 1: Continue with Phone (Purple-to-blue gradient)
                   FadeTransition(
                     opacity: _btn1Fade,
                     child: SlideTransition(
                       position: _btn1Slide,
                       child: Container(
                         width: double.infinity,
-                        height: 46.0,
+                        height: 48.0,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             colors: [
-                              AegisColors.busyPurple,
-                              AegisColors.primaryBlue,
+                              Color(0xFF8B5CF6), // Purple
+                              Color(0xFF2563EB), // Blue
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: BorderRadius.circular(10.0),
                           boxShadow: [
                             BoxShadow(
-                              color: AegisColors.primaryBlue.withOpacity(0.15),
+                              color: const Color(0xFF2563EB).withOpacity(0.18),
                               blurRadius: 8,
                               offset: const Offset(0, 3),
                             ),
                           ],
                         ),
-                        child: InkWell(
-                          onTap: () => _navigateToMainShell(context),
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(
-                                Icons.phone_outlined,
-                                color: Colors.white,
-                                size: 18.0,
-                              ),
-                              SizedBox(width: 10.0),
-                              Text(
-                                'Continue with Phone',
-                                style: TextStyle(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _navigateToMainShell(context),
+                            borderRadius: BorderRadius.circular(10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(
+                                  Icons.phone_rounded,
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.5,
+                                  size: 18.0,
                                 ),
-                              ),
-                            ],
+                                SizedBox(width: 10.0),
+                                Text(
+                                  'Continue with Phone',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.0,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -193,7 +197,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                   ),
                   const SizedBox(height: 16.0),
 
-                  // Option Button 2: Scan QR Code (Fade + Slide)
+                  // Option Button 2: Scan QR Code (Outline style)
                   FadeTransition(
                     opacity: _btn2Fade,
                     child: SlideTransition(
@@ -207,7 +211,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                   ),
                   const SizedBox(height: 16.0),
 
-                  // Option Button 3: Join as Guest (Fade + Slide)
+                  // Option Button 3: Join as Guest (Outline style)
                   FadeTransition(
                     opacity: _btn3Fade,
                     child: SlideTransition(
@@ -219,24 +223,24 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                       ),
                     ),
                   ),
-                  const SizedBox(height: 44.0),
+                  const SizedBox(height: 48.0),
 
-                  // Offline notice indicator
+                  // Offline notice indicator with cross-network signal icon (Mockup 3)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.wifi_off_rounded,
-                        color: AegisColors.textSecondary.withOpacity(0.8),
-                        size: 16.0,
+                        Icons.portable_wifi_off_rounded,
+                        color: AegisColors.textSecondary.withOpacity(0.65),
+                        size: 20.0,
                       ),
-                      const SizedBox(width: 10.0),
+                      const SizedBox(width: 12.0),
                       Text(
                         'No Internet? No problem.\nAEGIS works offline.',
                         style: TextStyle(
-                          color: AegisColors.textSecondary.withOpacity(0.8),
-                          fontSize: 11.5,
+                          color: AegisColors.textSecondary.withOpacity(0.85),
+                          fontSize: 12.0,
                           height: 1.4,
                           fontWeight: FontWeight.w500,
                         ),
@@ -272,33 +276,36 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
   }) {
     return Container(
       width: double.infinity,
-      height: 46.0,
+      height: 48.0,
       decoration: BoxDecoration(
-        color: const Color(0xFF0C1017),
-        borderRadius: BorderRadius.circular(8.0),
+        color: const Color(0xFF0F131A),
+        borderRadius: BorderRadius.circular(10.0),
         border: Border.all(color: const Color(0xFF1E293B), width: 1.0),
       ),
-      child: InkWell(
-        onTap: () => _navigateToMainShell(context),
-        borderRadius: BorderRadius.circular(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 18.0,
-            ),
-            const SizedBox(width: 10.0),
-            Text(
-              label,
-              style: const TextStyle(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _navigateToMainShell(context),
+          borderRadius: BorderRadius.circular(10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 13.5,
+                size: 18.0,
               ),
-            ),
-          ],
+              const SizedBox(width: 10.0),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.0,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

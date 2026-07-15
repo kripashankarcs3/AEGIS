@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 import 'login_join_screen.dart';
+import 'splash_screen.dart'; // Import LogoShieldPainter
 
 class OnboardingRingPainter extends CustomPainter {
   final double angleOffset;
@@ -11,43 +12,54 @@ class OnboardingRingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final double radius = size.width * 0.36;
+    final double rx = size.width * 0.44;
+    final double ry = size.width * 0.16;
 
-    // Draw main ring
+    // Draw main glowing elliptical orbit path
     final ringPaint = Paint()
-      ..color = AegisColors.primaryBlue.withOpacity(0.18)
-      ..strokeWidth = 1.0
+      ..color = const Color(0xFF2563EB).withOpacity(0.2)
+      ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
-    canvas.drawCircle(center, radius, ringPaint);
+    
+    canvas.drawOval(
+      Rect.fromCenter(center: center, width: rx * 2, height: ry * 2),
+      ringPaint,
+    );
 
-    // Draw secondary rings
+    // Draw outer elliptical orbit for 3D depth
     final outerRingPaint = Paint()
-      ..color = AegisColors.primaryBlue.withOpacity(0.08)
+      ..color = const Color(0xFF2563EB).withOpacity(0.08)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
-    canvas.drawCircle(center, radius * 1.25, outerRingPaint);
+    
+    canvas.drawOval(
+      Rect.fromCenter(center: center, width: rx * 2.3, height: ry * 2.3),
+      outerRingPaint,
+    );
 
-    // Connecting chords between revolving outer nodes
-    final double baseAngle1 = -pi * 0.85;
-    final double baseAngle2 = -pi * 0.5;
-    final double baseAngle3 = -pi * 0.15;
-    final double baseAngle4 = -pi * 0.02;
-    final double baseAngle5 = -pi * 0.98;
+    // Dynamic constellation chord links connecting the floating node spheres
+    final double angle1 = -pi * 0.85 + angleOffset;
+    final double angle2 = -pi * 0.5 + angleOffset;
+    final double angle3 = -pi * 0.15 + angleOffset;
+    final double angle4 = pi * 0.15 + angleOffset;
+    final double angle5 = pi * 0.75 + angleOffset;
 
-    final p1 = Offset(center.dx + radius * cos(baseAngle1 + angleOffset), center.dy + radius * sin(baseAngle1 + angleOffset));
-    final p2 = Offset(center.dx + radius * cos(baseAngle2 + angleOffset), center.dy + radius * sin(baseAngle2 + angleOffset));
-    final p3 = Offset(center.dx + radius * cos(baseAngle3 + angleOffset), center.dy + radius * sin(baseAngle3 + angleOffset));
-    final p4 = Offset(center.dx + radius * cos(baseAngle4 + angleOffset), center.dy + radius * sin(baseAngle4 + angleOffset));
-    final p5 = Offset(center.dx + radius * cos(baseAngle5 + angleOffset), center.dy + radius * sin(baseAngle5 + angleOffset));
+    final p1 = Offset(center.dx + rx * cos(angle1), center.dy + ry * sin(angle1));
+    final p2 = Offset(center.dx + rx * cos(angle2), center.dy + ry * sin(angle2));
+    final p3 = Offset(center.dx + rx * cos(angle3), center.dy + ry * sin(angle3));
+    final p4 = Offset(center.dx + rx * cos(angle4), center.dy + ry * sin(angle4));
+    final p5 = Offset(center.dx + rx * cos(angle5), center.dy + ry * sin(angle5));
 
-    final chordPaint = Paint()
-      ..color = AegisColors.primaryBlue.withOpacity(0.15)
+    final linePaint = Paint()
+      ..color = const Color(0xFF3B82F6).withOpacity(0.18)
       ..strokeWidth = 0.8;
 
-    canvas.drawLine(p1, p2, chordPaint);
-    canvas.drawLine(p2, p3, chordPaint);
-    canvas.drawLine(p3, p4, chordPaint);
-    canvas.drawLine(p1, p5, chordPaint);
+    canvas.drawLine(p1, p2, linePaint);
+    canvas.drawLine(p2, p3, linePaint);
+    canvas.drawLine(p3, p4, linePaint);
+    canvas.drawLine(p4, p5, linePaint);
+    canvas.drawLine(p5, p1, linePaint);
+    canvas.drawLine(p1, p3, linePaint);
   }
 
   @override
@@ -71,13 +83,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
   late Animation<double> _breatheScale;
   late Animation<double> _breatheGlow;
 
-  // Staggered list animations
-  late Animation<double> _feature1Fade;
-  late Animation<Offset> _feature1Slide;
-  late Animation<double> _feature2Fade;
-  late Animation<Offset> _feature2Slide;
-  late Animation<double> _feature3Fade;
-  late Animation<Offset> _feature3Slide;
+  // Staggered list animations for list container
+  late Animation<double> _containerFade;
+  late Animation<Offset> _containerSlide;
 
   @override
   void initState() {
@@ -99,38 +107,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
       CurvedAnimation(parent: _breatheController, curve: Curves.easeInOut),
     );
 
-    _breatheGlow = Tween<double>(begin: 0.08, end: 0.22).animate(
+    _breatheGlow = Tween<double>(begin: 0.05, end: 0.35).animate(
       CurvedAnimation(parent: _breatheController, curve: Curves.easeInOut),
     );
 
-    // 3. Staggered list entrance controller
+    // 3. Staggered entrance controller
     _listController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1400),
+      duration: const Duration(milliseconds: 1000),
     );
 
-    // Feature 1 staggered interval
-    _feature1Fade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _listController, curve: const Interval(0.0, 0.4, curve: Curves.easeIn)),
+    _containerFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _listController, curve: const Interval(0.2, 0.8, curve: Curves.easeIn)),
     );
-    _feature1Slide = Tween<Offset>(begin: const Offset(0, 0.25), end: Offset.zero).animate(
-      CurvedAnimation(parent: _listController, curve: const Interval(0.0, 0.4, curve: Curves.easeOut)),
-    );
-
-    // Feature 2 staggered interval
-    _feature2Fade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _listController, curve: const Interval(0.3, 0.7, curve: Curves.easeIn)),
-    );
-    _feature2Slide = Tween<Offset>(begin: const Offset(0, 0.25), end: Offset.zero).animate(
-      CurvedAnimation(parent: _listController, curve: const Interval(0.3, 0.7, curve: Curves.easeOut)),
-    );
-
-    // Feature 3 staggered interval
-    _feature3Fade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _listController, curve: const Interval(0.6, 1.0, curve: Curves.easeIn)),
-    );
-    _feature3Slide = Tween<Offset>(begin: const Offset(0, 0.25), end: Offset.zero).animate(
-      CurvedAnimation(parent: _listController, curve: const Interval(0.6, 1.0, curve: Curves.easeOut)),
+    _containerSlide = Tween<Offset>(begin: const Offset(0.0, 0.15), end: Offset.zero).animate(
+      CurvedAnimation(parent: _listController, curve: const Interval(0.2, 0.8, curve: Curves.easeOut)),
     );
 
     _listController.forward();
@@ -150,268 +141,278 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
       backgroundColor: AegisColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 12.0),
-                // 1. Welcome to AEGIS Header
-                const Text(
-                  'Welcome to',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w500,
-                  ),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 12.0),
+              
+              // 1. App Header Title and Subtitles
+              const Text(
+                'Welcome to',
+                style: TextStyle(
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
                 ),
-                const SizedBox(height: 4.0),
-                const Text(
+              ),
+              const SizedBox(height: 4.0),
+              // Gradient AEGIS Title
+              ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [
+                    Color(0xFF8B5CF6), // Purple
+                    Color(0xFF2563EB), // Blue
+                  ],
+                ).createShader(bounds),
+                child: const Text(
                   'AEGIS',
                   style: TextStyle(
-                    fontSize: 26.0,
+                    fontSize: 34.0,
                     fontWeight: FontWeight.w900,
-                    color: AegisColors.busyPurple,
-                    letterSpacing: 1.0,
+                    color: Colors.white,
+                    letterSpacing: 2.0,
                   ),
                 ),
-                const SizedBox(height: 8.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text(
-                      'Stay connected. Stay informed. ',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w500,
-                      ),
+              ),
+              const SizedBox(height: 8.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    'Stay connected. Stay informed. ',
+                    style: TextStyle(
+                      color: AegisColors.textSecondary,
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.w500,
                     ),
-                    Text(
-                      'Stay alive.',
-                      style: TextStyle(
-                        color: AegisColors.sosRed,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                  Text(
+                    'Stay alive.',
+                    style: TextStyle(
+                      color: Color(0xFF8B5CF6),
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 24.0),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
 
-                // 2. Animated Node ring connection orbital graphic
-                AnimatedBuilder(
-                  animation: _ringController,
-                  builder: (context, child) {
-                    final double orbitalAngle = _ringController.value * 2 * pi;
+              // 2. Animated Node ring connection orbital graphic (ellipse 3D style)
+              AnimatedBuilder(
+                animation: _ringController,
+                builder: (context, child) {
+                  final double orbitalAngle = _ringController.value * 2 * pi;
 
-                    return AspectRatio(
-                      aspectRatio: 1.6,
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final center = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
-                          final double radius = constraints.maxWidth * 0.36;
+                  return AspectRatio(
+                    aspectRatio: 1.5,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final center = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+                        final double rx = constraints.maxWidth * 0.44;
+                        final double ry = constraints.maxWidth * 0.16;
 
-                          // Compute dynamically moving node locations
-                          final double baseAngleLeftTop = -pi * 0.85;
-                          final double baseAngleCenterTop = -pi * 0.5;
-                          final double baseAngleRightTop = -pi * 0.15;
-                          final double baseAngleRightBottom = -pi * 0.02;
-                          final double baseAngleLeftBottom = -pi * 0.98;
+                        // Compute dynamic elliptical coordinates
+                        final double baseAngle1 = -pi * 0.85 + orbitalAngle;
+                        final double baseAngle2 = -pi * 0.5 + orbitalAngle;
+                        final double baseAngle3 = -pi * 0.15 + orbitalAngle;
+                        final double baseAngle4 = pi * 0.15 + orbitalAngle;
+                        final double baseAngle5 = pi * 0.75 + orbitalAngle;
 
-                          return Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              // Ring connecting lines
-                              Positioned.fill(
-                                child: CustomPaint(
-                                  painter: OnboardingRingPainter(angleOffset: orbitalAngle),
-                                ),
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            // Glowing Ellipse Painter
+                            Positioned.fill(
+                              child: CustomPaint(
+                                painter: OnboardingRingPainter(angleOffset: orbitalAngle),
                               ),
-                              
-                              // Breathing center logo badge shield
-                              Positioned(
-                                left: center.dx - 22.0,
-                                top: center.dy - 22.0,
-                                child: ScaleTransition(
-                                  scale: _breatheScale,
-                                  child: AnimatedBuilder(
-                                    animation: _breatheController,
-                                    builder: (context, child) {
-                                      return Container(
-                                        width: 44.0,
-                                        height: 44.0,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF0F172A),
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: AegisColors.primaryBlue.withOpacity(0.4),
-                                            width: 1.5,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: AegisColors.primaryBlue.withOpacity(_breatheGlow.value),
-                                              blurRadius: 12,
-                                              spreadRadius: 1,
+                            ),
+                            
+                            // Central Breathing Shield Logo
+                            Positioned(
+                              left: center.dx - 22.0,
+                              top: center.dy - 25.0,
+                              child: ScaleTransition(
+                                scale: _breatheScale,
+                                child: AnimatedBuilder(
+                                  animation: _breatheController,
+                                  builder: (context, child) {
+                                    return SizedBox(
+                                      width: 44.0,
+                                      height: 50.0,
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Positioned.fill(
+                                            child: CustomPaint(
+                                              painter: LogoShieldPainter(),
                                             ),
-                                          ],
-                                        ),
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.shield_outlined,
-                                            color: AegisColors.primaryBlue,
-                                            size: 24.0,
                                           ),
-                                        ),
-                                      );
-                                    },
-                                  ),
+                                          const Positioned(
+                                            top: 8.0,
+                                            child: Text(
+                                              'A',
+                                              style: TextStyle(
+                                                fontSize: 20.0,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          const Positioned(
+                                            bottom: 8.0,
+                                            child: Icon(
+                                              Icons.wifi,
+                                              color: Color(0xFF2563EB),
+                                              size: 9.0,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
+                            ),
 
-                              // Outer node orbits
-                              _buildRingBubble(center, radius, baseAngleLeftTop + orbitalAngle, AegisColors.busyPurple),
-                              _buildRingBubble(center, radius, baseAngleCenterTop + orbitalAngle, AegisColors.primaryBlue),
-                              _buildRingBubble(center, radius, baseAngleRightTop + orbitalAngle, AegisColors.activeGreen),
-                              _buildRingBubble(center, radius, baseAngleRightBottom + orbitalAngle, AegisColors.warningOrange),
-                              _buildRingBubble(center, radius, baseAngleLeftBottom + orbitalAngle, AegisColors.sosRed),
-                            ],
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 28.0),
+                            // Floating node bubbles on elliptical orbit path
+                            _buildRingBubble(center, rx, ry, baseAngle1, const Color(0xFF8B5CF6), Icons.person_rounded),
+                            _buildRingBubble(center, rx, ry, baseAngle2, const Color(0xFF3B82F6), Icons.chat_bubble_rounded),
+                            _buildRingBubble(center, rx, ry, baseAngle3, const Color(0xFF10B981), Icons.vpn_key_rounded),
+                            _buildRingBubble(center, rx, ry, baseAngle4, const Color(0xFFF59E0B), Icons.settings_input_antenna),
+                            _buildRingBubble(center, rx, ry, baseAngle5, const Color(0xFFEF4444), Icons.map_rounded),
+                          ],
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16.0),
 
-                // 3. Staggered slide in features list
-                Column(
-                  children: [
-                    FadeTransition(
-                      opacity: _feature1Fade,
-                      child: SlideTransition(
-                        position: _feature1Slide,
-                        child: _buildFeatureRow(
+              // 3. Features list grouped in a single premium card container
+              FadeTransition(
+                opacity: _containerFade,
+                child: SlideTransition(
+                  position: _containerSlide,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F131A),
+                      borderRadius: BorderRadius.circular(12.0),
+                      border: Border.all(color: AegisColors.border, width: 1.0),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildFeatureRow(
                           icon: Icons.share_rounded,
-                          color: AegisColors.primaryBlue,
+                          color: const Color(0xFF2563EB),
                           title: 'Mesh Communication',
                           description: 'Connect with nearby devices',
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    FadeTransition(
-                      opacity: _feature2Fade,
-                      child: SlideTransition(
-                        position: _feature2Slide,
-                        child: _buildFeatureRow(
+                        _buildDivider(),
+                        _buildFeatureRow(
                           icon: Icons.psychology_rounded,
-                          color: AegisColors.sosRed,
+                          color: const Color(0xFF8B5CF6),
                           title: 'AI Emergency Assistant',
                           description: 'Get smart help in critical moments',
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    FadeTransition(
-                      opacity: _feature3Fade,
-                      child: SlideTransition(
-                        position: _feature3Slide,
-                        child: _buildFeatureRow(
+                        _buildDivider(),
+                        _buildFeatureRow(
                           icon: Icons.medical_services_rounded,
-                          color: AegisColors.busyPurple,
+                          color: const Color(0xFFEC4899),
                           title: 'Resources & Community',
                           description: 'Share, help and survive together',
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28.0),
+
+              // 4. Bottom action gradient button (Get Started)
+              Container(
+                width: double.infinity,
+                height: 48.0,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF8B5CF6), // Purple
+                      Color(0xFF2563EB), // Blue
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(8.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF2563EB).withOpacity(0.25),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                const SizedBox(height: 32.0),
-
-                // 4. Bottom action gradient button (Get Started)
-                Container(
-                  width: double.infinity,
-                  height: 46.0,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        AegisColors.busyPurple,
-                        AegisColors.primaryBlue,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(6.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AegisColors.primaryBlue.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: GestureDetector(
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
                     onTap: () {
-                      Navigator.of(context).push(
-                        PageRouteBuilder(
-                          pageBuilder: (context, animation, secondaryAnimation) => const LoginJoinScreen(),
-                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                            const begin = Offset(1.0, 0.0);
-                            const end = Offset.zero;
-                            const curve = Curves.easeInOut;
-                            final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                            return SlideTransition(position: animation.drive(tween), child: child);
-                          },
-                          transitionDuration: const Duration(milliseconds: 500),
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const LoginJoinScreen(),
                         ),
                       );
                     },
+                    borderRadius: BorderRadius.circular(8.0),
                     child: const Center(
                       child: Text(
                         'Get Started',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 14.0,
+                          fontSize: 14.5,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12.0),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildRingBubble(Offset center, double radius, double angle, Color color) {
-    final x = center.dx + radius * cos(angle);
-    final y = center.dy + radius * sin(angle);
-    const size = 26.0;
+  Widget _buildRingBubble(Offset center, double rx, double ry, double angle, Color color, IconData icon) {
+    final double x = center.dx + rx * cos(angle);
+    final double y = center.dy + ry * sin(angle);
 
     return Positioned(
-      left: x - size / 2,
-      top: y - size / 2,
+      left: x - 13.0,
+      top: y - 13.0,
       child: Container(
-        width: size,
-        height: size,
+        width: 26.0,
+        height: 26.0,
         decoration: BoxDecoration(
-          color: color,
+          color: const Color(0xFF0F131A),
           shape: BoxShape.circle,
+          border: Border.all(color: color.withOpacity(0.85), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.4),
-              blurRadius: 8,
+              color: color.withOpacity(0.35),
+              blurRadius: 6,
+              spreadRadius: 0.5,
             ),
           ],
         ),
-        child: const Center(
+        child: Center(
           child: Icon(
-            Icons.person_rounded,
+            icon,
             color: Colors.white,
-            size: 14.0,
+            size: 11.5,
           ),
         ),
       ),
@@ -424,26 +425,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
     required String title,
     required String description,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-      decoration: BoxDecoration(
-        color: AegisColors.cardBackground,
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: AegisColors.border, width: 1.0),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Row(
         children: [
+          // Circular icon container
           Container(
-            width: 32.0,
-            height: 32.0,
+            width: 38.0,
+            height: 38.0,
             decoration: BoxDecoration(
               color: color.withOpacity(0.12),
               shape: BoxShape.circle,
+              border: Border.all(color: color.withOpacity(0.25), width: 1.0),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 16.0,
+            child: Center(
+              child: Icon(
+                icon,
+                color: color,
+                size: 18.0,
+              ),
             ),
           ),
           const SizedBox(width: 14.0),
@@ -454,16 +454,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 13.0,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 2.0),
+                const SizedBox(height: 3.0),
                 Text(
                   description,
                   style: const TextStyle(
-                    fontSize: 10.5,
+                    fontSize: 11.0,
                     color: AegisColors.textSecondary,
                   ),
                 ),
@@ -472,6 +472,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return const Divider(
+      color: Color(0xFF1E293B),
+      height: 1.0,
+      thickness: 0.5,
+      indent: 68.0, // align with start of text
     );
   }
 }

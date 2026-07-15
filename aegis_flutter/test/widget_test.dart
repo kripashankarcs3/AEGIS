@@ -11,7 +11,7 @@ void main() {
     expect(find.text('AEGIS'), findsOneWidget);
 
     // 2. Wait for Splash Screen transition timer and fade animation to complete
-    await tester.pump(const Duration(seconds: 3));
+    await tester.pump(const Duration(milliseconds: 3500));
     await tester.pump(const Duration(milliseconds: 800));
 
     // 3. Verify Onboarding Screen renders "Welcome to" and "Get Started" button
