@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 import 'package:aegis_flutter/app.dart';
 
 void main() {
@@ -9,28 +10,34 @@ void main() {
     // 1. Verify Splash Screen renders AEGIS title
     expect(find.text('AEGIS'), findsOneWidget);
 
-    // 2. Wait for Splash Screen transition timer to complete
+    // 2. Wait for Splash Screen transition timer and fade animation to complete
     await tester.pump(const Duration(seconds: 3));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 800));
 
     // 3. Verify Onboarding Screen renders "Welcome to" and "Get Started" button
     expect(find.text('Welcome to'), findsOneWidget);
     final getStartedBtn = find.text('Get Started');
     expect(getStartedBtn, findsOneWidget);
-    await tester.ensureVisible(getStartedBtn);
-    await tester.pumpAndSettle();
+    
+    // Manually drag scroll view down to bring button into view
+    await tester.drag(find.byType(SingleChildScrollView), const Offset(0.0, -450.0));
+    await tester.pump(const Duration(milliseconds: 200));
 
-    // 4. Tap "Get Started" and transition to Login/Join Screen
+    // 4. Tap "Get Started" and transition to Login/Join Screen (slide transit is 500ms)
     await tester.tap(getStartedBtn);
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
 
     // 5. Verify Login Screen renders "Join the Network" and buttons
     expect(find.text('Join the Network'), findsOneWidget);
     expect(find.text('Continue with Phone'), findsOneWidget);
 
-    // 6. Tap "Continue with Phone" to enter the Main App Shell
+    // 6. Tap "Continue with Phone" to enter the Main App Shell (fade transit is 600ms)
     await tester.tap(find.text('Continue with Phone'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump(const Duration(milliseconds: 600));
 
     // 7. Verify Main Shell loads with Radar tab active
     expect(find.text('Radar'), findsOneWidget);
