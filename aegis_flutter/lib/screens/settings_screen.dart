@@ -4,6 +4,7 @@ import 'auto_sync_screen.dart';
 import 'language_screen.dart';
 import 'help_support_screen.dart';
 import 'about_screen.dart';
+import 'battery_saver_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -82,7 +83,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Battery Saver',
                     statusText: 'Enabled',
                     statusColor: AegisColors.activeGreen,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const BatterySaverScreen(),
+                        ),
+                      );
+                    },
                   ),
                   _buildDivider(),
                   _buildNavigationRow(

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 import 'node_details_screen.dart';
 import 'identity_screen.dart';
+import '../widgets/node_popup_card.dart';
+import 'chat_conversation_screen.dart';
 
 class MapMarkerNode {
   final String label;
@@ -218,9 +220,22 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> {
                                         ),
                                       );
                                     } else {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => const NodeDetailsScreen(nodeId: 'SIG-8AF3'),
+                                      showModalBottomSheet(
+                                        context: context,
+                                        backgroundColor: Colors.transparent,
+                                        isScrollControlled: true,
+                                        builder: (context) => NodePopupCard(
+                                          nodeId: node.label.startsWith('SIG-') ? node.label : 'SIG-4EBD',
+                                          onOpenChat: () {
+                                            Navigator.of(context).pop();
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) => ChatConversationScreen(
+                                                  nodeId: node.label.startsWith('SIG-') ? node.label : 'SIG-4EBD',
+                                                ),
+                                              ),
+                                            );
+                                          },
                                         ),
                                       );
                                     }

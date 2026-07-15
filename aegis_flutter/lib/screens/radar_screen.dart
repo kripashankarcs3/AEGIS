@@ -8,6 +8,8 @@ import 'notifications_screen.dart';
 import 'node_details_screen.dart';
 import 'settings_screen.dart';
 import 'sos_incoming_overlay.dart';
+import '../widgets/node_popup_card.dart';
+import 'chat_conversation_screen.dart';
 
 class RadarScreen extends StatefulWidget {
   const RadarScreen({super.key});
@@ -223,9 +225,20 @@ class _RadarScreenState extends State<RadarScreen> {
                         ),
                       );
                     } else {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => NodeDetailsScreen(nodeId: node.id),
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.transparent,
+                        isScrollControlled: true,
+                        builder: (context) => NodePopupCard(
+                          nodeId: node.id,
+                          onOpenChat: () {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ChatConversationScreen(nodeId: node.id),
+                              ),
+                            );
+                          },
                         ),
                       );
                     }
