@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 import '../widgets/sos_banner.dart';
+import 'status_history_screen.dart';
 
 class SosScreen extends StatefulWidget {
   const SosScreen({super.key});
@@ -144,7 +145,13 @@ class _SosScreenState extends State<SosScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const StatusHistoryScreen(),
+                          ),
+                        );
+                      },
                       child: const Text(
                         'View all',
                         style: TextStyle(

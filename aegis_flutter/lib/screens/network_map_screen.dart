@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
+import 'node_details_screen.dart';
+import 'identity_screen.dart';
 
 class MapNode {
   final String label;
@@ -175,59 +177,76 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> {
                               return Positioned(
                                 left: nodeX - pointSize / 2,
                                 top: nodeY - pointSize / 2,
-                                child: node.isUser
-                                    ? Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            width: pointSize,
-                                            height: pointSize,
-                                            decoration: BoxDecoration(
-                                              color: node.color,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(color: Colors.white, width: 2.0),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: node.color.withOpacity(0.5),
-                                                  blurRadius: 10,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (node.isUser) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => const IdentityScreen(),
+                                        ),
+                                      );
+                                    } else {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => const NodeDetailsScreen(nodeId: 'SIG-8AF3'),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: node.isUser
+                                      ? Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              width: pointSize,
+                                              height: pointSize,
+                                              decoration: BoxDecoration(
+                                                color: node.color,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(color: Colors.white, width: 2.0),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: node.color.withOpacity(0.5),
+                                                    blurRadius: 10,
+                                                  ),
+                                                ],
+                                              ),
+                                              child: const Center(
+                                                child: Icon(
+                                                  Icons.person_rounded,
+                                                  color: Colors.white,
+                                                  size: 18.0,
                                                 ),
-                                              ],
-                                            ),
-                                            child: const Center(
-                                              child: Icon(
-                                                Icons.person_rounded,
-                                                color: Colors.white,
-                                                size: 18.0,
                                               ),
                                             ),
-                                          ),
-                                          const SizedBox(height: 4.0),
-                                          const Text(
-                                            'YOU',
-                                            style: TextStyle(
-                                              fontSize: 9.0,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                              letterSpacing: 0.5,
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : Container(
-                                        width: pointSize,
-                                        height: pointSize,
-                                        decoration: BoxDecoration(
-                                          color: node.color,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: const Color(0xFF090D16), width: 1.5),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: node.color.withOpacity(0.4),
-                                              blurRadius: 6,
+                                            const SizedBox(height: 4.0),
+                                            const Text(
+                                              'YOU',
+                                              style: TextStyle(
+                                                fontSize: 9.0,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                                letterSpacing: 0.5,
+                                              ),
                                             ),
                                           ],
+                                        )
+                                      : Container(
+                                          width: pointSize,
+                                          height: pointSize,
+                                          decoration: BoxDecoration(
+                                            color: node.color,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: const Color(0xFF090D16), width: 1.5),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: node.color.withOpacity(0.4),
+                                                blurRadius: 6,
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
+                                ),
                               );
                             }),
 

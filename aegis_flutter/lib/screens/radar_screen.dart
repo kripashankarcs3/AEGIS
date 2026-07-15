@@ -3,6 +3,10 @@ import '../constants/aegis_colors.dart';
 import '../models/survivor_node.dart';
 import '../widgets/radar_painter.dart';
 import '../widgets/mesh_stats_bar.dart';
+import 'identity_screen.dart';
+import 'notifications_screen.dart';
+import 'node_details_screen.dart';
+import 'settings_screen.dart';
 
 class RadarScreen extends StatefulWidget {
   const RadarScreen({super.key});
@@ -58,43 +62,61 @@ class _RadarScreenState extends State<RadarScreen> {
                     Row(
                       children: [
                         // Notification icon with red badge dot
-                        Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            const Icon(
-                              Icons.notifications_none_outlined,
-                              color: Colors.white,
-                              size: 22.0,
-                            ),
-                            Positioned(
-                              right: 1.0,
-                              top: 1.0,
-                              child: Container(
-                                width: 7.0,
-                                height: 7.0,
-                                decoration: const BoxDecoration(
-                                  color: AegisColors.sosRed,
-                                  shape: BoxShape.circle,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const NotificationsScreen(),
+                              ),
+                            );
+                          },
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              const Icon(
+                                Icons.notifications_none_outlined,
+                                color: Colors.white,
+                                size: 22.0,
+                              ),
+                              Positioned(
+                                right: 1.0,
+                                top: 1.0,
+                                child: Container(
+                                  width: 7.0,
+                                  height: 7.0,
+                                  decoration: const BoxDecoration(
+                                    color: AegisColors.sosRed,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         const SizedBox(width: 16.0),
                         // User Avatar
-                        Container(
-                          width: 28.0,
-                          height: 28.0,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AegisColors.border, width: 1.0),
-                            color: Colors.purple.shade700,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.person_rounded,
-                              size: 16.0,
-                              color: Colors.white,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const IdentityScreen(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 28.0,
+                            height: 28.0,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AegisColors.border, width: 1.0),
+                              color: Colors.purple.shade700,
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.person_rounded,
+                                size: 16.0,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -176,6 +198,13 @@ class _RadarScreenState extends State<RadarScreen> {
                 RadarVisualization(
                   nodes: _nodes,
                   onLocateTap: () {},
+                  onNodeTap: (node) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => NodeDetailsScreen(nodeId: node.id),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 16.0),
 

@@ -133,11 +133,13 @@ class RadarBackgroundPainter extends CustomPainter {
 class RadarVisualization extends StatelessWidget {
   final List<SurvivorNode> nodes;
   final VoidCallback? onLocateTap;
+  final ValueChanged<SurvivorNode>? onNodeTap;
 
   const RadarVisualization({
     super.key,
     required this.nodes,
     this.onLocateTap,
+    this.onNodeTap,
   });
 
   @override
@@ -169,8 +171,10 @@ class RadarVisualization extends StatelessWidget {
                 return Positioned(
                   left: nodeX - avatarSize / 2,
                   top: nodeY - avatarSize / 2,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                  child: GestureDetector(
+                    onTap: () => onNodeTap?.call(node),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                     children: [
                       // Node Avatar Circle
                       Container(
@@ -218,8 +222,9 @@ class RadarVisualization extends StatelessWidget {
                       ],
                     ],
                   ),
-                );
-              }),
+                ),
+              );
+            }),
 
               // Control target/aim icon on the bottom right of the radar
               Positioned(
