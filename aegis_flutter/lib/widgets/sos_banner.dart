@@ -14,56 +14,71 @@ class SosBroadcastCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+      padding: const EdgeInsets.all(18.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: const Color(0xFF0F121B), // Dark card surface
         borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(color: AegisColors.sosRed.withOpacity(0.4), width: 1.0),
+        border: Border.all(color: AegisColors.sosRed.withOpacity(0.3), width: 1.0),
         boxShadow: [
           BoxShadow(
-            color: AegisColors.sosRed.withOpacity(0.08),
-            blurRadius: 16,
-            spreadRadius: 2,
+            color: AegisColors.sosRed.withOpacity(0.04),
+            blurRadius: 12,
+            spreadRadius: 1,
           ),
         ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header Alert Row
+          // Header Alert Row (Left aligned icon + Text column)
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.campaign_rounded,
-                color: AegisColors.sosRed,
-                size: 24.0,
+              // Red alarm siren icon badge
+              Container(
+                width: 38.0,
+                height: 38.0,
+                decoration: BoxDecoration(
+                  color: AegisColors.sosRed.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.campaign_rounded,
+                    color: AegisColors.sosRed,
+                    size: 22.0,
+                  ),
+                ),
               ),
-              const SizedBox(width: 8.0),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'EMERGENCY ALERT',
-                    style: TextStyle(
-                      color: AegisColors.sosRed,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
+              const SizedBox(width: 14.0),
+              // Text Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Send Emergency Alert',
+                      style: TextStyle(
+                        color: AegisColors.sosRed,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Broadcast to all nodes in range',
-                    style: TextStyle(
-                      color: AegisColors.textSecondary,
-                      fontSize: 10.0,
+                    SizedBox(height: 3.0),
+                    Text(
+                      'Broadcast your emergency to\nall nearby nodes instantly.',
+                      style: TextStyle(
+                        color: AegisColors.textSecondary,
+                        fontSize: 11.0,
+                        height: 1.3,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 24.0),
+          const SizedBox(height: 28.0),
 
           // Central Glowing SOS Hold Button
           GestureDetector(
@@ -73,30 +88,30 @@ class SosBroadcastCard extends StatelessWidget {
               children: [
                 // Outer Glow ring
                 Container(
-                  width: 140.0,
-                  height: 140.0,
+                  width: 138.0,
+                  height: 138.0,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.transparent,
                     border: Border.all(
-                      color: AegisColors.sosRed.withOpacity(0.15),
+                      color: AegisColors.sosRed.withOpacity(0.12),
                       width: 4.0,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AegisColors.sosRed.withOpacity(0.2),
-                        blurRadius: 24,
-                        spreadRadius: 2,
+                        color: AegisColors.sosRed.withOpacity(0.15),
+                        blurRadius: 20,
+                        spreadRadius: 1,
                       ),
                     ],
                   ),
                 ),
-                // Outer progress line
+                // Outer progress indicator
                 SizedBox(
-                  width: 132.0,
-                  height: 132.0,
+                  width: 130.0,
+                  height: 130.0,
                   child: CircularProgressIndicator(
-                    value: 0.75, // static arc progress matching mockup
+                    value: 0.75, // static arc progress matching mockup 9
                     strokeWidth: 4.0,
                     valueColor: const AlwaysStoppedAnimation<Color>(AegisColors.sosRed),
                     backgroundColor: Colors.transparent,
@@ -104,14 +119,14 @@ class SosBroadcastCard extends StatelessWidget {
                 ),
                 // Inner button face
                 Container(
-                  width: 116.0,
-                  height: 116.0,
-                  decoration: BoxDecoration(
+                  width: 114.0,
+                  height: 114.0,
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
                         AegisColors.sosRed,
-                        const Color(0xFF991B1B),
+                        Color(0xFF991B1B),
                       ],
                     ),
                   ),
@@ -123,11 +138,11 @@ class SosBroadcastCard extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 9.0,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w800,
                           letterSpacing: 0.5,
                         ),
                       ),
-                      const SizedBox(height: 4.0),
+                      const SizedBox(height: 2.0),
                       Text(
                         countdownText,
                         style: const TextStyle(
@@ -142,7 +157,7 @@ class SosBroadcastCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16.0),
+          const SizedBox(height: 20.0),
 
           // Instruction Text
           const Text(
