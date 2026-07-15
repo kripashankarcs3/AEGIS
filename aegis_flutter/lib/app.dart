@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme/aegis_theme.dart';
-import 'screens/main_shell.dart';
+import 'screens/splash_screen.dart';
 
 class AegisApp extends StatelessWidget {
   const AegisApp({super.key});
@@ -11,7 +11,7 @@ class AegisApp extends StatelessWidget {
       title: 'AEGIS Mesh',
       debugShowCheckedModeBanner: false,
       theme: AegisTheme.darkTheme,
-      home: const MainShell(),
+      home: const SplashScreen(),
     );
   }
 }
