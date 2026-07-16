@@ -23,10 +23,10 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
         backgroundColor: const Color(0xFF090D16),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Battery Saver',
           style: TextStyle(
             fontSize: 18.0,
@@ -36,7 +36,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.info_outline_rounded, color: Colors.white),
+            icon: Icon(Icons.info_outline_rounded, color: Colors.white),
             onPressed: () {},
           ),
         ],
@@ -68,13 +68,13 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Battery icon with lightning green bolt
-                        const Icon(
+                        Icon(
                           Icons.battery_charging_full_rounded,
                           color: AegisColors.neonGreen,
                           size: 40.0,
                         ),
-                        const SizedBox(height: 10.0),
-                        const Text(
+                        SizedBox(height: 10.0),
+                        Text(
                           '78%',
                           style: TextStyle(
                             fontSize: 32.0,
@@ -82,16 +82,16 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                             color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 4.0),
-                        const Text(
+                        SizedBox(height: 4.0),
+                        Text(
                           'Estimated time left',
                           style: TextStyle(
                             fontSize: 11.0,
                             color: AegisColors.textSecondary,
                           ),
                         ),
-                        const SizedBox(height: 3.0),
-                        const Text(
+                        SizedBox(height: 3.0),
+                        Text(
                           '22h 45m',
                           style: TextStyle(
                             fontSize: 14.5,
@@ -105,7 +105,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20.0),
+            SizedBox(height: 20.0),
 
             // 2. Battery Saver Mode Toggle Card
             Container(
@@ -128,7 +128,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                         width: 1.0,
                       ),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Icon(
                         Icons.eco_rounded,
                         color: AegisColors.neonGreen,
@@ -136,11 +136,11 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 14.0),
+                  SizedBox(width: 14.0),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           'Battery Saver Mode',
                           style: TextStyle(
@@ -178,10 +178,10 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24.0),
+            SizedBox(height: 24.0),
 
             // 3. Optimizations section
-            const Text(
+            Text(
               'Optimizations',
               style: TextStyle(
                 fontSize: 10.5,
@@ -190,7 +190,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                 letterSpacing: 0.5,
               ),
             ),
-            const SizedBox(height: 10.0),
+            SizedBox(height: 10.0),
             Container(
               decoration: BoxDecoration(
                 color: AegisColors.cardBg,
@@ -249,11 +249,11 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.sync_alt_rounded, color: AegisColors.textSecondary, size: 18.0),
-                            const SizedBox(width: 12.0),
+                            Icon(Icons.sync_alt_rounded, color: AegisColors.textSecondary, size: 18.0),
+                            SizedBox(width: 12.0),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
                                   'Sync Less Frequently',
                                   style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
@@ -268,7 +268,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                           ],
                         ),
                         Row(
-                          children: const [
+                          children: [
                             Text(
                               '30 min',
                               style: TextStyle(
@@ -305,19 +305,19 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
       child: Row(
         children: [
           Icon(icon, color: AegisColors.textSecondary, size: 18.0),
-          const SizedBox(width: 12.0),
+          SizedBox(width: 12.0),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 3.0),
+                SizedBox(height: 3.0),
                 Text(
                   description,
-                  style: const TextStyle(color: AegisColors.textSecondary, fontSize: 10.5),
+                  style: TextStyle(color: AegisColors.textSecondary, fontSize: 10.5),
                 ),
               ],
             ),

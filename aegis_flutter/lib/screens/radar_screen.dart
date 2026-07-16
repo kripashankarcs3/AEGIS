@@ -8,6 +8,7 @@ import '../widgets/radar_painter.dart';
 import '../widgets/mesh_stats_bar.dart';
 import 'identity_screen.dart';
 import 'notifications_screen.dart';
+import 'profile_screen.dart';
 import 'sos_incoming_overlay.dart';
 import '../widgets/node_popup_card.dart';
 import 'chat_conversation_screen.dart';
@@ -134,7 +135,7 @@ class _RadarScreenState extends State<RadarScreen> with TickerProviderStateMixin
 
   Widget _avatarBtn() {
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const IdentityScreen())),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
       child: Container(width: 38, height: 38, decoration: BoxDecoration(shape: BoxShape.circle, gradient: AegisColors.purpleGradient, border: Border.all(color: AegisColors.border2, width: 1.5)), child: const Center(child: Icon(Icons.person_rounded, size: 18, color: Colors.white))),
     );
   }

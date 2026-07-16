@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
+import '../providers/theme_provider.dart';
 import 'auto_sync_screen.dart';
 import 'language_screen.dart';
 import 'battery_saver_screen.dart';
@@ -22,6 +23,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = ThemeProviderWidget.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFF040814), // Deep space black background
       appBar: AppBar(
@@ -63,6 +65,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           children: [
+            // 0. APPEARANCE SECTION
+            const Text(
+              'APPEARANCE',
+              style: TextStyle(
+                fontSize: 12.0,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF8888AA),
+                letterSpacing: 1.2,
+                fontFamily: 'SF Pro Display',
+              ),
+            ),
+            const SizedBox(height: 12.0),
+            _buildCardSection([
+              _buildThemeOption(
+                icon: Icons.brightness_auto_rounded,
+                label: 'Follow System',
+                selected: themeProvider.mode == AppThemeMode.system,
+                onTap: () => themeProvider.setMode(AppThemeMode.system),
+              ),
+              _buildDivider(),
+              _buildThemeOption(
+                icon: Icons.light_mode_rounded,
+                label: 'Light',
+                selected: themeProvider.mode == AppThemeMode.light,
+                onTap: () => themeProvider.setMode(AppThemeMode.light),
+              ),
+              _buildDivider(),
+              _buildThemeOption(
+                icon: Icons.dark_mode_rounded,
+                label: 'Dark',
+                selected: themeProvider.mode == AppThemeMode.dark,
+                onTap: () => themeProvider.setMode(AppThemeMode.dark),
+              ),
+            ]),
+            const SizedBox(height: 28.0),
+
             // 1. GENERAL SECTION
             const Text(
               'GENERAL',
@@ -77,15 +115,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 12.0),
             _buildCardSection([
               _buildNavRow(
-                icon: Icons.sensors_outlined, // Hexagon/sensor style
+                icon: Icons.sensors_outlined,
                 label: 'Mesh Network',
                 statusText: 'Connected',
-                statusColor: const Color(0xFF00FF88), // Bright green
+                statusColor: const Color(0xFF00FF88),
                 onTap: () {},
               ),
               _buildDivider(),
               _buildNavRow(
-                icon: Icons.portable_wifi_off_outlined, // Satellite/offline style
+                icon: Icons.portable_wifi_off_outlined,
                 label: 'Offline Mode',
                 statusText: 'Enabled',
                 statusColor: const Color(0xFF00FF88),
@@ -93,7 +131,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               _buildDivider(),
               _buildNavRow(
-                icon: Icons.offline_bolt_outlined, // Battery style
+                icon: Icons.offline_bolt_outlined,
                 label: 'Battery Saver',
                 statusText: 'Enabled',
                 statusColor: const Color(0xFF00FF88),
@@ -103,7 +141,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               _buildDivider(),
               _buildNavRow(
-                icon: Icons.settings_outlined, // Auto Sync gear style
+                icon: Icons.settings_outlined,
                 label: 'Auto Sync',
                 statusText: 'When Connected',
                 statusColor: const Color(0xFF00FF88),
@@ -113,21 +151,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               _buildDivider(),
               _buildNavRow(
-                icon: Icons.track_changes_outlined, // concentric language circle
+                icon: Icons.track_changes_outlined,
                 label: 'Language',
                 statusText: 'English',
                 statusColor: const Color(0xFFA8B3C7),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const LanguageScreen()),
                 ),
-              ),
-              _buildDivider(),
-              _buildNavRow(
-                icon: Icons.access_time_rounded, // clock style
-                label: 'Theme',
-                statusText: 'Dark',
-                statusColor: const Color(0xFFA8B3C7),
-                onTap: () {},
               ),
               _buildDivider(),
               _buildNavRow(
@@ -199,7 +229,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (v) => setState(() => _lockApp = v),
               ),
             ]),
-            const SizedBox(height: 120.0), // leave space for bottom bar
+            const SizedBox(height: 120.0),
           ],
         ),
       ),
@@ -210,7 +240,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildCardSection(List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF09111F), // Matching squircle logo theme
+        color: const Color(0xFF09111F),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: Colors.white.withOpacity(0.06),
@@ -218,6 +248,79 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
       child: Column(children: children),
+    );
+  }
+
+  Widget _buildThemeOption({
+    required IconData icon,
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 13.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF040814),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.04),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: selected
+                        ? const Color(0xFF256DFF)
+                        : Colors.white.withOpacity(0.7),
+                    size: 16,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: selected ? Colors.white : Colors.white.withOpacity(0.6),
+                    fontSize: 15,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                    fontFamily: 'SF Pro Display',
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected
+                      ? const Color(0xFF256DFF)
+                      : Colors.white.withOpacity(0.2),
+                  width: selected ? 2.0 : 1.5,
+                ),
+                color: selected
+                    ? const Color(0xFF256DFF)
+                    : Colors.transparent,
+              ),
+              child: selected
+                  ? const Icon(Icons.check, size: 12, color: Colors.white)
+                  : null,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -345,7 +448,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: value,
                 onChanged: onChanged,
                 activeColor: Colors.white,
-                activeTrackColor: const Color(0xFF256DFF), // Electric blue switch track
+                activeTrackColor: const Color(0xFF256DFF),
                 inactiveThumbColor: Colors.white.withOpacity(0.4),
                 inactiveTrackColor: const Color(0xFF151E33),
               ),
@@ -436,7 +539,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Expanded(
       child: InkWell(
         onTap: () {
-          // Return to main shell and pop settings screen
           Navigator.of(context).pop();
         },
         splashColor: Colors.transparent,
@@ -481,8 +583,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFFFF0030), // vibrant red
-                  Color(0xFF8B0000), // dark red
+                  Color(0xFFFF0030),
+                  Color(0xFF8B0000),
                 ],
               ),
               boxShadow: [

@@ -20,10 +20,10 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
         backgroundColor: const Color(0xFF090D16),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Auto Sync',
           style: TextStyle(
             fontSize: 18.0,
@@ -33,7 +33,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.info_outline_rounded, color: Colors.white),
+            icon: Icon(Icons.info_outline_rounded, color: Colors.white),
             onPressed: () {},
           ),
         ],
@@ -68,7 +68,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                             width: 1.0,
                           ),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Icon(
                             Icons.cloud_queue_rounded,
                             color: AegisColors.neonGreen,
@@ -76,7 +76,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 16.0),
+                      SizedBox(width: 16.0),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,7 +84,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
+                                Text(
                                   'Auto Sync',
                                   style: TextStyle(
                                     fontSize: 15.0,
@@ -109,8 +109,8 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 6.0),
-                            const Text(
+                            SizedBox(height: 6.0),
+                            Text(
                               'Automatically sync data when a stable mesh connection becomes available.',
                               style: TextStyle(
                                 fontSize: 11.5,
@@ -126,10 +126,10 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24.0),
+            SizedBox(height: 24.0),
 
             // 2. Sync Settings Section
-            const Text(
+            Text(
               'Sync Settings',
               style: TextStyle(
                 fontSize: 10.5,
@@ -138,7 +138,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                 letterSpacing: 0.5,
               ),
             ),
-            const SizedBox(height: 10.0),
+            SizedBox(height: 10.0),
             Container(
               decoration: BoxDecoration(
                 color: AegisColors.cardBg,
@@ -152,12 +152,12 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
                     child: Row(
                       children: [
-                        const Icon(Icons.settings_input_antenna_rounded, color: AegisColors.neonGreen, size: 18.0),
-                        const SizedBox(width: 12.0),
+                        Icon(Icons.settings_input_antenna_rounded, color: AegisColors.neonGreen, size: 18.0),
+                        SizedBox(width: 12.0),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
+                            children: [
                               Text(
                                 'Sync When Connected',
                                 style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
@@ -204,7 +204,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                     title: 'Sync Interval',
                     trailingWidget: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
+                      children: [
                         Text(
                           '15 minutes',
                           style: TextStyle(
@@ -229,10 +229,10 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24.0),
+            SizedBox(height: 24.0),
 
             // 3. Sync Status Section
-            const Text(
+            Text(
               'Sync Status',
               style: TextStyle(
                 fontSize: 10.5,
@@ -241,7 +241,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                 letterSpacing: 0.5,
               ),
             ),
-            const SizedBox(height: 10.0),
+            SizedBox(height: 10.0),
             Container(
               decoration: BoxDecoration(
                 color: AegisColors.cardBg,
@@ -256,12 +256,12 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Last Sync',
                           style: TextStyle(color: AegisColors.textSecondary, fontSize: 13.0),
                         ),
                         Row(
-                          children: const [
+                          children: [
                             Text(
                               '2 min ago',
                               style: TextStyle(
@@ -289,12 +289,12 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Next Sync',
                           style: TextStyle(color: AegisColors.textSecondary, fontSize: 13.0),
                         ),
                         Row(
-                          children: const [
+                          children: [
                             Text(
                               'In 13 min',
                               style: TextStyle(
@@ -337,23 +337,23 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
           Row(
             children: [
               Icon(icon, color: AegisColors.textSecondary, size: 18.0),
-              const SizedBox(width: 12.0),
+              SizedBox(width: 12.0),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 13.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   if (subtitle != null) ...[
-                    const SizedBox(height: 3.0),
+                    SizedBox(height: 3.0),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AegisColors.textSecondary,
                         fontSize: 10.5,
                       ),
@@ -363,7 +363,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
               ),
             ],
           ),
-          trailingWidget ?? const Icon(Icons.chevron_right, size: 14.0, color: AegisColors.textMuted),
+          trailingWidget ?? Icon(Icons.chevron_right, size: 14.0, color: AegisColors.textMuted),
         ],
       ),
     );

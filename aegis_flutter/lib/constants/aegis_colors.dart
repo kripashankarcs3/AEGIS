@@ -134,4 +134,11 @@ class AegisColors {
     begin: Alignment.topCenter, end: Alignment.bottomCenter,
     colors: [Color(0xFF0A1A0A), Color(0xFF050508)],
   );
+
+  // Dynamic light theme toggle backing state
+  static bool _isLight = false;
+  static bool get isLight => _isLight;
+  static void setLight(bool value) {
+    _isLight = value;
+  }
 }
