@@ -1,21 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
+import '../providers/survivor_provider.dart';
 
-class NodePopupCard extends StatelessWidget {
+class NodePopupCard extends ConsumerWidget {
   final String nodeId;
   final VoidCallback onOpenChat;
   final VoidCallback? onSendSos;
 
   const NodePopupCard({super.key, required this.nodeId, required this.onOpenChat, this.onSendSos});
 
-  Map<String, dynamic> _data(String id) {
-    if (id == 'SIG-4D2F') return {'status': 'Offline', 'statusColor': AegisColors.textMuted, 'hops': 'Offline', 'lastSeen': '2 hours ago', 'signal': 0, 'battery': '12%', 'batteryColor': AegisColors.sosRed, 'safeStatus': 'Unknown', 'safeColor': AegisColors.textMuted, 'location': 'Unknown', 'publicKey': '4d2f9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a'};
-    return {'status': 'Online', 'statusColor': AegisColors.neonGreen, 'hops': '1 hop away', 'lastSeen': 'Just now', 'signal': 3, 'battery': '64%', 'batteryColor': AegisColors.neonGreen, 'safeStatus': 'Safe', 'safeColor': AegisColors.neonGreen, 'location': '28.6139° N, 77.2090° E', 'publicKey': '7f3a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a'};
-  }
-
   @override
-  Widget build(BuildContext context) {
-    final d = _data(nodeId);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final survivors = ref.watch(survivorProvider);
+    final node = survivors[nodeId];
+
+    final status = node?.status ?? 'unknown';
+    final isOnline = status == 'safe' || status == 'have_resources';
+    final statusColor = isOnline ? AegisColors.neonGreen : AegisColors.textMuted;
+    final hopsText = isOnline ? '1 hop away' : 'Offline';
+    final lastSeen = isOnline ? 'Just now' : '2 hours ago';
+    final signal = isOnline ? 3 : 0;
+    final battery = isOnline ? '64%' : '12%';
+    final batteryColor = isOnline ? AegisColors.neonGreen : AegisColors.sosRed;
+    final safeStatus = isOnline ? 'Safe' : 'Unknown';
+    final safeColor = isOnline ? AegisColors.neonGreen : AegisColors.textMuted;
+    final location = (node?.lat != null && node?.lng != null)
+        ? '${node!.lat!.toStringAsFixed(4)}° ${node.lat! >= 0 ? "N" : "S"}, ${node.lng!.toStringAsFixed(4)}° ${node.lng! >= 0 ? "E" : "W"}'
+        : 'Unknown';
+    final publicKey = nodeId.toLowerCase().padRight(64, '0');
 
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
@@ -30,11 +43,11 @@ class NodePopupCard extends StatelessWidget {
           SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: (d['statusColor'] as Color).withOpacity(0.1), borderRadius: BorderRadius.circular(8), border: Border.all(color: (d['statusColor'] as Color).withOpacity(0.2), width: 0.5)),
+            decoration: BoxDecoration(color: statusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(8), border: Border.all(color: statusColor.withOpacity(0.2), width: 0.5)),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Container(width: 6, height: 6, decoration: BoxDecoration(color: d['statusColor'] as Color, shape: BoxShape.circle)),
+              Container(width: 6, height: 6, decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle)),
               SizedBox(width: 6),
-              Text("${d['status']}  •  ${d['hops']}", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: d['statusColor'] as Color)),
+              Text("$status  •  $hopsText", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: statusColor)),
             ]),
           ),
         ])),
@@ -42,17 +55,17 @@ class NodePopupCard extends StatelessWidget {
         Container(
           decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(16), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5)),
           child: Column(children: [
-            _row(Icons.access_time_rounded, 'Last Seen', value: d['lastSeen'] as String),
+            _row(Icons.access_time_rounded, 'Last Seen', value: lastSeen),
             _divider(),
-            _row(Icons.wifi_rounded, 'Signal Strength', widget: _bars(d['signal'] as int)),
+            _row(Icons.wifi_rounded, 'Signal Strength', widget: _bars(signal)),
             _divider(),
-            _row(Icons.battery_charging_full_rounded, 'Battery', value: d['battery'] as String, valueColor: d['batteryColor'] as Color),
+            _row(Icons.battery_charging_full_rounded, 'Battery', value: battery, valueColor: batteryColor),
             _divider(),
-            _row(Icons.verified_user_outlined, 'Status', value: d['safeStatus'] as String, valueColor: d['safeColor'] as Color),
+            _row(Icons.verified_user_outlined, 'Status', value: safeStatus, valueColor: safeColor),
             _divider(),
-            _row(Icons.location_on_outlined, 'Location', value: d['location'] as String, small: true),
+            _row(Icons.location_on_outlined, 'Location', value: location, small: true),
             _divider(),
-            _row(Icons.vpn_key_outlined, 'Public Key', widget: _keyRow(d['publicKey'] as String)),
+            _row(Icons.vpn_key_outlined, 'Public Key', widget: _keyRow(publicKey)),
           ]),
         ),
         SizedBox(height: 24),

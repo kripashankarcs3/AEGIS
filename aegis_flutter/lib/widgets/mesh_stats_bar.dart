@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
+import '../providers/mesh_provider.dart';
 
-class MeshStatsBar extends StatelessWidget {
+class MeshStatsBar extends ConsumerWidget {
   const MeshStatsBar({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final peerCount = ref.watch(meshPeerCountProvider);
+    final packetsRelayed = ref.watch(meshPacketsRelayedProvider);
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
@@ -17,13 +22,13 @@ class MeshStatsBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _statCol('8', 'Nodes'),
+          _statCol('$peerCount', 'Nodes'),
           _dividerCol(),
-          _statCol('127', 'Packets Relayed'),
+          _statCol('$packetsRelayed', 'Packets Relayed'),
           _dividerCol(),
-          _statCol('42 ms', 'Avg Latency'),
+          _statCol('--', 'Avg Latency'),
           _dividerCol(),
-          _statCol('340 m', 'Coverage'),
+          _statCol('--', 'Coverage'),
         ],
       ),
     );

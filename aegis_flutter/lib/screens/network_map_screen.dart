@@ -4,10 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
+import '../models/survivor_node_model.dart';
 import 'identity_screen.dart';
 import '../widgets/node_popup_card.dart';
 import 'chat_conversation_screen.dart';
 import '../providers/mesh_provider.dart';
+import '../providers/survivor_provider.dart';
+import '../providers/identity_provider.dart';
 
 class MapNodeItem {
   final String id;
@@ -31,7 +34,8 @@ class MapNodeItem {
 
 class SurvivorMapPainter extends CustomPainter {
   final double pulseValue;
-  SurvivorMapPainter({this.pulseValue = 0.0});
+  final List<MapNodeItem> nodes;
+  SurvivorMapPainter({this.pulseValue = 0.0, this.nodes = const []});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -58,47 +62,22 @@ class SurvivorMapPainter extends CustomPainter {
 
   void _drawConnections(Canvas canvas, Offset c, double maxR) {
     final center = c;
-    final nodes = [
-      {'dx': 0.08, 'dy': -0.58, 'status': 'strong'},
-      {'dx': 0.58, 'dy': -0.22, 'status': 'weak'},
-      {'dx': 0.45, 'dy': 0.38, 'status': 'offline'},
-      {'dx': -0.08, 'dy': 0.58, 'status': 'strong'},
-      {'dx': -0.58, 'dy': 0.22, 'status': 'weak'},
-      {'dx': -0.48, 'dy': -0.38, 'status': 'strong'},
-    ];
+    final peerNodes = nodes.where((n) => !n.isUser).toList();
 
-    for (final node in nodes) {
-      final pos = Offset(c.dx + (node['dx'] as double) * maxR, c.dy + (node['dy'] as double) * maxR);
-      final status = node['status'] as String;
+    for (final node in peerNodes) {
+      final pos = Offset(c.dx + node.dx * maxR, c.dy + node.dy * maxR);
 
-      if (status == 'strong') {
-        final paint = Paint()
-          ..color = AegisColors.neonGreen.withOpacity(AegisColors.isLight ? 0.4 : 0.25)
-          ..strokeWidth = 2.0;
+      final paint = Paint()
+        ..color = node.isOnline
+            ? AegisColors.neonGreen.withOpacity(AegisColors.isLight ? 0.4 : 0.25)
+            : AegisColors.textMuted.withOpacity(AegisColors.isLight ? 0.3 : 0.15)
+        ..strokeWidth = node.isOnline ? 2.0 : 1.0;
+
+      if (node.isOnline) {
         canvas.drawLine(center, pos, paint);
-      } else if (status == 'weak') {
-        final paint = Paint()
-          ..color = AegisColors.orange.withOpacity(AegisColors.isLight ? 0.5 : 0.3)
-          ..strokeWidth = 1.5;
-        _drawDashedLine(canvas, center, pos, paint);
       } else {
-        final paint = Paint()
-          ..color = AegisColors.textMuted.withOpacity(AegisColors.isLight ? 0.3 : 0.15)
-          ..strokeWidth = 1.0;
         _drawDottedLine(canvas, center, pos, paint);
       }
-    }
-  }
-
-  void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
-    final dx = p2.dx - p1.dx, dy = p2.dy - p1.dy;
-    final dist = sqrt(dx * dx + dy * dy);
-    const dl = 5.0, sl = 3.0;
-    final cnt = (dist / (dl + sl)).floor();
-    for (int i = 0; i < cnt; i++) {
-      final s = i * (dl + sl) / dist;
-      final e = (s + dl / dist).clamp(0.0, 1.0);
-      canvas.drawLine(Offset(p1.dx + dx * s, p1.dy + dy * s), Offset(p1.dx + dx * e, p1.dy + dy * e), paint);
     }
   }
 
@@ -114,7 +93,7 @@ class SurvivorMapPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant SurvivorMapPainter old) => false;
+  bool shouldRepaint(covariant SurvivorMapPainter old) => old.nodes != nodes || old.pulseValue != pulseValue;
 }
 
 class NetworkMapScreen extends ConsumerStatefulWidget {
@@ -128,15 +107,37 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
   late AnimationController _pulse;
   late Animation<double> _pulseA;
 
-  static final _nodes = [
-    MapNodeItem(id: 'SIG-7F3A', subText: 'You', color: AegisColors.electricBlue, dx: 0.0, dy: 0.0, isUser: true),
-    MapNodeItem(id: 'SIG-8AF3', subText: '2 hops', color: AegisColors.neonGreen, dx: 0.08, dy: -0.58),
-    MapNodeItem(id: 'SIG-B2C1', subText: '2 hops', color: AegisColors.orange, dx: 0.58, dy: -0.22),
-    MapNodeItem(id: 'SIG-9E10', subText: 'Offline', color: AegisColors.textDim, dx: 0.45, dy: 0.38, isOnline: false),
-    MapNodeItem(id: 'SIG-4D2F', subText: '1 hop', color: AegisColors.neonGreen, dx: -0.08, dy: 0.58),
-    MapNodeItem(id: 'SIG-1D9A', subText: '3 hops', color: AegisColors.sosRed, dx: -0.58, dy: 0.22),
-    MapNodeItem(id: 'SIG-C4E1', subText: '1 hop', color: AegisColors.neonGreen, dx: -0.48, dy: -0.38),
-  ];
+  List<MapNodeItem> _buildNodes(String myId, Map<String, SurvivorNodeModel> survivors) {
+    final items = <MapNodeItem>[];
+    final rng = Random(myId.hashCode);
+
+    items.add(MapNodeItem(
+      id: myId,
+      subText: 'You',
+      color: AegisColors.electricBlue,
+      dx: 0.0,
+      dy: 0.0,
+      isUser: true,
+    ));
+
+    final peers = survivors.values.where((n) => n.id != myId).toList();
+    for (int i = 0; i < peers.length; i++) {
+      final angle = (2 * pi * i) / max(peers.length, 1) + rng.nextDouble() * 0.15;
+      final dist = 0.25 + rng.nextDouble() * 0.5;
+      final peer = peers[i];
+      final isOnline = peer.status == 'safe' || peer.status == 'have_resources';
+      items.add(MapNodeItem(
+        id: peer.id,
+        subText: isOnline ? '${DateTime.now().millisecondsSinceEpoch - peer.lastSeen > 60000 ? "3" : "1"} hops' : 'Offline',
+        color: isOnline ? AegisColors.neonGreen : AegisColors.textDim,
+        dx: cos(angle) * dist,
+        dy: sin(angle) * dist,
+        isOnline: isOnline,
+      ));
+    }
+
+    return items;
+  }
 
   @override
   void initState() {
@@ -155,6 +156,9 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
   Widget build(BuildContext context) {
     final peerCount = ref.watch(meshPeerCountProvider);
     final packetsRelayed = ref.watch(meshPacketsRelayedProvider);
+    final survivors = ref.watch(survivorProvider);
+    final myId = ref.watch(sigIdProvider);
+    final nodes = _buildNodes(myId, survivors);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -166,7 +170,7 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
             children: [
               StaggeredFadeIn(index: 0, child: _header(peerCount, packetsRelayed)),
               const SizedBox(height: 18),
-              StaggeredFadeIn(index: 1, child: _mapWidget()),
+              StaggeredFadeIn(index: 1, child: _mapWidget(nodes)),
               const SizedBox(height: 18),
               StaggeredFadeIn(index: 2, child: _legend()),
               const SizedBox(height: 24),
@@ -228,22 +232,18 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _legendItem(AegisColors.neonGreen, 'Strong', isDashed: false),
-        const SizedBox(width: 24),
-        _legendItem(AegisColors.orange, 'Weak', isDashed: true),
+        _legendItem(AegisColors.neonGreen, 'Connected'),
         const SizedBox(width: 24),
         _legendItem(AegisColors.textMuted, 'Offline', isDotted: true),
       ],
     );
   }
 
-  Widget _legendItem(Color color, String label, {bool isDashed = false, bool isDotted = false}) {
+  Widget _legendItem(Color color, String label, {bool isDotted = false}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (isDashed)
-          Text('---', style: TextStyle(color: color, fontWeight: FontWeight.w800, fontSize: 12, letterSpacing: -1))
-        else if (isDotted)
+        if (isDotted)
           Text('...', style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5))
         else
           Text('—', style: TextStyle(color: color, fontWeight: FontWeight.w800, fontSize: 12)),
@@ -253,7 +253,7 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
     );
   }
 
-  Widget _mapWidget() {
+  Widget _mapWidget(List<MapNodeItem> nodes) {
     return AnimatedBuilder(
       animation: _pulseA,
       builder: (_, __) {
@@ -273,8 +273,8 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
 
               return Stack(
                 children: [
-                  Positioned.fill(child: CustomPaint(painter: SurvivorMapPainter(pulseValue: _pulseA.value))),
-                  ..._nodes.map((n) {
+                  Positioned.fill(child: CustomPaint(painter: SurvivorMapPainter(pulseValue: _pulseA.value, nodes: nodes))),
+                  ...nodes.map((n) {
                     final nx = c.dx + n.dx * maxR;
                     final ny = c.dy + n.dy * maxR;
                     final s = n.isUser ? 38.0 : 30.0;
@@ -381,6 +381,8 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
   }
 
   Widget _healthCard() {
+    final peerCount = ref.watch(survivorProvider).values.where((n) => n.id != ref.watch(sigIdProvider)).length;
+    final health = peerCount > 0 ? (min(peerCount * 0.1, 1.0).clamp(0.0, 1.0)) : 0.0;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -396,23 +398,23 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Network Health', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AegisColors.textSecondary)),
-              Text('Good', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AegisColors.neonGreen)),
+              Text(peerCount > 0 ? 'Good' : 'Idle', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: peerCount > 0 ? AegisColors.neonGreen : AegisColors.textMuted)),
             ],
           ),
           const SizedBox(height: 14),
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(
-              value: 0.82,
+              value: health,
               minHeight: 8,
               backgroundColor: AegisColors.isLight ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B),
-              valueColor: AlwaysStoppedAnimation<Color>(AegisColors.neonGreen),
+              valueColor: AlwaysStoppedAnimation<Color>(health > 0.5 ? AegisColors.neonGreen : AegisColors.orange),
             ),
           ),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
-            child: Text('82%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AegisColors.textSecondary)),
+            child: Text('${(health * 100).round()}%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AegisColors.textSecondary)),
           ),
         ],
       ),
@@ -435,9 +437,9 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
           _dividerCol(),
           _statCol('$packetsRelayed', 'Packets Relayed'),
           _dividerCol(),
-          _statCol('42ms', 'Avg Latency'),
+          _statCol('--', 'Avg Latency'),
           _dividerCol(),
-          _statCol('94%', 'Delivery'),
+          _statCol('--', 'Delivery'),
         ],
       ),
     );

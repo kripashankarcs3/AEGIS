@@ -6,10 +6,13 @@ import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
 import '../models/signal_packet.dart';
 import '../models/survivor_node.dart';
+import '../models/survivor_node_model.dart';
 import '../widgets/radar_painter.dart';
 import '../widgets/mesh_stats_bar.dart';
 import '../providers/theme_provider.dart';
 import '../providers/mesh_provider.dart';
+import '../providers/survivor_provider.dart';
+import '../providers/identity_provider.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
 import 'sos_incoming_overlay.dart';
@@ -25,34 +28,44 @@ class RadarScreen extends ConsumerStatefulWidget {
 
 class _RadarScreenState extends ConsumerState<RadarScreen>
     with TickerProviderStateMixin {
-  bool _isEmptyRadar = false;
+  List<SurvivorNode> _buildNodes(
+      String myId, Map<String, SurvivorNodeModel> survivors) {
+    final nodes = <SurvivorNode>[];
+    final rng = Random(myId.hashCode);
 
-  static const _nodes = [
-    SurvivorNode(
-        id: 'SIG-7F3A',
-        hops: 0,
-        status: NodeStatus.online,
-        isUser: true,
-        dx: 0.0,
-        dy: 0.0),
-    SurvivorNode(
-        id: 'SIG-8AF3', hops: 2, status: NodeStatus.online, dx: 0.0, dy: -0.58),
-    SurvivorNode(
-        id: 'SIG-C4E1',
-        hops: 1,
-        status: NodeStatus.online,
-        dx: -0.48,
-        dy: -0.38),
-    SurvivorNode(
-        id: 'SIG-B2C1', hops: 2, status: NodeStatus.relay, dx: 0.58, dy: -0.22),
-    SurvivorNode(
-        id: 'SIG-9E10', hops: 3, status: NodeStatus.busy, dx: 0.45, dy: 0.38),
-    SurvivorNode(
-        id: 'SIG-1D9A', hops: 3, status: NodeStatus.sos, dx: -0.58, dy: 0.22),
-  ];
+    // User at center
+    nodes.add(SurvivorNode(
+      id: myId,
+      hops: 0,
+      status: NodeStatus.online,
+      isUser: true,
+      dx: 0.0,
+      dy: 0.0,
+    ));
+
+    // Peers distributed radially
+    final peers = survivors.values.where((n) => n.id != myId).toList();
+    for (int i = 0; i < peers.length; i++) {
+      final angle = (2 * pi * i) / peers.length + rng.nextDouble() * 0.15;
+      final dist = 0.35 + rng.nextDouble() * 0.4;
+      final peer = peers[i];
+      nodes.add(peer.toSurvivorNode(
+        dx: cos(angle) * dist,
+        dy: sin(angle) * dist,
+        hops: DateTime.now().millisecondsSinceEpoch - peer.lastSeen > 60000 ? 3 : 1,
+      ));
+    }
+
+    return nodes;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final survivors = ref.watch(survivorProvider);
+    final myId = ref.watch(sigIdProvider);
+    final nodes = _buildNodes(myId, survivors);
+    final hasPeers = survivors.values.where((n) => n.id != myId).isNotEmpty;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -63,16 +76,16 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
             children: [
               StaggeredFadeIn(index: 0, child: _header()),
               const SizedBox(height: 18),
-              StaggeredFadeIn(index: 1, child: _statusRow()),
+              StaggeredFadeIn(index: 1, child: _statusRow(hasPeers)),
               const SizedBox(height: 24),
-              StaggeredFadeIn(index: 2, child: _radarSection()),
+              StaggeredFadeIn(index: 2, child: _radarSection(nodes, hasPeers)),
               const SizedBox(height: 24),
-              if (!_isEmptyRadar) ...[
+              if (hasPeers) ...[
                 StaggeredFadeIn(index: 3, child: _statsSection()),
                 const SizedBox(height: 28),
                 StaggeredFadeIn(index: 4, child: _activitySection()),
               ],
-              if (_isEmptyRadar) ...[
+              if (!hasPeers) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: StaggeredFadeIn(index: 3, child: _emptyState()),
@@ -117,11 +130,7 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
         ),
         Row(
           children: [
-            _iconBtn(
-              _isEmptyRadar ? Icons.wifi_off_rounded : Icons.wifi_rounded,
-              _isEmptyRadar ? AegisColors.sosRed : AegisColors.neonGreen,
-              () => setState(() => _isEmptyRadar = !_isEmptyRadar),
-            ),
+            _iconBtn(Icons.wifi_rounded, AegisColors.neonGreen, () {}),
             const SizedBox(width: 8),
             _iconBtn(
               themeProvider.isLightActive
@@ -208,7 +217,9 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
     );
   }
 
-  Widget _statusRow() {
+  Widget _statusRow(bool hasPeers) {
+    final peerCount =
+        ref.watch(survivorProvider).values.where((n) => n.id != ref.watch(sigIdProvider)).length;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -233,23 +244,20 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
             ),
           ],
         ),
-        GestureDetector(
-          onTap: () => setState(() => _isEmptyRadar = !_isEmptyRadar),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AegisColors.electricBlue.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                  color: AegisColors.electricBlue.withOpacity(0.2), width: 0.5),
-            ),
-            child: Text(
-              _isEmptyRadar ? '0 Nodes' : '8 Nodes',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: AegisColors.electricBlue,
-              ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: AegisColors.electricBlue.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+                color: AegisColors.electricBlue.withOpacity(0.2), width: 0.5),
+          ),
+          child: Text(
+            '$peerCount Nodes',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AegisColors.electricBlue,
             ),
           ),
         ),
@@ -257,7 +265,10 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
     );
   }
 
-  Widget _radarSection() {
+  Widget _radarSection(List<SurvivorNode> nodes, bool hasPeers) {
+    final displayNodes =
+        hasPeers ? nodes : nodes.where((n) => n.isUser).toList();
+
     return AspectRatio(
       aspectRatio: 1.12,
       child: Container(
@@ -269,7 +280,8 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
         ),
         clipBehavior: Clip.antiAlias,
         child: LayoutBuilder(builder: (_, constraints) {
-          final c = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+          final c =
+              Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
           final maxR =
               min(constraints.maxWidth, constraints.maxHeight) / 2 * 0.82;
 
@@ -278,17 +290,12 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
               Positioned.fill(
                 child: CustomPaint(
                   painter: RadarBackgroundPainter(
-                    nodes: _isEmptyRadar
-                        ? _nodes.where((n) => n.isUser).toList()
-                        : _nodes,
+                    nodes: displayNodes,
                     pulseValue: 0.0,
                   ),
                 ),
               ),
-              ...(_isEmptyRadar
-                      ? _nodes.where((n) => n.isUser).toList()
-                      : _nodes)
-                  .map((node) {
+              ...displayNodes.map((node) {
                 final floatY = 0.0;
                 final nx = c.dx + node.dx * maxR;
                 final ny = c.dy + node.dy * maxR + floatY;
@@ -300,9 +307,11 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                   top: ny - 30,
                   child: GestureDetector(
                     onTap: () {
+                      if (node.isUser) return;
                       if (isSos) {
                         final dummyPacket = SignalPacket(
-                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          id:
+                              DateTime.now().millisecondsSinceEpoch.toString(),
                           from: node.id,
                           to: 'broadcast',
                           type: PacketType.sos,
@@ -313,8 +322,8 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                           timestamp: DateTime.now(),
                         );
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) =>
-                                SosIncomingOverlayScreen(packet: dummyPacket)));
+                            builder: (_) => SosIncomingOverlayScreen(
+                                packet: dummyPacket)));
                       } else {
                         showModalBottomSheet(
                           context: context,
@@ -325,8 +334,8 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                             onOpenChat: () {
                               Navigator.of(context).pop();
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (_) =>
-                                      ChatConversationScreen(nodeId: node.id)));
+                                  builder: (_) => ChatConversationScreen(
+                                      nodeId: node.id)));
                             },
                           ),
                         );

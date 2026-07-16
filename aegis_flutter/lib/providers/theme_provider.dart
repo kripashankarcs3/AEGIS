@@ -36,8 +36,8 @@ class ThemeProvider extends ChangeNotifier {
 }
 
 class ThemeProviderWidget extends StatefulWidget {
-  final Widget child;
-  const ThemeProviderWidget({super.key, required this.child});
+  final Widget Function(BuildContext) builder;
+  const ThemeProviderWidget({super.key, required this.builder});
 
   static ThemeProvider of(BuildContext context) {
     final widget =
@@ -71,7 +71,7 @@ class _ThemeProviderWidgetState extends State<ThemeProviderWidget> {
       provider: _provider,
       child: ListenableBuilder(
         listenable: _provider,
-        builder: (_, __) => widget.child,
+        builder: (ctx, __) => widget.builder(ctx),
       ),
     );
   }

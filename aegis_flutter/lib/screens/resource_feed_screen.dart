@@ -38,13 +38,13 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 80),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 StaggeredFadeIn(index: 0, child: _header()),
                 SizedBox(height: 16),
                 StaggeredFadeIn(index: 1, child: _filterPillsWidget()),
                 SizedBox(height: 20),
-                Expanded(child: ListView.builder(itemCount: _items.length, padding: const EdgeInsets.only(bottom: 160), itemBuilder: (_, i) {
+                Expanded(child: ListView.builder(itemCount: _items.length, padding: const EdgeInsets.only(bottom: 180), itemBuilder: (_, i) {
                   final item = _items[i];
                   if (_selectedFilterPill > 0) {
                     if (item.category.name.toLowerCase() != _filterPills[_selectedFilterPill].toLowerCase()) return const SizedBox.shrink();
