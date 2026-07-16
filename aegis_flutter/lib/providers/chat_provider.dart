@@ -12,6 +12,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/signal_packet.dart';
 import '../models/chat_message.dart';
+import '../services/storage_service.dart';
 import 'identity_provider.dart';
 import 'mesh_send_provider.dart';
 
@@ -77,7 +78,9 @@ class ChatNotifier extends StateNotifier<List<ChatEntry>> {
     required this.peerId,
     required this.myId,
     required this.sendFn,
-  }) : super([]);
+  }) : super([]) {
+    _loadHistory();
+  }
 
   final String peerId;
   final String myId;
@@ -111,6 +114,7 @@ class ChatNotifier extends StateNotifier<List<ChatEntry>> {
       );
       await sendFn(peerId, packet);
       _updateStatus(entry.id, MessageStatus.sent);
+      _persistHistory();
     } catch (_) {
       // Message queue in MeshRouter will retry
       _updateStatus(entry.id, MessageStatus.queued);
@@ -134,6 +138,7 @@ class ChatNotifier extends StateNotifier<List<ChatEntry>> {
     );
 
     state = [...state, entry];
+    _persistHistory();
   }
 
   // ── Mark message delivered on ACK ─────────────────────────────────────
@@ -144,6 +149,31 @@ class ChatNotifier extends StateNotifier<List<ChatEntry>> {
   void _updateStatus(String id, MessageStatus status) {
     state =
         state.map((e) => e.id == id ? e.copyWith(status: status) : e).toList();
+  }
+
+  Future<void> _loadHistory() async {
+    final raw = StorageService.getChatHistory(peerId);
+    if (raw.isEmpty) return;
+    state = raw.map((m) => ChatEntry(
+      id: m['id'] as String,
+      from: m['from'] as String,
+      to: m['to'] as String,
+      text: m['text'] as String,
+      timestamp: DateTime.fromMillisecondsSinceEpoch(m['timestamp'] as int),
+      isMine: m['isMine'] as bool,
+      status: MessageStatus.values.firstWhere(
+        (s) => s.name == (m['status'] ?? 'delivered'),
+        orElse: () => MessageStatus.delivered,
+      ),
+    )).toList();
+  }
+
+  void _persistHistory() {
+    StorageService.saveChatHistory(peerId, state.map((e) => {
+      'id': e.id, 'from': e.from, 'to': e.to, 'text': e.text,
+      'timestamp': e.timestamp.millisecondsSinceEpoch,
+      'isMine': e.isMine, 'status': e.status.name,
+    }).toList());
   }
 
   /// All entries as the legacy ChatMessage type (for existing UI screens).

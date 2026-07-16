@@ -1,57 +1,58 @@
+import 'dart:async';
 import '../models/signal_packet.dart';
 
 class MessageQueue {
   final List<SignalPacket> _queue = [];
   bool _running = false;
+  Timer? _retryTimer;
 
-  // ── Wired by MeshProvider after transport layer is ready ───────────────
-  /// Returns true if [peerId] is currently reachable via transport.
   bool Function(String peerId) isPeerReachable = (_) => false;
-
-  /// Sends a packet directly to [peerId] via the transport layer.
-  Future<void> Function(String peerId, SignalPacket packet) sendToPeer =
-      (_, __) async {};
+  Future<void> Function(String peerId, SignalPacket packet) sendToPeer = (_, __) async {};
 
   void start() {
     _running = true;
+    _retryTimer = Timer.periodic(const Duration(seconds: 10), (_) => _retryAll());
   }
 
   void stop() {
     _running = false;
+    _retryTimer?.cancel();
+    _retryTimer = null;
   }
 
   bool get isRunning => _running;
 
-  /// Add a packet to the queue.
   void enqueue(SignalPacket packet) {
+    if (_queue.any((p) => p.id == packet.id)) return;
     _queue.add(packet);
   }
 
-  /// Remove and return the oldest packet.
   SignalPacket? dequeue() {
     if (_queue.isEmpty) return null;
     return _queue.removeAt(0);
   }
 
-  /// View the next packet without removing it.
-  SignalPacket? peek() {
-    if (_queue.isEmpty) return null;
-    return _queue.first;
-  }
-
-  /// Check if queue is empty.
+  SignalPacket? peek() => _queue.isEmpty ? null : _queue.first;
   bool get isEmpty => _queue.isEmpty;
-
-  /// Number of queued packets.
   int get length => _queue.length;
+  List<SignalPacket> getAll() => List.unmodifiable(_queue);
+  void clear() => _queue.clear();
 
-  /// Get all queued packets.
-  List<SignalPacket> getAll() {
-    return List.unmodifiable(_queue);
-  }
-
-  /// Clear queue.
-  void clear() {
+  Future<void> _retryAll() async {
+    if (_queue.isEmpty) return;
+    final toRetry = List<SignalPacket>.from(_queue);
     _queue.clear();
+    for (final packet in toRetry) {
+      final target = packet.to == 'ALL' || packet.to == 'broadcast' ? 'broadcast' : packet.to;
+      if (isPeerReachable(target)) {
+        try {
+          await sendToPeer(target, packet);
+        } catch (_) {
+          _queue.add(packet);
+        }
+      } else {
+        _queue.add(packet);
+      }
+    }
   }
 }

@@ -20,6 +20,7 @@ import '../core/status_beacon.dart';
 import '../core/resource_manager.dart';
 import '../models/resource_item.dart';
 import '../models/signal_packet.dart';
+import '../models/survivor_node.dart';
 import '../models/survivor_node_model.dart';
 import '../services/background_service.dart';
 import '../services/storage_service.dart';
@@ -138,6 +139,10 @@ class MeshNotifier extends StateNotifier<MeshState> {
       tcpDirect: _directTcp,
     );
 
+    // Wire MessageQueue retry callbacks
+    _messageQueue.isPeerReachable = (peerId) => _transport.isConnected;
+    _messageQueue.sendToPeer = (peerId, packet) => _transport.sendPacket(packet);
+
     _router = MeshRouter(
       transportManager: _transport,
       messageQueue: _messageQueue,
@@ -171,9 +176,20 @@ class MeshNotifier extends StateNotifier<MeshState> {
 
     // 4. Wire transport → router
     _transport.onPacketReceived = (packet) {
+      // Track this peer as seen
+      if (!_peerManager.containsPeer(packet.from)) {
+        _peerManager.addPeer(SurvivorNode(
+          id: packet.from,
+          hops: packet.hopCount,
+          status: NodeStatus.online,
+          dx: 0.0,
+          dy: 0.0,
+        ));
+        state = state.copyWith(peerCount: _peerManager.peerCount);
+        _addActivity('🔗 New peer: ${packet.from}');
+      }
       _router.receivePacket(packet);
       _incrementRelayed();
-      _addActivity('Packet received from ${packet.from}');
     };
 
     // 5. Wire router delivery callbacks
