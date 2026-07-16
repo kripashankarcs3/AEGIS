@@ -33,15 +33,17 @@ class _ChatScreenState extends State<ChatScreen> {
                   SizedBox(height: 20),
                   Expanded(
                     child: ListView(children: [
-                      _tile(AegisColors.violet, 'SIG-8AF3', '10:24 AM', 'All good here. We have supplies.', unread: 2),
+                      _tile(AegisColors.violet, 'SIG-8AF3', '10:24 AM', 'All good here. We have supplies.', unread: 2, badgeText: 'SAFE', badgeColor: AegisColors.neonGreen, dot: true),
                       _divider(),
-                      _tile(AegisColors.sosRed, 'SIG-4D2F', '10:18 AM', 'Need medical assistance.', unread: 1, urgent: true),
+                      _tile(AegisColors.sosRed, 'SIG-4D2F', '10:18 AM', 'Need medical assistance.', unread: 1, urgent: true, badgeText: 'NEED HELP', badgeColor: AegisColors.sosRed),
                       _divider(),
-                      _tile(AegisColors.neonGreen, 'SIG-1A9D', '9:56 AM', 'How many people in your group?'),
+                      _tile(AegisColors.neonGreen, 'SIG-1A9D', '9:56 AM', 'How many people in your group?', dot: true),
                       _divider(),
                       _tile(AegisColors.electricBlue, 'SIG-B2C1', '9:41 AM', 'Water available. 2 bottles left.', dot: true),
                       _divider(),
-                      _tile(AegisColors.violet, 'SIG-3C7E', '9:32 AM', 'Heading north. Roads blocked.'),
+                      _tile(AegisColors.violet, 'SIG-3C7E', '9:32 AM', 'Heading north. Roads blocked.', dot: true),
+                      const SizedBox(height: 16),
+                      _buildTipBanner(),
                     ]),
                   ),
                 ],
@@ -100,27 +102,97 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _tile(Color avatarColor, String nodeId, String time, String subtitle, {int unread = 0, bool urgent = false, bool dot = false}) {
+  bool _showTip = true;
+
+  Widget _buildTipBanner() {
+    if (!_showTip) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AegisColors.isLight ? const Color(0xFFE8F5E9) : const Color(0xFF1B2A1E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AegisColors.isLight ? const Color(0xFFC8E6C9) : AegisColors.neonGreen.withOpacity(0.15),
+          width: 0.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.security_outlined, color: AegisColors.isLight ? const Color(0xFF2E7D32) : AegisColors.neonGreen, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Tip: Long press on a chat for more options',
+              style: TextStyle(
+                color: AegisColors.isLight ? const Color(0xFF2E7D32) : AegisColors.textSecondary,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'SF Pro Display',
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => setState(() => _showTip = false),
+            child: Icon(Icons.close_rounded, color: AegisColors.isLight ? const Color(0xFF2E7D32).withOpacity(0.6) : AegisColors.textMuted, size: 18),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _tile(Color avatarColor, String nodeId, String time, String subtitle, {int unread = 0, bool urgent = false, bool dot = false, String? badgeText, Color? badgeColor}) {
     return InkWell(
       onTap: () => Navigator.of(context).push(PageRouteBuilder(pageBuilder: (_, a, __) => ChatConversationScreen(nodeId: nodeId), transitionsBuilder: (_, a, __, child) => SlideTransition(position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)), child: child))),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
         child: Row(children: [
-          Container(
-            width: 48, height: 48,
-            decoration: BoxDecoration(gradient: LinearGradient(colors: [avatarColor.withOpacity(0.2), avatarColor.withOpacity(0.05)]), shape: BoxShape.circle, border: Border.all(color: avatarColor.withOpacity(urgent ? 0.5 : 0.2), width: urgent ? 1.5 : 1), boxShadow: urgent ? [BoxShadow(color: avatarColor.withOpacity(0.3), blurRadius: 12, spreadRadius: 2)] : null),
-            child: Icon(Icons.person_rounded, color: avatarColor, size: 24),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 48, height: 48,
+                decoration: BoxDecoration(gradient: LinearGradient(colors: [avatarColor.withOpacity(0.2), avatarColor.withOpacity(0.05)]), shape: BoxShape.circle, border: Border.all(color: avatarColor.withOpacity(urgent ? 0.5 : 0.2), width: urgent ? 1.5 : 1), boxShadow: urgent ? [BoxShadow(color: avatarColor.withOpacity(0.3), blurRadius: 12, spreadRadius: 2)] : null),
+                child: Icon(Icons.person_rounded, color: avatarColor, size: 24),
+              ),
+              if (dot)
+                Positioned(
+                  bottom: -1, right: -1,
+                  child: Container(
+                    width: 12, height: 12,
+                    decoration: BoxDecoration(
+                      color: AegisColors.neonGreen,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AegisColors.isLight ? Colors.white : const Color(0xFF08080E), width: 2),
+                    ),
+                  ),
+                ),
+            ],
           ),
           SizedBox(width: 14),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text(nodeId, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AegisColors.textPrimary, letterSpacing: -0.2)),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  Text(nodeId, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AegisColors.textPrimary, letterSpacing: -0.2)),
+                  if (badgeText != null) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: badgeColor!.withOpacity(AegisColors.isLight ? 0.12 : 0.2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        badgeText,
+                        style: TextStyle(color: badgeColor, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                      ),
+                    ),
+                  ],
+                ]),
                 Text(time, style: TextStyle(fontSize: 11, color: AegisColors.textMuted, fontWeight: FontWeight.w500)),
               ]),
               SizedBox(height: 6),
               Row(children: [
-                if (dot) ...[PulseDot(color: AegisColors.neonGreen, size: 7), SizedBox(width: 8)],
                 Expanded(child: Text(subtitle, style: TextStyle(fontSize: 13, color: AegisColors.textSecondary.withOpacity(0.8), fontWeight: urgent ? FontWeight.w600 : FontWeight.w400), maxLines: 1, overflow: TextOverflow.ellipsis)),
                 if (unread > 0)
                   Container(width: 24, height: 24, decoration: BoxDecoration(gradient: urgent ? AegisColors.sosGradient : AegisColors.purpleGradient, shape: BoxShape.circle), child: Center(child: Text('$unread', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)))),
