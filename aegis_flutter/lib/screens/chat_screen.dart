@@ -70,7 +70,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _hdrIcon(IconData icon) {
-    return Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: Icon(icon, color: Colors.white, size: 18));
+    return Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: Icon(icon, color: AegisColors.textPrimary, size: 18));
   }
 
   Widget _tabs() {
@@ -93,7 +93,7 @@ class _ChatScreenState extends State<ChatScreen> {
         decoration: BoxDecoration(border: sel ? Border(bottom: BorderSide(color: AegisColors.electricBlue, width: 2.5)) : null),
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 200),
-          style: TextStyle(color: sel ? Colors.white : AegisColors.textMuted, fontSize: 14, fontWeight: sel ? FontWeight.w700 : FontWeight.w500, letterSpacing: -0.2),
+          style: TextStyle(color: sel ? AegisColors.textPrimary : AegisColors.textMuted, fontSize: 14, fontWeight: sel ? FontWeight.w700 : FontWeight.w500, letterSpacing: -0.2),
           child: Text(title),
         ),
       ),
@@ -115,7 +115,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text(nodeId, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.2)),
+                Text(nodeId, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AegisColors.textPrimary, letterSpacing: -0.2)),
                 Text(time, style: TextStyle(fontSize: 11, color: AegisColors.textMuted, fontWeight: FontWeight.w500)),
               ]),
               SizedBox(height: 6),
@@ -139,7 +139,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _sheet() {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-      decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF141428), Color(0xFF0E0E1E)]), borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28))),
+      decoration: BoxDecoration(gradient: AegisColors.cardGradient, borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28))),
       child: SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
@@ -162,7 +162,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Row(children: [
           Container(width: 40, height: 40, decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.2), width: 0.5)), child: Icon(icon, color: color, size: 20)),
           SizedBox(width: 14),
-          Text(label, style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
+          Text(label, style: TextStyle(color: AegisColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
         ]),
       ),
     );

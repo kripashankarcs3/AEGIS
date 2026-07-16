@@ -29,19 +29,19 @@ class RadarBackgroundPainter extends CustomPainter {
     for (int i = 0; i < 4; i++) {
       final r = maxR * (0.25 * (i + 1));
       final p = Paint()
-        ..color = Color.lerp(const Color(0xFF00E5FF), const Color(0xFF0088FF), i / 3)!.withOpacity(0.06 + 0.04 * sin(pulseValue * pi * 2 + i * 1.2))
+        ..color = Color.lerp(const Color(0xFF00E5FF), const Color(0xFF0088FF), i / 3)!.withOpacity(AegisColors.isLight ? (0.16 + 0.04 * sin(pulseValue * pi * 2 + i * 1.2)) : (0.06 + 0.04 * sin(pulseValue * pi * 2 + i * 1.2)))
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.0 - i * 0.15;
       canvas.drawCircle(c, r, p);
       final gp = Paint()
-        ..color = const Color(0xFF00E5FF).withOpacity(0.01 * (i + 1))
+        ..color = (AegisColors.isLight ? const Color(0xFF0088FF) : const Color(0xFF00E5FF)).withOpacity(AegisColors.isLight ? (0.025 * (i + 1)) : (0.01 * (i + 1)))
         ..style = PaintingStyle.fill;
       canvas.drawCircle(c, r, gp);
     }
   }
 
   void _drawCrosshairs(Canvas canvas, Offset c, double maxR) {
-    final p = Paint()..color = const Color(0xFF00E5FF).withOpacity(0.06)..strokeWidth = 0.3;
+    final p = Paint()..color = (AegisColors.isLight ? const Color(0xFF0088FF) : const Color(0xFF00E5FF)).withOpacity(AegisColors.isLight ? 0.15 : 0.06)..strokeWidth = 0.3;
 
     canvas.drawLine(Offset(c.dx - maxR, c.dy), Offset(c.dx + maxR, c.dy), p);
     canvas.drawLine(Offset(c.dx, c.dy - maxR), Offset(c.dx, c.dy + maxR), p);
@@ -49,7 +49,7 @@ class RadarBackgroundPainter extends CustomPainter {
     canvas.drawLine(Offset(c.dx - maxR * 0.707, c.dy - maxR * 0.707), Offset(c.dx + maxR * 0.707, c.dy + maxR * 0.707), p);
     canvas.drawLine(Offset(c.dx - maxR * 0.707, c.dy + maxR * 0.707), Offset(c.dx + maxR * 0.707, c.dy - maxR * 0.707), p);
 
-    final dp = Paint()..color = const Color(0xFF00E5FF).withOpacity(0.03)..style = PaintingStyle.stroke..strokeWidth = 0.3;
+    final dp = Paint()..color = (AegisColors.isLight ? const Color(0xFF0088FF) : const Color(0xFF00E5FF)).withOpacity(AegisColors.isLight ? 0.08 : 0.03)..style = PaintingStyle.stroke..strokeWidth = 0.3;
     for (int i = 1; i <= 3; i++) {
       canvas.drawCircle(c, maxR * 0.25 * i * 1.1, dp);
     }

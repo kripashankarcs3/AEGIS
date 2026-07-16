@@ -105,11 +105,16 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
         builder: (_) => Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom), child: PostResourceBottomSheet(onPost: (newItem) => setState(() => _items.insert(0, newItem))))),
       child: Container(
         height: 50,
-        decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.neonGreen.withOpacity(0.15), AegisColors.neonGreen.withOpacity(0.05)]), borderRadius: BorderRadius.circular(16), border: Border.all(color: AegisColors.neonGreen.withOpacity(0.3), width: 0.5), boxShadow: [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.08), blurRadius: 16, offset: const Offset(0, 6))]),
+        decoration: BoxDecoration(
+          color: AegisColors.isLight ? AegisColors.neonGreen.withOpacity(0.08) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AegisColors.neonGreen.withOpacity(0.3), width: 0.5),
+          boxShadow: AegisColors.isLight ? null : [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.08), blurRadius: 16, offset: const Offset(0, 6))],
+        ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(Icons.add_rounded, color: AegisColors.neonGreen.withOpacity(0.9), size: 22),
+          Icon(Icons.add_rounded, color: AegisColors.neonGreen, size: 22),
           SizedBox(width: 8),
-          Text('OFFER RESOURCE', style: TextStyle(color: AegisColors.neonGreen.withOpacity(0.9), fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+          Text('OFFER RESOURCE', style: TextStyle(color: AegisColors.neonGreen, fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
         ]),
       ),
     );

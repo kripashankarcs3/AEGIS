@@ -72,9 +72,9 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
       Row(mainAxisSize: MainAxisSize.min, children: [
         Container(width: 40, height: 40, decoration: BoxDecoration(gradient: AegisColors.sosGradient, borderRadius: BorderRadius.circular(12), boxShadow: AegisColors.glowRed), child: Icon(Icons.warning_amber_rounded, color: Colors.white, size: 22)),
         SizedBox(width: 14),
-        Text('SOS', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5)),
+        Text('SOS', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AegisColors.textPrimary, letterSpacing: -0.5)),
       ]),
-      Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: Icon(Icons.info_outline_rounded, color: Colors.white, size: 18)),
+      Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: Icon(Icons.info_outline_rounded, color: AegisColors.textPrimary, size: 18)),
     ]);
   }
 
@@ -103,11 +103,11 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
           width: 58, height: 58,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: sel ? LinearGradient(colors: [catColor.withOpacity(0.25), catColor.withOpacity(0.08)]) : null,
+            color: sel ? catColor : Colors.transparent,
             border: Border.all(color: sel ? catColor : AegisColors.border1, width: sel ? 2 : 1),
             boxShadow: sel ? [BoxShadow(color: catColor.withOpacity(0.3), blurRadius: 16, spreadRadius: 3)] : null,
           ),
-          child: Icon(icon, color: sel ? catColor : AegisColors.textSecondary, size: 24),
+          child: Icon(icon, color: sel ? Colors.white : AegisColors.textSecondary, size: 24),
         ),
         SizedBox(height: 8),
         AnimatedDefaultTextStyle(duration: const Duration(milliseconds: 200),

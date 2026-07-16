@@ -33,7 +33,7 @@ class _SosBroadcastCardState extends State<SosBroadcastCard> with SingleTickerPr
         return Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1A0A0A), Color(0xFF0F121B)]),
+            gradient: AegisColors.isLight ? const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF5F5), Color(0xFFFFF8F8)]) : const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1A0A0A), Color(0xFF0F121B)]),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: AegisColors.sosRed.withOpacity(0.2 + 0.15 * _glowA.value), width: 1),
             boxShadow: [BoxShadow(color: AegisColors.sosRed.withOpacity(0.04 + 0.06 * _glowA.value), blurRadius: 32, spreadRadius: 8)],
@@ -45,7 +45,7 @@ class _SosBroadcastCardState extends State<SosBroadcastCard> with SingleTickerPr
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('Send Emergency Alert', style: TextStyle(color: AegisColors.sosRed, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: -0.2)),
                 SizedBox(height: 4),
-                Text('Broadcast your emergency to\nall nearby nodes instantly.', style: TextStyle(color: AegisColors.textSecondary.withOpacity(0.8), fontSize: 12, height: 1.4)),
+                Text('Broadcast your emergency to\nall nearby nodes instantly.', style: TextStyle(color: AegisColors.textSecondary, fontSize: 12, height: 1.4)),
               ])),
             ]),
             SizedBox(height: 32),
@@ -66,11 +66,11 @@ class _SosBroadcastCardState extends State<SosBroadcastCard> with SingleTickerPr
             SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(color: AegisColors.sosRed.withOpacity(0.08), borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.sosRed.withOpacity(0.15), width: 0.5)),
+              decoration: BoxDecoration(color: AegisColors.sosRed.withOpacity(AegisColors.isLight ? 0.04 : 0.08), borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.sosRed.withOpacity(0.15), width: 0.5)),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.lock_outline_rounded, color: AegisColors.textSecondary.withOpacity(0.6), size: 13),
+                Icon(Icons.lock_outline_rounded, color: AegisColors.textSecondary, size: 13),
                 SizedBox(width: 8),
-                Text('Hold for 5 seconds to send', style: TextStyle(color: AegisColors.textSecondary.withOpacity(0.7), fontSize: 11, fontWeight: FontWeight.w500)),
+                Text('Hold for 5 seconds to send', style: TextStyle(color: AegisColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w500)),
               ]),
             ),
           ]),

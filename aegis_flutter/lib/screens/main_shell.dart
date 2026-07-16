@@ -71,10 +71,12 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
         height: 70,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 40, offset: const Offset(0, 12), spreadRadius: -8),
-            BoxShadow(color: AegisColors.electricBlue.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4)),
-          ],
+          boxShadow: AegisColors.isLight
+              ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4))]
+              : [
+                  BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 40, offset: const Offset(0, 12), spreadRadius: -8),
+                  BoxShadow(color: AegisColors.electricBlue.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4)),
+                ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(28),
@@ -86,7 +88,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
                   begin: Alignment.topLeft, end: Alignment.bottomRight,
                   colors: [AegisColors.cardBg.withOpacity(0.92), AegisColors.surface1.withOpacity(0.92)],
                 ),
-                border: Border.all(color: AegisColors.glassBorder, width: 0.5),
+                border: Border.all(color: AegisColors.isLight ? AegisColors.border1 : AegisColors.glassBorder, width: 0.5),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -135,7 +137,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 250),
                 style: TextStyle(
-                  color: sel ? AegisColors.electricCyan : AegisColors.textMuted,
+                  color: sel ? AegisColors.electricBlue : AegisColors.textMuted,
                   fontSize: sel ? 10 : 9.5,
                   fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
                   letterSpacing: 0.3,
