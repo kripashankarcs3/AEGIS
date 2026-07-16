@@ -24,7 +24,7 @@ class NearbyService {
       bool success = await _nearby.startAdvertising(
         _myDeviceId ?? 'AEGIS',
         Strategy.P2P_CLUSTER,
-        serviceId: 'com.aegis.mesh',
+        serviceId: 'com.aegis.mesh.aegis_flutter',
         onConnectionInitiated: _onConnectionInitiated,
         onConnectionResult: _onConnectionResult,
         onDisconnected: _onDisconnected,
@@ -43,7 +43,7 @@ class NearbyService {
       await _nearby.startDiscovery(
         _myDeviceId ?? 'AEGIS',
         Strategy.P2P_CLUSTER,
-        serviceId: 'com.aegis.mesh',
+        serviceId: 'com.aegis.mesh.aegis_flutter',
         onEndpointFound: _onEndpointFound,
         onEndpointLost: _onEndpointLost,
       );
