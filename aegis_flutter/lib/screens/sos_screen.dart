@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';

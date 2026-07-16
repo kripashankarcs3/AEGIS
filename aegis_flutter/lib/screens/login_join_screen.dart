@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../constants/aegis_colors.dart';
 import 'splash_screen.dart'; // Reuse MeshGlobePainter and StarsBackgroundPainter
 import 'main_shell.dart';
 

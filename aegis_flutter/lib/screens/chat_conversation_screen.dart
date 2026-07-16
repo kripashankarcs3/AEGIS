@@ -13,8 +13,6 @@ class ChatConversationScreen extends StatefulWidget {
 }
 
 class _ChatConversationScreenState extends State<ChatConversationScreen> {
-  final TextEditingController _msgCtrl = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     final bool offline = widget.nodeId == 'SIG-4D2F';

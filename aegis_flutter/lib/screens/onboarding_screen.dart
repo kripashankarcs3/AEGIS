@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../constants/aegis_colors.dart';
 import 'login_join_screen.dart';
 import 'splash_screen.dart'; // Import LogoShieldPainter and StarsBackgroundPainter
 
@@ -187,7 +186,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
               // 2. Scrollable Body containing layout
               SingleChildScrollView(
                 physics: const ClampingScrollPhysics(),
-                padding: const EdgeInsets.only(top: 58.0, left: 28.0, right: 28.0, bottom: 34.0),
+                 padding: const EdgeInsets.only(top: 48.0, left: 28.0, right: 28.0, bottom: 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -201,15 +200,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                             builder: (context, child) {
                               return Transform.translate(
                                 offset: Offset(0, _line1Slide.value),
-                                child: const Text(
-                                  'Welcome to',
-                                  style: TextStyle(
-                                    fontSize: 38.0,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                    fontFamily: 'SF Pro Display',
+                                  child: const Text(
+                                    'Welcome to',
+                                    style: TextStyle(
+                                      fontSize: 30.0,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                      fontFamily: 'SF Pro Display',
+                                    ),
                                   ),
-                                ),
                               );
                             },
                           ),
@@ -237,7 +236,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                       child: Text(
                                         'AEGIS',
                                         style: TextStyle(
-                                          fontSize: 52.0,
+                                          fontSize: 42.0,
                                           fontWeight: FontWeight.w800,
                                           color: Colors.white.withOpacity(0.2),
                                           fontFamily: 'SF Pro Display',
@@ -257,7 +256,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                       child: const Text(
                                         'AEGIS',
                                         style: TextStyle(
-                                          fontSize: 52.0,
+                                          fontSize: 42.0,
                                           fontWeight: FontWeight.w800,
                                           color: Colors.white,
                                           fontFamily: 'SF Pro Display',
@@ -273,7 +272,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12.0),
+                    const SizedBox(height: 6.0),
 
                     // B. Subtitle Block
                     FadeTransition(
@@ -288,33 +287,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                 Text(
                                   'Stay connected.',
                                   style: TextStyle(
-                                    fontSize: 18.0,
+                                    fontSize: 16.0,
                                     fontWeight: FontWeight.w500,
                                     color: Color(0xFFA8B3C7),
                                     fontFamily: 'SF Pro Display',
-                                    height: 1.44,
+                                    height: 1.3,
                                   ),
                                 ),
-                                SizedBox(height: 4.0),
+                                SizedBox(height: 2.0),
                                 Text(
                                   'Stay informed.',
                                   style: TextStyle(
-                                    fontSize: 18.0,
+                                    fontSize: 16.0,
                                     fontWeight: FontWeight.w500,
                                     color: Color(0xFFA8B3C7),
                                     fontFamily: 'SF Pro Display',
-                                    height: 1.44,
+                                    height: 1.3,
                                   ),
                                 ),
-                                SizedBox(height: 4.0),
+                                SizedBox(height: 2.0),
                                 Text(
                                   'Stay alive.',
                                   style: TextStyle(
-                                    fontSize: 18.0,
+                                    fontSize: 16.0,
                                     fontWeight: FontWeight.w500,
                                     color: Color(0xFF7B3EFF), // Purple text
                                     fontFamily: 'SF Pro Display',
-                                    height: 1.44,
+                                    height: 1.3,
                                   ),
                                 ),
                               ],
@@ -323,7 +322,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         },
                       ),
                     ),
-                    const SizedBox(height: 38.0),
+                    const SizedBox(height: 16.0),
 
                     // C. HERO Center Orbital Graphic (occupies ~72% of width)
                     FadeTransition(
@@ -338,10 +337,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         },
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            final double width = constraints.maxWidth * 0.72;
+                            final double width = constraints.maxWidth * 0.55;
                             return SizedBox(
                               width: width,
-                              height: width * 0.72,
+                              height: width * 0.65,
                               child: FuturisticOrbitalGraphic(
                                 width: width,
                                 floatValue: _graphicFloatController.value,
@@ -354,7 +353,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         ),
                       ),
                     ),
-                    const SizedBox(height: 42.0),
+                    const SizedBox(height: 20.0),
 
                     // D. Premium Feature List Card
                     FadeTransition(
@@ -370,7 +369,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         child: _buildFeatureCard(featureRotateAngle),
                       ),
                     ),
-                    const SizedBox(height: 36.0),
+                    const SizedBox(height: 16.0),
 
                     // E. Action Navigation Button
                     FuturisticButton(
@@ -409,7 +408,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
   Widget _buildFeatureCard(double rotationAngle) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
       decoration: BoxDecoration(
         color: const Color(0xFF09111F),
         borderRadius: BorderRadius.circular(28.0),
@@ -430,21 +429,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
           _buildFeatureItem(
             icon: Icons.hub_rounded,
             title: 'Mesh Communication',
-            subtitle: 'Connect with nearby devices',
+            subtitle: 'Connect nearby devices',
             rotationAngle: rotationAngle,
           ),
           _buildDivider(),
           _buildFeatureItem(
             icon: Icons.psychology_rounded,
             title: 'AI Emergency Assistant',
-            subtitle: 'Get smart help in critical moments',
+            subtitle: 'Smart help in critical moments',
             rotationAngle: rotationAngle,
           ),
           _buildDivider(),
           _buildFeatureItem(
             icon: Icons.groups_rounded,
             title: 'Resources & Community',
-            subtitle: 'Share, help and survive together',
+            subtitle: 'Share & help others survive',
             rotationAngle: rotationAngle,
           ),
         ],
@@ -462,9 +461,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
       children: [
         Transform.rotate(
           angle: rotationAngle,
-          child: Container(
-            width: 46.0,
-            height: 46.0,
+            child: Container(
+            width: 40.0,
+            height: 40.0,
             decoration: BoxDecoration(
               color: const Color(0xFF09111F),
               shape: BoxShape.circle,
@@ -483,12 +482,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
               child: Icon(
                 icon,
                 color: Colors.white,
-                size: 20.0,
+                  size: 18.0,
               ),
             ),
           ),
         ),
-        const SizedBox(width: 16.0),
+            const SizedBox(width: 14.0),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,17 +495,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 18.0,
+                  fontSize: 15.0,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                   fontFamily: 'SF Pro Display',
                 ),
               ),
-              const SizedBox(height: 4.0),
+              const SizedBox(height: 2.0),
               Text(
                 subtitle,
                 style: const TextStyle(
-                  fontSize: 15.0,
+                  fontSize: 13.0,
                   fontWeight: FontWeight.w400,
                   color: Color(0xFFA8B3C7),
                   fontFamily: 'SF Pro Display',
@@ -905,7 +904,7 @@ class _FuturisticButtonState extends State<FuturisticButton> with TickerProvider
                 scale: scale,
                 child: Container(
                   width: double.infinity,
-                  height: 60.0,
+                  height: 52.0,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(18.0),
                     gradient: const LinearGradient(
@@ -919,7 +918,7 @@ class _FuturisticButtonState extends State<FuturisticButton> with TickerProvider
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0xFF256DFF).withOpacity(0.25 * glowScale),
-                        blurRadius: 55.0 * glowScale,
+                                        blurRadius: 30.0 * glowScale,
                         spreadRadius: 1.0,
                       ),
                     ],
@@ -949,7 +948,7 @@ class _FuturisticButtonState extends State<FuturisticButton> with TickerProvider
                           widget.text,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 16.0,
+                            fontSize: 15.0,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
                             fontFamily: 'SF Pro Display',

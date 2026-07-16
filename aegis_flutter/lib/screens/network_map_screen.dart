@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
-import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
 import 'identity_screen.dart';
 import '../widgets/node_popup_card.dart';

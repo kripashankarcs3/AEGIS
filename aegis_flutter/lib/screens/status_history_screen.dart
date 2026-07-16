@@ -47,9 +47,9 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: AegisColors.cardBackground,
+                  color: AegisColors.cardBg,
                   borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: AegisColors.border, width: 1.0),
+                  border: Border.all(color: AegisColors.border1, width: 1.0),
                 ),
                 child: Row(
                   children: [
@@ -64,7 +64,7 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                       child: const Center(
                         child: Icon(
                           Icons.verified_user_rounded,
-                          color: AegisColors.activeGreen,
+                          color: AegisColors.neonGreen,
                           size: 22.0,
                         ),
                       ),
@@ -137,28 +137,28 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                 child: ListView(
                   children: [
                     _buildActivityTile(
-                      color: AegisColors.activeGreen,
+                      color: AegisColors.neonGreen,
                       nodeId: 'SIG-8AF3',
                       status: 'Online',
-                      statusColor: AegisColors.activeGreen,
+                      statusColor: AegisColors.neonGreen,
                       time: 'Just now',
                       hops: '2 hops',
                     ),
                     _buildDivider(),
                     _buildActivityTile(
-                      color: AegisColors.activeGreen,
+                      color: AegisColors.neonGreen,
                       nodeId: 'SIG-C4E1',
                       status: 'Online',
-                      statusColor: AegisColors.activeGreen,
+                      statusColor: AegisColors.neonGreen,
                       time: '1 min ago',
                       hops: '1 hop',
                     ),
                     _buildDivider(),
                     _buildActivityTile(
-                      color: AegisColors.warningOrange,
+                      color: AegisColors.sosRed,
                       nodeId: 'SIG-B2C1',
                       status: 'Relay',
-                      statusColor: AegisColors.warningOrange,
+                      statusColor: AegisColors.sosRed,
                       time: '2 min ago',
                       hops: '2 hops',
                     ),
@@ -173,7 +173,7 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                     ),
                     _buildDivider(),
                     _buildActivityTile(
-                      color: AegisColors.inactiveGrey,
+                      color: AegisColors.textMuted,
                       nodeId: 'SIG-9E10',
                       status: 'Offline',
                       statusColor: AegisColors.textMuted,
@@ -189,9 +189,9 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                 width: double.infinity,
                 height: 44.0,
                 decoration: BoxDecoration(
-                  color: AegisColors.purpleLightBg.withOpacity(0.3),
+                  color: AegisColors.violet.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(6.0),
-                  border: Border.all(color: AegisColors.busyPurple, width: 1.0),
+                  border: Border.all(color: AegisColors.violet, width: 1.0),
                 ),
                 child: InkWell(
                   onTap: () {},
@@ -230,7 +230,7 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
           border: isSelected
               ? const Border(
                   bottom: BorderSide(
-                    color: AegisColors.activeGreen,
+                    color: AegisColors.neonGreen,
                     width: 2.5,
                   ),
                 )

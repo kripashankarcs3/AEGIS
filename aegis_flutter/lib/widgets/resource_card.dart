@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/resource_item.dart';
 import '../constants/aegis_colors.dart';
-import '../constants/aegis_styles.dart';
-
 class ResourceCard extends StatelessWidget {
   final ResourceItem item;
   final String actionLabel;

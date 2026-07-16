@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../constants/aegis_colors.dart';
 import 'onboarding_screen.dart';
 
 class LogoShieldPainter extends CustomPainter {
