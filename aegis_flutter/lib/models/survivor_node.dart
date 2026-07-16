@@ -1,45 +1,58 @@
-// Display/state model for a node on the radar — built from incoming
-// 'status' packets. Not the same as identity_provider's peer list, this is
-// specifically the survivor status layer on top of it.
+import 'package:flutter/material.dart';
+
+enum NodeStatus {
+  online,
+  relay,
+  busy,
+  offline,
+  sos
+}
 
 class SurvivorNode {
-  final String id; // SIG-XXXX
-  final String status; // 'safe' | 'need_help' | 'have_resources'
-  final double? lat;
-  final double? lng;
-  final List<String> resources;
-  final String message;
-  final int lastSeen;
+  final String id;
+  final int hops;
+  final NodeStatus status;
+  final bool isUser;
+  final double dx;
+  final double dy;
 
-  SurvivorNode({
+  const SurvivorNode({
     required this.id,
+    required this.hops,
     required this.status,
-    this.lat,
-    this.lng,
-    this.resources = const [],
-    this.message = '',
-    required this.lastSeen,
+    this.isUser = false,
+    required this.dx,
+    required this.dy,
   });
 
-  bool get isOffline => DateTime.now().millisecondsSinceEpoch - lastSeen > 60000;
+  Color get color {
+    if (isUser) return const Color(0xFF3B82F6);
+    switch (status) {
+      case NodeStatus.online:
+        return const Color(0xFF10B981);
+      case NodeStatus.relay:
+        return const Color(0xFFF59E0B);
+      case NodeStatus.busy:
+        return const Color(0xFF8B5CF6);
+      case NodeStatus.offline:
+        return const Color(0xFF4B5563);
+      case NodeStatus.sos:
+        return const Color(0xFFEF4444);
+    }
+  }
 
-  Map<String, dynamic> toMap() => {
-        'id': id,
-        'status': status,
-        'lat': lat,
-        'lng': lng,
-        'resources': resources,
-        'message': message,
-        'lastSeen': lastSeen,
-      };
-
-  factory SurvivorNode.fromMap(Map<dynamic, dynamic> m) => SurvivorNode(
-        id: m['id'],
-        status: m['status'],
-        lat: m['lat'],
-        lng: m['lng'],
-        resources: List<String>.from(m['resources'] ?? []),
-        message: m['message'] ?? '',
-        lastSeen: m['lastSeen'],
-      );
+  String get statusLabel {
+    switch (status) {
+      case NodeStatus.online:
+        return 'Online';
+      case NodeStatus.relay:
+        return 'Relay';
+      case NodeStatus.busy:
+        return 'Busy';
+      case NodeStatus.offline:
+        return 'Offline';
+      case NodeStatus.sos:
+        return 'SOS';
+    }
+  }
 }

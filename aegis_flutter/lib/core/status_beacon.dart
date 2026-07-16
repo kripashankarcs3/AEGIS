@@ -1,6 +1,6 @@
 import 'dart:async';
 import '../models/signal_packet.dart';
-import '../models/survivor_node.dart';
+import '../models/survivor_node_model.dart';
 import '../services/storage_service.dart';
 
 class StatusBeacon {
@@ -58,7 +58,7 @@ class StatusBeacon {
     if (packet.type != PacketType.status) return;
     if (packet.from == myIdentity) return;
 
-    final node = SurvivorNode(
+    final node = SurvivorNodeModel(
       id: packet.from,
       status: packet.status ?? 'safe',
       lat: packet.lat,
@@ -67,8 +67,8 @@ class StatusBeacon {
       message: packet.message ?? '',
       lastSeen: DateTime.now().millisecondsSinceEpoch,
     );
-    await StorageService.saveSurvivorNode(node);
+    await StorageService.saveSurvivorNodeModel(node);
   }
 
-  Future<List<SurvivorNode>> get survivorMap => StorageService.getAllSurvivorNodes();
+  Future<List<SurvivorNodeModel>> get survivorMap => StorageService.getAllSurvivorNodeModels();
 }

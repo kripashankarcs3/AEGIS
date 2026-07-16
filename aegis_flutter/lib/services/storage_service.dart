@@ -1,6 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import '../models/survivor_node.dart';
-import '../models/resource_item.dart';
+import '../models/survivor_node_model.dart';
+import '../models/resource_model.dart';
 
 // One place for all Hive box access. Not using generated TypeAdapters —
 // everything's stored as plain Maps, quicker to ship for a 48hr build and
@@ -44,30 +44,30 @@ class StorageService {
       Hive.box(_sosBox).put('alerts', alerts);
 
   // ---- survivors ----
-  static Future<void> saveSurvivorNode(SurvivorNode node) async {
+  static Future<void> saveSurvivorNodeModel(SurvivorNodeModel node) async {
     await Hive.box(_survivorBox).put(node.id, node.toMap());
   }
 
-  static Future<List<SurvivorNode>> getAllSurvivorNodes() async {
+  static Future<List<SurvivorNodeModel>> getAllSurvivorNodeModels() async {
     final box = Hive.box(_survivorBox);
     return box.keys
-        .map((k) => SurvivorNode.fromMap(Map<String, dynamic>.from(box.get(k))))
+        .map((k) => SurvivorNodeModel.fromMap(Map<String, dynamic>.from(box.get(k))))
         .toList();
   }
 
   // ---- resources ----
-  static Future<void> saveResourceItem(ResourceItem item) async {
+  static Future<void> saveResourceModel(ResourceModel item) async {
     final raw = Hive.box(_resourceBox).get('posts', defaultValue: []) as List;
-    final list = raw.map((m) => ResourceItem.fromMap(Map<String, dynamic>.from(m))).toList();
+    final list = raw.map((m) => ResourceModel.fromMap(Map<String, dynamic>.from(m))).toList();
     if (list.any((p) => p.id == item.id)) return;
     list.add(item);
     await Hive.box(_resourceBox).put('posts', list.map((p) => p.toMap()).toList());
   }
 
-  static Future<List<ResourceItem>> getResourceFeed() async {
+  static Future<List<ResourceModel>> getResourceFeed() async {
     final raw = Hive.box(_resourceBox).get('posts', defaultValue: []) as List;
     final list = raw
-        .map((m) => ResourceItem.fromMap(Map<String, dynamic>.from(m)))
+        .map((m) => ResourceModel.fromMap(Map<String, dynamic>.from(m)))
         .where((p) => !p.isExpired)
         .toList();
     list.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -77,7 +77,7 @@ class StorageService {
   static Future<void> purgeExpiredResources() async {
     final raw = Hive.box(_resourceBox).get('posts', defaultValue: []) as List;
     final list = raw
-        .map((m) => ResourceItem.fromMap(Map<String, dynamic>.from(m)))
+        .map((m) => ResourceModel.fromMap(Map<String, dynamic>.from(m)))
         .where((p) => !p.isExpired)
         .toList();
     await Hive.box(_resourceBox).put('posts', list.map((p) => p.toMap()).toList());
