@@ -337,10 +337,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         },
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            final double width = constraints.maxWidth * 0.55;
+                            final double width = constraints.maxWidth * 0.85;
                             return SizedBox(
                               width: width,
-                              height: width * 0.65,
+                              height: width * 0.60,
                               child: FuturisticOrbitalGraphic(
                                 width: width,
                                 floatValue: _graphicFloatController.value,
@@ -588,9 +588,9 @@ class _FuturisticOrbitalGraphicState extends State<FuturisticOrbitalGraphic> wit
   @override
   Widget build(BuildContext context) {
     final double centerDx = widget.width / 2;
-    final double centerDy = widget.width * 0.36;
-    final double rx = widget.width * 0.44;
-    final double ry = widget.width * 0.20;
+    final double centerDy = widget.width * 0.30;
+    final double rx = widget.width * 0.46;
+    final double ry = widget.width * 0.22;
 
     // Calculate node base angles around the orbital path
     final List<double> angles = List.generate(totalNodes, (index) => index * pi / 3);
@@ -738,8 +738,8 @@ class OrbitalBackdropPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final double rx = size.width * 0.44;
-    final double ry = size.width * 0.20;
+    final double rx = size.width * 0.46;
+    final double ry = size.width * 0.22;
 
     // 1. Draw 3 concentric elliptical rings (gradient blue -> transparent, 12% opacity)
     for (double f in [1.0, 0.82, 0.64]) {
