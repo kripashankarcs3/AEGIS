@@ -118,7 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 label: 'Mesh Network',
                 statusText: 'Connected',
                 statusColor: const Color(0xFF00FF88),
-                onTap: () {},
+                onTap: () => _showMeshInfo(context),
               ),
               _buildDivider(),
               _buildNavRow(
@@ -126,7 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 label: 'Offline Mode',
                 statusText: 'Enabled',
                 statusColor: const Color(0xFF00FF88),
-                onTap: () {},
+                onTap: () => _showOfflineInfo(context),
               ),
               _buildDivider(),
               _buildNavRow(
@@ -233,6 +233,142 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(context),
+    );
+  }
+
+  void _showMeshInfo(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AegisColors.surface1,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36, height: 4,
+                decoration: BoxDecoration(color: AegisColors.textMuted, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Container(
+                  width: 44, height: 44,
+                  decoration: BoxDecoration(
+                    color: AegisColors.neonGreen.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.sensors_outlined, color: AegisColors.neonGreen, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Text('Mesh Network', style: TextStyle(color: AegisColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w800)),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _infoRow('Status', 'Connected', AegisColors.neonGreen),
+            _infoRow('Node ID', 'NEXUS_7FA2B3', AegisColors.textPrimary),
+            _infoRow('Peers', '3 active', AegisColors.textPrimary),
+            _infoRow('Transport', 'WiFi Direct + BLE', AegisColors.textPrimary),
+            _infoRow('IP', '192.168.43.1', AegisColors.textPrimary),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                style: TextButton.styleFrom(
+                  backgroundColor: AegisColors.cardBg,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: Text('Close', style: TextStyle(color: AegisColors.textPrimary, fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showOfflineInfo(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AegisColors.surface1,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36, height: 4,
+                decoration: BoxDecoration(color: AegisColors.textMuted, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Container(
+                  width: 44, height: 44,
+                  decoration: BoxDecoration(
+                    color: AegisColors.amber.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.portable_wifi_off_outlined, color: AegisColors.amber, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Text('Offline Mode', style: TextStyle(color: AegisColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w800)),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'When enabled, AEGIS will only communicate via mesh network and will not use any internet connection. All data is synced peer-to-peer.',
+              style: TextStyle(color: AegisColors.textSecondary, fontSize: 14, height: 1.5),
+            ),
+            const SizedBox(height: 16),
+            _infoRow('Status', 'Enabled', AegisColors.neonGreen),
+            _infoRow('Data Sync', 'Mesh only', AegisColors.textPrimary),
+            _infoRow('Internet', 'Blocked', AegisColors.amber),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                style: TextButton.styleFrom(
+                  backgroundColor: AegisColors.cardBg,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: Text('Close', style: TextStyle(color: AegisColors.textPrimary, fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value, Color valueColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(color: AegisColors.textSecondary, fontSize: 13)),
+          Text(value, style: TextStyle(color: valueColor, fontSize: 13, fontWeight: FontWeight.w700)),
+        ],
+      ),
     );
   }
 
@@ -446,7 +582,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Switch(
                 value: value,
                 onChanged: onChanged,
-                activeColor: AegisColors.cardBg,
+                activeThumbColor: AegisColors.cardBg,
                 activeTrackColor: AegisColors.electricBlue,
                 inactiveThumbColor: AegisColors.textMuted,
                 inactiveTrackColor: AegisColors.border2,
