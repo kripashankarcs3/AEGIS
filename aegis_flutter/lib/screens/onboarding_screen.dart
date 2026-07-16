@@ -279,11 +279,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                             ),
 
                             // Floating node bubbles on elliptical orbit path
-                            _buildRingBubble(center, rx, ry, baseAngle1, const Color(0xFF8B5CF6), Icons.person_rounded),
-                            _buildRingBubble(center, rx, ry, baseAngle2, const Color(0xFF3B82F6), Icons.chat_bubble_rounded),
-                            _buildRingBubble(center, rx, ry, baseAngle3, const Color(0xFF10B981), Icons.vpn_key_rounded),
-                            _buildRingBubble(center, rx, ry, baseAngle4, const Color(0xFFF59E0B), Icons.settings_input_antenna),
-                            _buildRingBubble(center, rx, ry, baseAngle5, const Color(0xFFEF4444), Icons.map_rounded),
+                            _buildRingBubble(center, rx, ry, baseAngle1, const Color(0xFF38BDF8), Icons.person_rounded),
+                            _buildRingBubble(center, rx, ry, baseAngle2, const Color(0xFF38BDF8), Icons.chat_bubble_rounded),
+                            _buildRingBubble(center, rx, ry, baseAngle3, const Color(0xFF38BDF8), Icons.vpn_key_rounded),
+                            _buildRingBubble(center, rx, ry, baseAngle4, const Color(0xFF38BDF8), Icons.settings_input_antenna),
+                            _buildRingBubble(center, rx, ry, baseAngle5, const Color(0xFF38BDF8), Icons.map_rounded),
                           ],
                         );
                       },
@@ -303,7 +303,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                     decoration: BoxDecoration(
                       color: const Color(0xFF0F131A),
                       borderRadius: BorderRadius.circular(12.0),
-                      border: Border.all(color: AegisColors.border, width: 1.0),
+                      border: Border.all(color: AegisColors.border1, width: 1.0),
                     ),
                     child: Column(
                       children: [

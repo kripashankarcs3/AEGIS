@@ -70,7 +70,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                         // Battery icon with lightning green bolt
                         const Icon(
                           Icons.battery_charging_full_rounded,
-                          color: AegisColors.activeGreen,
+                          color: AegisColors.neonGreen,
                           size: 40.0,
                         ),
                         const SizedBox(height: 10.0),
@@ -96,7 +96,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                           style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.bold,
-                            color: AegisColors.activeGreen,
+                            color: AegisColors.neonGreen,
                           ),
                         ),
                       ],
@@ -111,9 +111,9 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
+                color: AegisColors.cardBg,
                 borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
+                border: Border.all(color: AegisColors.border1, width: 1.0),
               ),
               child: Row(
                 children: [
@@ -121,17 +121,17 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                     width: 40.0,
                     height: 40.0,
                     decoration: BoxDecoration(
-                      color: AegisColors.greenLightBg,
+                      color: AegisColors.neonGreen.withOpacity(0.08),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AegisColors.activeGreen.withOpacity(0.3),
+                        color: AegisColors.neonGreen.withOpacity(0.3),
                         width: 1.0,
                       ),
                     ),
                     child: const Center(
                       child: Icon(
                         Icons.eco_rounded,
-                        color: AegisColors.activeGreen,
+                        color: AegisColors.neonGreen,
                         size: 20.0,
                       ),
                     ),
@@ -170,7 +170,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                         });
                       },
                       activeColor: Colors.white,
-                      activeTrackColor: AegisColors.activeGreen,
+                      activeTrackColor: AegisColors.neonGreen,
                       inactiveThumbColor: Colors.grey,
                       inactiveTrackColor: const Color(0xFF1E293B),
                     ),
@@ -193,9 +193,9 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
             const SizedBox(height: 10.0),
             Container(
               decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
+                color: AegisColors.cardBg,
                 borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
+                border: Border.all(color: AegisColors.border1, width: 1.0),
               ),
               child: Column(
                 children: [
@@ -272,7 +272,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                             Text(
                               '30 min',
                               style: TextStyle(
-                                color: AegisColors.activeGreen,
+                                color: AegisColors.neonGreen,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12.0,
                               ),
@@ -328,7 +328,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
               value: value,
               onChanged: onChanged,
               activeColor: Colors.white,
-              activeTrackColor: AegisColors.activeGreen,
+              activeTrackColor: AegisColors.neonGreen,
               inactiveThumbColor: Colors.grey,
               inactiveTrackColor: const Color(0xFF1E293B),
             ),
@@ -366,7 +366,7 @@ class BatterySaverGaugePainter extends CustomPainter {
 
     // Draw active progress ring
     final Paint activePaint = Paint()
-      ..color = AegisColors.activeGreen
+      ..color = AegisColors.neonGreen
       ..style = PaintingStyle.stroke
       ..strokeWidth = 6.0
       ..strokeCap = StrokeCap.round;

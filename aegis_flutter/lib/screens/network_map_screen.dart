@@ -1,458 +1,228 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
-import 'node_details_screen.dart';
+import '../constants/aegis_styles.dart';
+import '../constants/aegis_animations.dart';
 import 'identity_screen.dart';
 import '../widgets/node_popup_card.dart';
 import 'chat_conversation_screen.dart';
 
 class MapMarkerNode {
-  final String label;
-  final Color color;
-  final double dx; // -1.0 to 1.0
-  final double dy; // -1.0 to 1.0
-  final bool isUser;
-  final IconData icon;
-
-  const MapMarkerNode({
-    required this.label,
-    required this.color,
-    required this.dx,
-    required this.dy,
-    this.isUser = false,
-    required this.icon,
-  });
+  final String label; final Color color; final double dx; final double dy; final bool isUser; final IconData icon;
+  const MapMarkerNode({required this.label, required this.color, required this.dx, required this.dy, this.isUser = false, required this.icon});
 }
 
 class SurvivorMapPainter extends CustomPainter {
-  final List<MapMarkerNode> nodes;
-
-  SurvivorMapPainter({required this.nodes});
+  final List<MapMarkerNode> nodes; final double pulseValue;
+  SurvivorMapPainter({required this.nodes, this.pulseValue = 0.0});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final maxRadius = min(size.width, size.height) / 2 * 0.88;
+    final c = Offset(size.width / 2, size.height / 2); final maxR = min(size.width, size.height) / 2 * 0.82;
+    _rings(canvas, c, maxR); _grid(canvas, c, maxR); _conns(canvas, c, maxR);
+  }
 
-    // 1. Draw circular concentric radar rings (faint green-ish/cyan)
-    final ringPaint = Paint()
-      ..color = const Color(0xFF1E293B).withOpacity(0.4)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8;
+  void _rings(Canvas canvas, Offset c, double maxR) {
+    final p = Paint()..color = const Color(0xFF1E293B).withOpacity(0.2)..style = PaintingStyle.stroke..strokeWidth = 0.5;
+    for (final r in [maxR * 0.35, maxR * 0.68, maxR]) canvas.drawCircle(c, r, p);
+  }
 
-    final List<double> radii = [
-      maxRadius * 0.35,
-      maxRadius * 0.68,
-      maxRadius,
-    ];
+  void _grid(Canvas canvas, Offset c, double maxR) {
+    final p = Paint()..color = const Color(0xFF1E293B).withOpacity(0.2)..strokeWidth = 0.5;
+    canvas.drawLine(Offset(c.dx - maxR, c.dy), Offset(c.dx + maxR, c.dy), p);
+    canvas.drawLine(Offset(c.dx, c.dy - maxR), Offset(c.dx, c.dy + maxR), p);
+  }
 
-    for (int i = 0; i < radii.length; i++) {
-      canvas.drawCircle(center, radii[i], ringPaint);
-    }
+  void _conns(Canvas canvas, Offset c, double maxR) {
+    final user = nodes.firstWhere((n) => n.isUser);
+    final up = Offset(c.dx + user.dx * maxR, c.dy + user.dy * maxR);
 
-    // 2. Faint grid division lines
-    final axisPaint = Paint()
-      ..color = const Color(0xFF1E293B).withOpacity(0.3)
-      ..strokeWidth = 0.8;
-    
-    canvas.drawLine(Offset(center.dx - maxRadius, center.dy), Offset(center.dx + maxRadius, center.dy), axisPaint);
-    canvas.drawLine(Offset(center.dx, center.dy - maxRadius), Offset(center.dx, center.dy + maxRadius), axisPaint);
-    
-    // 3. Faint dotted connection lines from center
-    final userNode = nodes.firstWhere((n) => n.isUser);
-    final userPos = Offset(center.dx + userNode.dx * maxRadius, center.dy + userNode.dy * maxRadius);
+    for (final n in nodes) {
+      if (n.isUser) continue;
+      final p = Offset(c.dx + n.dx * maxR, c.dy + n.dy * maxR);
 
-    for (var outerNode in nodes) {
-      if (outerNode.isUser) continue;
-      final pos = Offset(center.dx + outerNode.dx * maxRadius, center.dy + outerNode.dy * maxRadius);
-      
-      final linePaint = Paint()
-        ..color = outerNode.color.withOpacity(0.2)
-        ..strokeWidth = 1.0;
+      if (n.label.contains('Danger')) {
+        final sg = Paint()..color = AegisColors.sosRed.withOpacity(0.1 + 0.08 * sin(pulseValue * pi * 2))..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+        canvas.drawLine(up, p, sg);
+        for (int i = 0; i < 3; i++) {
+          final pp = Paint()..color = AegisColors.sosRed.withOpacity(0.2 - i * 0.05)..strokeWidth = 1.5;
+          final t = ((pulseValue * 3 + i * 0.33) % 1.0);
+          canvas.drawCircle(Offset(up.dx + (p.dx - up.dx) * t, up.dy + (p.dy - up.dy) * t), 2, pp);
+        }
+      }
 
-      _drawDashedLine(canvas, userPos, pos, linePaint);
+      final lp = Paint()..color = n.color.withOpacity(0.15)..strokeWidth = 1.0;
+      _dashed(canvas, up, p, lp);
     }
   }
 
-  void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
-    final double dx = p2.dx - p1.dx;
-    final double dy = p2.dy - p1.dy;
-    final double distance = sqrt(dx * dx + dy * dy);
-    const double dashLength = 4.0;
-    const double spaceLength = 4.0;
-    final int count = (distance / (dashLength + spaceLength)).floor();
-
-    for (int i = 0; i < count; i++) {
-      final double startFraction = (i * (dashLength + spaceLength)) / distance;
-      final double endFraction = (startFraction + dashLength / distance).clamp(0.0, 1.0);
-      canvas.drawLine(
-        Offset(p1.dx + dx * startFraction, p1.dy + dy * startFraction),
-        Offset(p1.dx + dx * endFraction, p1.dy + dy * endFraction),
-        paint,
-      );
+  void _dashed(Canvas canvas, Offset p1, Offset p2, Paint paint) {
+    final dx = p2.dx - p1.dx, dy = p2.dy - p1.dy, dist = sqrt(dx * dx + dy * dy);
+    const dl = 4.0, sl = 4.0;
+    final cnt = (dist / (dl + sl)).floor();
+    for (int i = 0; i < cnt; i++) {
+      final s = i * (dl + sl) / dist, e = (s + dl / dist).clamp(0.0, 1.0);
+      canvas.drawLine(Offset(p1.dx + dx * s, p1.dy + dy * s), Offset(p1.dx + dx * e, p1.dy + dy * e), paint);
     }
   }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  @override bool shouldRepaint(covariant SurvivorMapPainter old) => true;
 }
 
 class NetworkMapScreen extends StatefulWidget {
   const NetworkMapScreen({super.key});
-
-  @override
-  State<NetworkMapScreen> createState() => _NetworkMapScreenState();
+  @override State<NetworkMapScreen> createState() => _NetworkMapScreenState();
 }
 
-class _NetworkMapScreenState extends State<NetworkMapScreen> {
-  final List<MapMarkerNode> _markers = const [
-    MapMarkerNode(label: 'YOU', color: AegisColors.primaryBlue, dx: 0.0, dy: 0.0, isUser: true, icon: Icons.person_rounded),
-    MapMarkerNode(label: 'Shelter 1', color: AegisColors.busyPurple, dx: 0.05, dy: 0.65, icon: Icons.roofing_rounded),
+class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _pulse; late Animation<double> _pulseA;
+
+  static const _markers = [
+    MapMarkerNode(label: 'YOU', color: AegisColors.electricBlue, dx: 0.0, dy: 0.0, isUser: true, icon: Icons.person_rounded),
+    MapMarkerNode(label: 'Shelter 1', color: AegisColors.violet, dx: 0.05, dy: 0.65, icon: Icons.roofing_rounded),
     MapMarkerNode(label: 'Danger 1', color: AegisColors.sosRed, dx: -0.15, dy: -0.62, icon: Icons.warning_amber_rounded),
-    MapMarkerNode(label: 'Medical 1', color: AegisColors.primaryBlue, dx: -0.45, dy: 0.28, icon: Icons.local_hospital_rounded),
-    MapMarkerNode(label: 'Safe Zone 1', color: AegisColors.activeGreen, dx: -0.58, dy: -0.22, icon: Icons.shield_outlined),
-    MapMarkerNode(label: 'Shelter 2', color: AegisColors.warningOrange, dx: 0.6, dy: 0.2, icon: Icons.roofing_rounded),
-    MapMarkerNode(label: 'Safe Zone 2', color: AegisColors.activeGreen, dx: 0.48, dy: -0.48, icon: Icons.shield_outlined),
+    MapMarkerNode(label: 'Medical 1', color: AegisColors.electricBlue, dx: -0.45, dy: 0.28, icon: Icons.local_hospital_rounded),
+    MapMarkerNode(label: 'Safe Zone 1', color: AegisColors.neonGreen, dx: -0.58, dy: -0.22, icon: Icons.shield_outlined),
+    MapMarkerNode(label: 'Shelter 2', color: AegisColors.warning, dx: 0.6, dy: 0.2, icon: Icons.roofing_rounded),
+    MapMarkerNode(label: 'Safe Zone 2', color: AegisColors.neonGreen, dx: 0.48, dy: -0.48, icon: Icons.shield_outlined),
   ];
+
+  @override void initState() { super.initState(); _pulse = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat(); _pulseA = Tween<double>(begin: 0.0, end: 1.0).animate(_pulse); }
+  @override void dispose() { _pulse.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AegisColors.background,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. Top Header Bar
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22.0),
-                          onPressed: () {},
-                        ),
-                        const Text(
-                          'Survivor Map',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.search_rounded, color: Colors.white, size: 22.0),
-                          onPressed: () {},
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.tune_rounded, color: Colors.white, size: 22.0),
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12.0),
-
-                // 2. Status pills filter tags list
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildStatusLegend(AegisColors.activeGreen, 'Safe Zone'),
-                      _buildStatusLegend(AegisColors.sosRed, 'Danger'),
-                      _buildStatusLegend(AegisColors.busyPurple, 'Shelter'),
-                      _buildStatusLegend(AegisColors.primaryBlue, 'Medical'),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-
-                // 3. Map Canvas Graphics with overlays
-                AspectRatio(
-                  aspectRatio: 1.05,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF090D16),
-                      borderRadius: BorderRadius.circular(12.0),
-                      border: Border.all(color: AegisColors.border, width: 1.0),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final center = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
-                        final maxRadius = min(constraints.maxWidth, constraints.maxHeight) / 2 * 0.88;
-
-                        return Stack(
-                          children: [
-                            // Connections lines background drawing
-                            Positioned.fill(
-                              child: CustomPaint(
-                                painter: SurvivorMapPainter(nodes: _markers),
-                              ),
-                            ),
-
-                            // Overlay the Map nodes (small colored points with user tag in center)
-                            ..._markers.map((node) {
-                              final double nodeX = center.dx + node.dx * maxRadius;
-                              final double nodeY = center.dy + node.dy * maxRadius;
-
-                              final double pointSize = node.isUser ? 36.0 : 28.0;
-
-                              return Positioned(
-                                left: nodeX - pointSize / 2,
-                                top: nodeY - pointSize / 2,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    if (node.isUser) {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => const IdentityScreen(),
-                                        ),
-                                      );
-                                    } else {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        backgroundColor: Colors.transparent,
-                                        isScrollControlled: true,
-                                        builder: (context) => NodePopupCard(
-                                          nodeId: node.label.startsWith('SIG-') ? node.label : 'SIG-4EBD',
-                                          onOpenChat: () {
-                                            Navigator.of(context).pop();
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (context) => ChatConversationScreen(
-                                                  nodeId: node.label.startsWith('SIG-') ? node.label : 'SIG-4EBD',
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: node.isUser
-                                      ? Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Container(
-                                              width: pointSize,
-                                              height: pointSize,
-                                              decoration: BoxDecoration(
-                                                color: node.color,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(color: Colors.white, width: 2.0),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: node.color.withOpacity(0.5),
-                                                    blurRadius: 10,
-                                                  ),
-                                                ],
-                                              ),
-                                              child: const Center(
-                                                child: Icon(
-                                                  Icons.person_rounded,
-                                                  color: Colors.white,
-                                                  size: 18.0,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4.0),
-                                            const Text(
-                                              'YOU',
-                                              style: TextStyle(
-                                                fontSize: 9.0,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                                letterSpacing: 0.5,
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      : Container(
-                                          width: pointSize,
-                                          height: pointSize,
-                                          decoration: BoxDecoration(
-                                            color: node.color,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(color: const Color(0xFF090D16), width: 1.5),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: node.color.withOpacity(0.4),
-                                                blurRadius: 6,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              node.icon,
-                                              color: Colors.white,
-                                              size: 14.0,
-                                            ),
-                                          ),
-                                        ),
-                                ),
-                              );
-                            }),
-
-                            // Right controls overlay
-                            Positioned(
-                              right: 12.0,
-                              bottom: 24.0,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  _buildMapControlBtn(Icons.gps_fixed_rounded),
-                                  const SizedBox(height: 8.0),
-                                  _buildMapControlBtn(Icons.add_rounded),
-                                  const SizedBox(height: 8.0),
-                                  _buildMapControlBtn(Icons.remove_rounded),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-
-                // 4. Bottom Info Card Details
-                Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: AegisColors.cardBackground,
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: AegisColors.border, width: 1.0),
-                  ),
-                  child: Row(
-                    children: [
-                      // Safe Zone shield logo icon
-                      Container(
-                        width: 40.0,
-                        height: 40.0,
-                        decoration: BoxDecoration(
-                          color: AegisColors.greenLightBg,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.shield_outlined,
-                            color: AegisColors.activeGreen,
-                            size: 20.0,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 14.0),
-                      // Details Column info
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              'Safe Zone',
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                color: AegisColors.activeGreen,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 3.0),
-                            Text(
-                              'Lake View Park',
-                              style: TextStyle(
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(height: 3.0),
-                            Text(
-                              '12 km away • 15 people',
-                              style: TextStyle(
-                                fontSize: 11.0,
-                                color: AegisColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(
-                        Icons.chevron_right,
-                        color: AegisColors.textSecondary,
-                        size: 20.0,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        child: SingleChildScrollView(padding: const EdgeInsets.fromLTRB(20, 12, 20, 100), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          StaggeredFadeIn(index: 0, child: _header()),
+          const SizedBox(height: 16),
+          StaggeredFadeIn(index: 1, child: _legend()),
+          const SizedBox(height: 20),
+          StaggeredFadeIn(index: 2, child: _map()),
+          const SizedBox(height: 20),
+          StaggeredFadeIn(index: 3, child: _infoCard()),
+        ])),
       ),
     );
   }
 
-  Widget _buildMapControlBtn(IconData icon) {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: const Color(0xFF111827),
-        borderRadius: BorderRadius.circular(6.0),
-        border: Border.all(color: const Color(0xFF1F2937), width: 1.0),
-      ),
-      child: Center(
-        child: Icon(
-          icon,
-          size: 16.0,
-          color: AegisColors.textSecondary,
-        ),
-      ),
+  Widget _header() {
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Row(children: [
+        Container(width: 40, height: 40, decoration: BoxDecoration(gradient: AegisColors.greenGradient, borderRadius: BorderRadius.circular(12), boxShadow: AegisColors.glowGreen), child: const Icon(Icons.map_outlined, color: Colors.white, size: 22)),
+        const SizedBox(width: 14),
+        const Text('Survivor Map', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5)),
+      ]),
+      Row(children: [
+        _hdrIcon(Icons.search_rounded), const SizedBox(width: 4), _hdrIcon(Icons.tune_rounded),
+      ]),
+    ]);
+  }
+
+  Widget _hdrIcon(IconData icon) => Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: Icon(icon, color: Colors.white, size: 18));
+
+  Widget _legend() {
+    return SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [
+      _chip(AegisColors.neonGreen, 'Safe Zone'), const SizedBox(width: 8),
+      _chip(AegisColors.sosRed, 'Danger'), const SizedBox(width: 8),
+      _chip(AegisColors.violet, 'Shelter'), const SizedBox(width: 8),
+      _chip(AegisColors.electricBlue, 'Medical'),
+    ]));
+  }
+
+  Widget _chip(Color color, String label) {
+    return Container(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7), decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(10), border: Border.all(color: color.withOpacity(0.2), width: 0.5)),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 7, height: 7, decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withOpacity(0.4), blurRadius: 6, spreadRadius: 1)])),
+        const SizedBox(width: 7),
+        Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color.withOpacity(0.9))),
+      ]));
+  }
+
+  Widget _map() {
+    return AnimatedBuilder(
+      animation: _pulseA,
+      builder: (_, __) {
+        return AspectRatio(
+          aspectRatio: 1.05,
+          child: Container(
+            decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF111122), Color(0xFF0C0C16)]), borderRadius: BorderRadius.circular(24), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
+            clipBehavior: Clip.antiAlias,
+            child: LayoutBuilder(builder: (_, constraints) {
+              final c = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+              final maxR = min(constraints.maxWidth, constraints.maxHeight) / 2 * 0.82;
+
+              return Stack(children: [
+                Positioned.fill(child: CustomPaint(painter: SurvivorMapPainter(nodes: _markers, pulseValue: _pulseA.value))),
+                ..._markers.map((n) {
+                  final nx = c.dx + n.dx * maxR, ny = c.dy + n.dy * maxR;
+                  final s = (n.isUser ? 40.0 : 32.0);
+                  final danger = n.label.contains('Danger');
+
+                  return Positioned(left: nx - s / 2, top: ny - s / 2, child: GestureDetector(
+                    onTap: () {
+                      if (n.isUser) {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const IdentityScreen()));
+                      } else {
+                        showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true,
+                          builder: (_) => NodePopupCard(nodeId: n.label.startsWith('SIG-') ? n.label : 'SIG-4EBD',
+                            onOpenChat: () { Navigator.of(context).pop(); Navigator.of(context).push(MaterialPageRoute(builder: (_) => ChatConversationScreen(nodeId: n.label.startsWith('SIG-') ? n.label : 'SIG-4EBD'))); }));
+                      }
+                    },
+                    child: danger ? _dangerNode(n, s) : n.isUser ? _userNode(n, s) : _mapNode(n, s),
+                  ));
+                }),
+                Positioned(right: 14, bottom: 24, child: Container(width: 38, height: 38, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border2, width: 0.5)), child: const Center(child: Icon(Icons.gps_fixed_rounded, size: 18, color: AegisColors.textSecondary)))),
+              ]);
+            }),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildStatusLegend(Color color, String label) {
+  Widget _userNode(MapMarkerNode n, double s) {
+    return Column(mainAxisSize: MainAxisSize.min, children: [
+      Container(width: s, height: s, decoration: BoxDecoration(gradient: AegisColors.primaryGradient, shape: BoxShape.circle, border: Border.all(color: Colors.white.withOpacity(0.9), width: 2.5), boxShadow: AegisColors.glowBlue), child: const Center(child: Icon(Icons.person_rounded, color: Colors.white, size: 20))),
+      const SizedBox(height: 4),
+      Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.white.withOpacity(0.15), width: 0.5)), child: const Text('YOU', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.0))),
+    ]);
+  }
+
+  Widget _mapNode(MapMarkerNode n, double s) {
+    return Container(width: s, height: s, decoration: BoxDecoration(gradient: LinearGradient(colors: [n.color.withOpacity(0.9), n.color.withOpacity(0.6)]), shape: BoxShape.circle, border: Border.all(color: Colors.white.withOpacity(0.3), width: 2), boxShadow: [BoxShadow(color: n.color.withOpacity(0.3), blurRadius: 10, spreadRadius: 2)]), child: Center(child: Icon(n.icon, color: Colors.white, size: 15)));
+  }
+
+  Widget _dangerNode(MapMarkerNode n, double s) {
+    return AnimatedBuilder(
+      animation: _pulseA,
+      builder: (_, __) {
+        return Container(width: s + 8, height: s + 8, decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: AegisColors.sosRed.withOpacity(0.2 + 0.15 * sin(_pulseA.value * pi * 2)), blurRadius: 16 + 8 * sin(_pulseA.value * pi * 2), spreadRadius: 3 + 3 * sin(_pulseA.value * pi * 2))]),
+          child: Container(width: s, height: s, decoration: BoxDecoration(gradient: AegisColors.sosGradient, shape: BoxShape.circle, border: Border.all(color: AegisColors.sosRed.withOpacity(0.5), width: 2)), child: Center(child: Icon(n.icon, color: Colors.white, size: 15))));
+      },
+    );
+  }
+
+  Widget _infoCard() {
     return Container(
-      margin: const EdgeInsets.only(right: 8.0),
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 5.0),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(14.0),
-        border: Border.all(color: color.withOpacity(0.3), width: 1.0),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6.0,
-            height: 6.0,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 6.0),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10.5,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
+      child: Row(children: [
+        Container(width: 48, height: 48, decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.12), shape: BoxShape.circle, border: Border.all(color: AegisColors.neonGreen.withOpacity(0.2), width: 1)), child: const Center(child: Icon(Icons.shield_outlined, color: AegisColors.neonGreen, size: 22))),
+        const SizedBox(width: 16),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.1), borderRadius: BorderRadius.circular(4)), child: const Text('SAFE ZONE', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AegisColors.neonGreen, letterSpacing: 0.5))),
+          ]),
+          const SizedBox(height: 6),
+          const Text('Lake View Park', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.2)),
+          const SizedBox(height: 4),
+          Text('12 km away • 15 people', style: TextStyle(fontSize: 12, color: AegisColors.textSecondary.withOpacity(0.8))),
+        ])),
+        Container(width: 32, height: 32, decoration: BoxDecoration(color: AegisColors.border1.withOpacity(0.3), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.chevron_right, color: AegisColors.textSecondary, size: 18)),
+      ]),
     );
   }
 }

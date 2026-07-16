@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
+import '../constants/aegis_styles.dart';
 import 'auto_sync_screen.dart';
 import 'language_screen.dart';
 import 'help_support_screen.dart';
@@ -14,359 +15,98 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _autoConnect = true;
-  bool _backgroundDiscovery = true;
-  bool _relayThroughMe = true;
-  bool _lockApp = true;
+  bool _autoConnect = true; bool _backgroundDiscovery = true; bool _relayThroughMe = true; bool _lockApp = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'Settings',
-          style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        backgroundColor: AegisColors.surface0.withOpacity(0.95), elevation: 0,
+        leading: Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)), child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20), onPressed: () => Navigator.of(context).pop())),
+        title: const Text('Settings'),
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          padding: AegisStyles.padAll,
           children: [
-            // 1. GENERAL Section
-            const Text(
-              'GENERAL',
-              style: TextStyle(
-                fontSize: 9.5,
-                fontWeight: FontWeight.bold,
-                color: AegisColors.textMuted,
-                letterSpacing: 0.5,
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            Container(
-              decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
-                borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
-              ),
-              child: Column(
-                children: [
-                  _buildNavigationRow(
-                    icon: Icons.wifi_tethering_rounded,
-                    label: 'Mesh Network',
-                    statusText: 'Connected',
-                    statusColor: AegisColors.activeGreen,
-                    onTap: () {},
-                  ),
-                  _buildDivider(),
-                  _buildNavigationRow(
-                    icon: Icons.cloud_off_rounded,
-                    label: 'Offline Mode',
-                    statusText: 'Enabled',
-                    statusColor: AegisColors.activeGreen,
-                    onTap: () {},
-                  ),
-                  _buildDivider(),
-                  _buildNavigationRow(
-                    icon: Icons.battery_charging_full_rounded,
-                    label: 'Battery Saver',
-                    statusText: 'Enabled',
-                    statusColor: AegisColors.activeGreen,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const BatterySaverScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildDivider(),
-                  _buildNavigationRow(
-                    icon: Icons.sync_rounded,
-                    label: 'Auto Sync',
-                    statusText: 'When Connected',
-                    statusColor: AegisColors.activeGreen,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const AutoSyncScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildDivider(),
-                  _buildNavigationRow(
-                    icon: Icons.language_rounded,
-                    label: 'Language',
-                    statusText: 'English',
-                    statusColor: AegisColors.textSecondary,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const LanguageScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildDivider(),
-                  _buildNavigationRow(
-                    icon: Icons.dark_mode_rounded,
-                    label: 'Theme',
-                    statusText: 'Dark',
-                    statusColor: AegisColors.textSecondary,
-                    onTap: () {},
-                  ),
-                  _buildDivider(),
-                  _buildNavigationRow(
-                    icon: Icons.help_outline_rounded,
-                    label: 'Help & Support',
-                    statusText: 'Guides',
-                    statusColor: AegisColors.textSecondary,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const HelpSupportScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildDivider(),
-                  _buildNavigationRow(
-                    icon: Icons.info_outline_rounded,
-                    label: 'About AEGIS',
-                    statusText: 'v1.0.0',
-                    statusColor: AegisColors.textMuted,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const AboutScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24.0),
-
-            // 2. NETWORK Section
-            const Text(
-              'NETWORK',
-              style: TextStyle(
-                fontSize: 9.5,
-                fontWeight: FontWeight.bold,
-                color: AegisColors.textMuted,
-                letterSpacing: 0.5,
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            Container(
-              decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
-                borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
-              ),
-              child: Column(
-                children: [
-                  _buildToggleRow(
-                    icon: Icons.autorenew_rounded,
-                    label: 'Auto Connect',
-                    value: _autoConnect,
-                    onChanged: (val) {
-                      setState(() {
-                        _autoConnect = val;
-                      });
-                    },
-                  ),
-                  _buildDivider(),
-                  _buildToggleRow(
-                    icon: Icons.find_in_page_outlined,
-                    label: 'Background Discovery',
-                    value: _backgroundDiscovery,
-                    onChanged: (val) {
-                      setState(() {
-                        _backgroundDiscovery = val;
-                      });
-                    },
-                  ),
-                  _buildDivider(),
-                  _buildToggleRow(
-                    icon: Icons.alt_route_rounded,
-                    label: 'Relay Through Me',
-                    value: _relayThroughMe,
-                    onChanged: (val) {
-                      setState(() {
-                        _relayThroughMe = val;
-                      });
-                    },
-                    sublabel: 'Allow other nodes to relay via this device',
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24.0),
-
-            // 3. SECURITY Section
-            const Text(
-              'SECURITY',
-              style: TextStyle(
-                fontSize: 9.5,
-                fontWeight: FontWeight.bold,
-                color: AegisColors.textMuted,
-                letterSpacing: 0.5,
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            Container(
-              decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
-                borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
-              ),
-              child: _buildToggleRow(
-                icon: Icons.lock_outline_rounded,
-                label: 'Lock App',
-                value: _lockApp,
-                onChanged: (val) {
-                  setState(() {
-                    _lockApp = val;
-                  });
-                },
-              ),
-            ),
+            const Text('GENERAL', style: AegisStyles.overline),
+            const SizedBox(height: 12),
+            _section([
+              _navRow(Icons.wifi_tethering_rounded, 'Mesh Network', 'Connected', AegisColors.neonGreen, () {}),
+              _divider(),
+              _navRow(Icons.cloud_off_rounded, 'Offline Mode', 'Enabled', AegisColors.neonGreen, () {}),
+              _divider(),
+              _navRow(Icons.battery_charging_full_rounded, 'Battery Saver', 'Enabled', AegisColors.neonGreen, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BatterySaverScreen()))),
+              _divider(),
+              _navRow(Icons.sync_rounded, 'Auto Sync', 'When Connected', AegisColors.neonGreen, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AutoSyncScreen()))),
+              _divider(),
+              _navRow(Icons.language_rounded, 'Language', 'English', AegisColors.textSecondary, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LanguageScreen()))),
+              _divider(),
+              _navRow(Icons.dark_mode_rounded, 'Theme', 'Dark', AegisColors.textSecondary, () {}),
+              _divider(),
+              _navRow(Icons.help_outline_rounded, 'Help & Support', 'Guides', AegisColors.textSecondary, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpSupportScreen()))),
+              _divider(),
+              _navRow(Icons.info_outline_rounded, 'About AEGIS', 'v1.0.0', AegisColors.textMuted, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AboutScreen()))),
+            ]),
+            const SizedBox(height: 28),
+            const Text('NETWORK', style: AegisStyles.overline),
+            const SizedBox(height: 12),
+            _section([
+              _toggleRow(Icons.autorenew_rounded, 'Auto Connect', _autoConnect, (v) => setState(() => _autoConnect = v)),
+              _divider(),
+              _toggleRow(Icons.find_in_page_outlined, 'Background Discovery', _backgroundDiscovery, (v) => setState(() => _backgroundDiscovery = v)),
+              _divider(),
+              _toggleRow(Icons.alt_route_rounded, 'Relay Through Me', _relayThroughMe, (v) => setState(() => _relayThroughMe = v), sublabel: 'Allow other nodes to relay via this device'),
+            ]),
+            const SizedBox(height: 28),
+            const Text('SECURITY', style: AegisStyles.overline),
+            const SizedBox(height: 12),
+            _section([_toggleRow(Icons.lock_outline_rounded, 'Lock App', _lockApp, (v) => setState(() => _lockApp = v))]),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNavigationRow({
-    required IconData icon,
-    required String label,
-    required String statusText,
-    required Color statusColor,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: AegisColors.textSecondary, size: 18.0),
-                const SizedBox(width: 10.0),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: AegisColors.textSecondary,
-                    fontSize: 13.0,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Text(
-                  statusText,
-                  style: TextStyle(
-                    color: statusColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12.0,
-                  ),
-                ),
-                const SizedBox(width: 6.0),
-                const Icon(
-                  Icons.chevron_right,
-                  size: 14.0,
-                  color: AegisColors.textMuted,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  Widget _section(List<Widget> children) {
+    return Container(decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(18), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
+      child: Column(children: children));
   }
 
-
-  Widget _buildToggleRow({
-    required IconData icon,
-    required String label,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-    String? sublabel,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(icon, color: AegisColors.textSecondary, size: 18.0),
-                  const SizedBox(width: 10.0),
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      color: AegisColors.textSecondary,
-                      fontSize: 13.0,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 24.0,
-                child: Switch(
-                  value: value,
-                  onChanged: onChanged,
-                  activeColor: Colors.white,
-                  activeTrackColor: AegisColors.primaryBlue,
-                  inactiveThumbColor: Colors.grey,
-                  inactiveTrackColor: const Color(0xFF1E293B),
-                ),
-              ),
-            ],
-          ),
-          if (sublabel != null) ...[
-            const SizedBox(height: 4.0),
-            Padding(
-              padding: const EdgeInsets.only(left: 28.0),
-              child: Text(
-                sublabel,
-                style: const TextStyle(
-                  color: AegisColors.textMuted,
-                  fontSize: 9.5,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
+  Widget _navRow(IconData icon, String label, String statusText, Color statusColor, VoidCallback onTap) {
+    return InkWell(onTap: onTap, borderRadius: BorderRadius.circular(18), child: Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Row(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 32, height: 32, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(8)), child: Icon(icon, color: AegisColors.textSecondary, size: 16)),
+        const SizedBox(width: 12),
+        Text(label, style: const TextStyle(color: AegisColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
+      ]),
+      Row(mainAxisSize: MainAxisSize.min, children: [
+        Text(statusText, style: TextStyle(color: statusColor, fontWeight: FontWeight.w700, fontSize: 12)),
+        const SizedBox(width: 6),
+        const Icon(Icons.chevron_right, size: 16, color: AegisColors.textMuted),
+      ]),
+    ])));
   }
 
-  Widget _buildDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
-      height: 1.0,
-      thickness: 0.5,
-    );
+  Widget _toggleRow(IconData icon, String label, bool value, ValueChanged<bool> onChanged, {String? sublabel}) {
+    return Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Row(mainAxisSize: MainAxisSize.min, children: [
+          Container(width: 32, height: 32, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(8)), child: Icon(icon, color: AegisColors.textSecondary, size: 16)),
+          const SizedBox(width: 12),
+          Text(label, style: const TextStyle(color: AegisColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
+        ]),
+        Switch(value: value, onChanged: onChanged, activeColor: Colors.white, activeTrackColor: AegisColors.electricBlue, inactiveThumbColor: AegisColors.textMuted, inactiveTrackColor: AegisColors.border1),
+      ]),
+      if (sublabel != null) ...[
+        const SizedBox(height: 4),
+        Padding(padding: const EdgeInsets.only(left: 44), child: Text(sublabel, style: TextStyle(color: AegisColors.textMuted.withOpacity(0.7), fontSize: 10))),
+      ],
+    ]));
+  }
+
+  Widget _divider() {
+    return Container(margin: const EdgeInsets.symmetric(horizontal: 16), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
   }
 }

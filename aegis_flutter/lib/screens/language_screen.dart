@@ -57,17 +57,17 @@ class _LanguageScreenState extends State<LanguageScreen> {
                           width: 56.0,
                           height: 56.0,
                           decoration: BoxDecoration(
-                            color: AegisColors.greenLightBg,
+                            color: AegisColors.neonGreen.withOpacity(0.08),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: AegisColors.activeGreen.withOpacity(0.3),
+                              color: AegisColors.neonGreen.withOpacity(0.3),
                               width: 1.0,
                             ),
                           ),
                           child: const Center(
                             child: Icon(
                               Icons.language_rounded,
-                              color: AegisColors.activeGreen,
+                              color: AegisColors.neonGreen,
                               size: 28.0,
                             ),
                           ),
@@ -99,9 +99,9 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   // 2. Languages list card
                   Container(
                     decoration: BoxDecoration(
-                      color: AegisColors.cardBackground,
+                      color: AegisColors.cardBg,
                       borderRadius: BorderRadius.circular(10.0),
-                      border: Border.all(color: AegisColors.border, width: 1.0),
+                      border: Border.all(color: AegisColors.border1, width: 1.0),
                     ),
                     child: ListView.separated(
                       shrinkWrap: true,
@@ -133,7 +133,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: isSelected ? AegisColors.activeGreen : AegisColors.textSecondary,
+                                      color: isSelected ? AegisColors.neonGreen : AegisColors.textSecondary,
                                       width: isSelected ? 5.0 : 1.5,
                                     ),
                                   ),

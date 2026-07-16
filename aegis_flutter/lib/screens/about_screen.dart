@@ -51,12 +51,12 @@ class AboutScreen extends StatelessWidget {
                         bottomRight: Radius.circular(45.0),
                       ),
                       border: Border.all(
-                        color: AegisColors.activeGreen,
+                        color: AegisColors.neonGreen,
                         width: 2.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AegisColors.activeGreen.withOpacity(0.15),
+                          color: AegisColors.neonGreen.withOpacity(0.15),
                           blurRadius: 20,
                           spreadRadius: 2,
                         ),
@@ -66,7 +66,7 @@ class AboutScreen extends StatelessWidget {
                       child: Text(
                         'A',
                         style: TextStyle(
-                          color: AegisColors.activeGreen,
+                          color: AegisColors.neonGreen,
                           fontSize: 48.0,
                           fontWeight: FontWeight.w900,
                           letterSpacing: -1.0,
@@ -92,7 +92,7 @@ class AboutScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13.0,
                       fontWeight: FontWeight.bold,
-                      color: AegisColors.activeGreen,
+                      color: AegisColors.neonGreen,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -105,14 +105,14 @@ class AboutScreen extends StatelessWidget {
                       color: const Color(0xFF042F1A),
                       borderRadius: BorderRadius.circular(4.0),
                       border: Border.all(
-                        color: AegisColors.activeGreen.withOpacity(0.25),
+                        color: AegisColors.neonGreen.withOpacity(0.25),
                         width: 1.0,
                       ),
                     ),
                     child: const Text(
                       'v1.0.0',
                       style: TextStyle(
-                        color: AegisColors.activeGreen,
+                        color: AegisColors.neonGreen,
                         fontSize: 10.5,
                         fontWeight: FontWeight.bold,
                       ),
@@ -141,9 +141,9 @@ class AboutScreen extends StatelessWidget {
             // 2. Info Details Cards
             Container(
               decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
+                color: AegisColors.cardBg,
                 borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
+                border: Border.all(color: AegisColors.border1, width: 1.0),
               ),
               child: Column(
                 children: [
@@ -154,7 +154,7 @@ class AboutScreen extends StatelessWidget {
                   _buildAboutInfoTile(
                     'Website',
                     'aegis.app',
-                    valueColor: AegisColors.activeGreen,
+                    valueColor: AegisColors.neonGreen,
                   ),
                   _buildDivider(),
                   _buildAboutNavTile('Terms of Service'),

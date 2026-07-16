@@ -1,175 +1,82 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 
-class SosBroadcastCard extends StatelessWidget {
+class SosBroadcastCard extends StatefulWidget {
   final String countdownText;
   final VoidCallback? onHoldComplete;
 
-  const SosBroadcastCard({
-    super.key,
-    this.countdownText = '05:00',
-    this.onHoldComplete,
-  });
+  const SosBroadcastCard({super.key, this.countdownText = '05:00', this.onHoldComplete});
+
+  @override
+  State<SosBroadcastCard> createState() => _SosBroadcastCardState();
+}
+
+class _SosBroadcastCardState extends State<SosBroadcastCard> with SingleTickerProviderStateMixin {
+  late AnimationController _glow;
+  late Animation<double> _glowA;
+
+  @override
+  void initState() {
+    super.initState();
+    _glow = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))..repeat(reverse: true);
+    _glowA = Tween<double>(begin: 0.2, end: 0.7).animate(CurvedAnimation(parent: _glow, curve: Curves.easeInOutSine));
+  }
+
+  @override
+  void dispose() { _glow.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F121B), // Dark card surface
-        borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(color: AegisColors.sosRed.withOpacity(0.3), width: 1.0),
-        boxShadow: [
-          BoxShadow(
-            color: AegisColors.sosRed.withOpacity(0.04),
-            blurRadius: 12,
-            spreadRadius: 1,
+    return AnimatedBuilder(
+      animation: _glow,
+      builder: (_, __) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1A0A0A), Color(0xFF0F121B)]),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AegisColors.sosRed.withOpacity(0.2 + 0.15 * _glowA.value), width: 1),
+            boxShadow: [BoxShadow(color: AegisColors.sosRed.withOpacity(0.04 + 0.06 * _glowA.value), blurRadius: 32, spreadRadius: 8)],
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Header Alert Row (Left aligned icon + Text column)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Red alarm siren icon badge
-              Container(
-                width: 38.0,
-                height: 38.0,
-                decoration: BoxDecoration(
-                  color: AegisColors.sosRed.withOpacity(0.15),
-                  shape: BoxShape.circle,
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              Container(width: 44, height: 44, decoration: BoxDecoration(color: AegisColors.sosRed.withOpacity(0.15), shape: BoxShape.circle, border: Border.all(color: AegisColors.sosRed.withOpacity(0.25), width: 1)), child: const Center(child: Icon(Icons.campaign_rounded, color: AegisColors.sosRed, size: 24))),
+              const SizedBox(width: 16),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Text('Send Emergency Alert', style: TextStyle(color: AegisColors.sosRed, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: -0.2)),
+                const SizedBox(height: 4),
+                Text('Broadcast your emergency to\nall nearby nodes instantly.', style: TextStyle(color: AegisColors.textSecondary.withOpacity(0.8), fontSize: 12, height: 1.4)),
+              ])),
+            ]),
+            const SizedBox(height: 32),
+            GestureDetector(
+              onLongPress: widget.onHoldComplete,
+              child: Stack(alignment: Alignment.center, children: [
+                Container(width: 160, height: 160, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AegisColors.sosRed.withOpacity(_glowA.value * 0.5), width: 4), boxShadow: [BoxShadow(color: AegisColors.sosRed.withOpacity(0.1 + 0.1 * _glowA.value), blurRadius: 40, spreadRadius: 4)])),
+                SizedBox(width: 148, height: 148, child: CircularProgressIndicator(value: 0.75, strokeWidth: 4, valueColor: AlwaysStoppedAnimation<Color>(AegisColors.sosRed.withOpacity(0.6)), backgroundColor: Colors.transparent)),
+                Container(width: 128, height: 128, decoration: BoxDecoration(shape: BoxShape.circle, gradient: const RadialGradient(colors: [AegisColors.sosRed, Color(0xFF7F1D1D)], stops: [0.6, 1.0]), boxShadow: [BoxShadow(color: AegisColors.sosRed.withOpacity(0.3), blurRadius: 24, spreadRadius: 4)]),
+                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Text('HOLD TO\nSEND', textAlign: TextAlign.center, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.8, height: 1.3)),
+                    const SizedBox(height: 4),
+                    Text(widget.countdownText, style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900, letterSpacing: -1)),
+                  ]),
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.campaign_rounded,
-                    color: AegisColors.sosRed,
-                    size: 22.0,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14.0),
-              // Text Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Send Emergency Alert',
-                      style: TextStyle(
-                        color: AegisColors.sosRed,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 3.0),
-                    Text(
-                      'Broadcast your emergency to\nall nearby nodes instantly.',
-                      style: TextStyle(
-                        color: AegisColors.textSecondary,
-                        fontSize: 11.0,
-                        height: 1.3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 28.0),
-
-          // Central Glowing SOS Hold Button
-          GestureDetector(
-            onLongPress: onHoldComplete,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Outer Glow ring
-                Container(
-                  width: 138.0,
-                  height: 138.0,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.transparent,
-                    border: Border.all(
-                      color: AegisColors.sosRed.withOpacity(0.12),
-                      width: 4.0,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AegisColors.sosRed.withOpacity(0.15),
-                        blurRadius: 20,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                ),
-                // Outer progress indicator
-                SizedBox(
-                  width: 130.0,
-                  height: 130.0,
-                  child: CircularProgressIndicator(
-                    value: 0.75, // static arc progress matching mockup 9
-                    strokeWidth: 4.0,
-                    valueColor: const AlwaysStoppedAnimation<Color>(AegisColors.sosRed),
-                    backgroundColor: Colors.transparent,
-                  ),
-                ),
-                // Inner button face
-                Container(
-                  width: 114.0,
-                  height: 114.0,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        AegisColors.sosRed,
-                        Color(0xFF991B1B),
-                      ],
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'HOLD TO SEND',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 9.0,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 2.0),
-                      Text(
-                        countdownText,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 26.0,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ]),
             ),
-          ),
-          const SizedBox(height: 20.0),
-
-          // Instruction Text
-          const Text(
-            'Hold for 5 seconds to send',
-            style: TextStyle(
-              color: AegisColors.textSecondary,
-              fontSize: 11.0,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(color: AegisColors.sosRed.withOpacity(0.08), borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.sosRed.withOpacity(0.15), width: 0.5)),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.lock_outline_rounded, color: AegisColors.textSecondary.withOpacity(0.6), size: 13),
+                const SizedBox(width: 8),
+                Text('Hold for 5 seconds to send', style: TextStyle(color: AegisColors.textSecondary.withOpacity(0.7), fontSize: 11, fontWeight: FontWeight.w500)),
+              ]),
             ),
-          ),
-        ],
-      ),
+          ]),
+        );
+      },
     );
   }
 }

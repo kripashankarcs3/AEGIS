@@ -76,7 +76,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     _buildDivider(),
                     _buildNotificationTile(
                       icon: Icons.check_circle_rounded,
-                      iconBgColor: AegisColors.activeGreen,
+                      iconBgColor: AegisColors.neonGreen,
                       title: 'Food Available',
                       subtitle: 'At Green Area',
                       time: '15 min ago',
@@ -101,7 +101,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     _buildDivider(),
                     _buildNotificationTile(
                       icon: Icons.chat_bubble_rounded,
-                      iconBgColor: AegisColors.primaryBlue,
+                      iconBgColor: AegisColors.electricBlue,
                       title: 'New Message',
                       subtitle: 'From Riya',
                       time: '25 min ago',
@@ -109,7 +109,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     _buildDivider(),
                     _buildNotificationTile(
                       icon: Icons.battery_alert_rounded,
-                      iconBgColor: AegisColors.warningOrange,
+                      iconBgColor: AegisColors.sosRed,
                       title: 'Battery Low',
                       subtitle: 'Your device battery is low',
                       time: '30 min ago',
@@ -117,7 +117,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     _buildDivider(),
                     _buildNotificationTile(
                       icon: Icons.wifi_tethering_rounded,
-                      iconBgColor: AegisColors.busyPurple,
+                      iconBgColor: AegisColors.violet,
                       title: 'Network Congestion',
                       subtitle: 'Some messages delayed',
                       time: '35 min ago',
@@ -134,8 +134,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildFilterPill(int index, String label) {
     final bool isSelected = _selectedFilter == index;
-    final Color bgColor = isSelected ? AegisColors.busyPurple : Colors.transparent;
-    final Color strokeColor = isSelected ? AegisColors.busyPurple : const Color(0xFF1E293B);
+    final Color bgColor = isSelected ? AegisColors.violet : Colors.transparent;
+    final Color strokeColor = isSelected ? AegisColors.violet : const Color(0xFF1E293B);
     final Color textColor = isSelected ? Colors.white : AegisColors.textSecondary;
 
     return GestureDetector(

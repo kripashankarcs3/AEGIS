@@ -73,7 +73,7 @@ class ShareFileScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
                         decoration: BoxDecoration(
-                          color: AegisColors.purpleLightBg,
+                          color: AegisColors.violet.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(6.0),
                         ),
                         child: const Text(
@@ -136,12 +136,12 @@ class ShareFileScreen extends StatelessWidget {
                 width: 36.0,
                 height: 36.0,
                 decoration: BoxDecoration(
-                  color: AegisColors.activeGreen.withOpacity(0.15),
+                  color: AegisColors.neonGreen.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.sensors_rounded,
-                  color: AegisColors.activeGreen,
+                  color: AegisColors.neonGreen,
                   size: 16.0,
                 ),
               ),
@@ -175,14 +175,14 @@ class ShareFileScreen extends StatelessWidget {
             width: 32.0,
             height: 32.0,
             decoration: BoxDecoration(
-              color: AegisColors.purpleLightBg.withOpacity(0.3),
+              color: AegisColors.violet.withOpacity(0.1).withOpacity(0.3),
               shape: BoxShape.circle,
-              border: Border.all(color: AegisColors.busyPurple.withOpacity(0.4), width: 1.0),
+              border: Border.all(color: AegisColors.violet.withOpacity(0.4), width: 1.0),
             ),
             child: const Center(
               child: Icon(
                 Icons.send_rounded,
-                color: AegisColors.busyPurple,
+                color: AegisColors.violet,
                 size: 14.0,
               ),
             ),

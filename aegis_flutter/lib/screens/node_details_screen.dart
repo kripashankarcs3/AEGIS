@@ -42,9 +42,9 @@ class NodeDetailsScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: AegisColors.cardBackground,
+                  color: AegisColors.cardBg,
                   borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: AegisColors.border, width: 1.0),
+                  border: Border.all(color: AegisColors.border1, width: 1.0),
                 ),
                 child: Row(
                   children: [
@@ -53,14 +53,14 @@ class NodeDetailsScreen extends StatelessWidget {
                       width: 52.0,
                       height: 52.0,
                       decoration: BoxDecoration(
-                        color: AegisColors.busyPurple.withOpacity(0.15),
+                        color: AegisColors.violet.withOpacity(0.15),
                         shape: BoxShape.circle,
-                        border: Border.all(color: AegisColors.busyPurple.withOpacity(0.3), width: 1.0),
+                        border: Border.all(color: AegisColors.violet.withOpacity(0.3), width: 1.0),
                       ),
                       child: const Center(
                         child: Icon(
                           Icons.shield_outlined,
-                          color: AegisColors.busyPurple,
+                          color: AegisColors.violet,
                           size: 26.0,
                         ),
                       ),
@@ -96,7 +96,7 @@ class NodeDetailsScreen extends StatelessWidget {
                                       width: 4.0,
                                       height: 4.0,
                                       decoration: const BoxDecoration(
-                                        color: AegisColors.activeGreen,
+                                        color: AegisColors.neonGreen,
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -104,7 +104,7 @@ class NodeDetailsScreen extends StatelessWidget {
                                     const Text(
                                       'Online',
                                       style: TextStyle(
-                                        color: AegisColors.activeGreen,
+                                        color: AegisColors.neonGreen,
                                         fontSize: 9.0,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -129,13 +129,13 @@ class NodeDetailsScreen extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
                                 decoration: BoxDecoration(
-                                  color: AegisColors.busyPurple.withOpacity(0.15),
+                                  color: AegisColors.violet.withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(4.0),
                                 ),
                                 child: const Text(
                                   'Trusted',
                                   style: TextStyle(
-                                    color: AegisColors.busyPurple,
+                                    color: AegisColors.violet,
                                     fontSize: 9.0,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -154,9 +154,9 @@ class NodeDetailsScreen extends StatelessWidget {
               // 2. Metrics Statistics Card List
               Container(
                 decoration: BoxDecoration(
-                  color: AegisColors.cardBackground,
+                  color: AegisColors.cardBg,
                   borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: AegisColors.border, width: 1.0),
+                  border: Border.all(color: AegisColors.border1, width: 1.0),
                 ),
                 child: Column(
                   children: [
@@ -168,10 +168,10 @@ class NodeDetailsScreen extends StatelessWidget {
                         children: const [
                           Text(
                             'Strong',
-                            style: TextStyle(color: AegisColors.activeGreen, fontWeight: FontWeight.bold, fontSize: 13.0),
+                            style: TextStyle(color: AegisColors.neonGreen, fontWeight: FontWeight.bold, fontSize: 13.0),
                           ),
                           SizedBox(width: 6.0),
-                          Icon(Icons.signal_cellular_alt_rounded, color: AegisColors.activeGreen, size: 16.0),
+                          Icon(Icons.signal_cellular_alt_rounded, color: AegisColors.neonGreen, size: 16.0),
                         ],
                       ),
                     ),
@@ -199,7 +199,7 @@ class NodeDetailsScreen extends StatelessWidget {
                             style: TextStyle(color: Colors.white, fontSize: 13.0),
                           ),
                           SizedBox(width: 6.0),
-                          Icon(Icons.battery_std_rounded, color: AegisColors.activeGreen, size: 16.0),
+                          Icon(Icons.battery_std_rounded, color: AegisColors.neonGreen, size: 16.0),
                         ],
                       ),
                     ),
@@ -215,7 +215,7 @@ class NodeDetailsScreen extends StatelessWidget {
                             style: TextStyle(color: Colors.white, fontSize: 13.0),
                           ),
                           SizedBox(width: 6.0),
-                          Icon(Icons.verified_rounded, color: AegisColors.activeGreen, size: 16.0),
+                          Icon(Icons.verified_rounded, color: AegisColors.neonGreen, size: 16.0),
                         ],
                       ),
                     ),
@@ -246,9 +246,9 @@ class NodeDetailsScreen extends StatelessWidget {
                       child: Container(
                         height: 42.0,
                         decoration: BoxDecoration(
-                          color: AegisColors.purpleLightBg.withOpacity(0.3),
+                          color: AegisColors.violet.withOpacity(0.1).withOpacity(0.3),
                           borderRadius: BorderRadius.circular(6.0),
-                          border: Border.all(color: AegisColors.busyPurple, width: 1.0),
+                          border: Border.all(color: AegisColors.violet, width: 1.0),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -272,16 +272,16 @@ class NodeDetailsScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: const Color(0xFF042F1A).withOpacity(0.4),
                         borderRadius: BorderRadius.circular(6.0),
-                        border: Border.all(color: AegisColors.activeGreen.withOpacity(0.5), width: 1.0),
+                        border: Border.all(color: AegisColors.neonGreen.withOpacity(0.5), width: 1.0),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Icon(Icons.share_location_rounded, color: AegisColors.activeGreen, size: 16.0),
+                          Icon(Icons.share_location_rounded, color: AegisColors.neonGreen, size: 16.0),
                           SizedBox(width: 8.0),
                           Text(
                             'Share Location',
-                            style: TextStyle(color: AegisColors.activeGreen, fontWeight: FontWeight.bold, fontSize: 13.0),
+                            style: TextStyle(color: AegisColors.neonGreen, fontWeight: FontWeight.bold, fontSize: 13.0),
                           ),
                         ],
                       ),
@@ -302,7 +302,7 @@ class NodeDetailsScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: const Color(0xFF0F172A),
                     borderRadius: BorderRadius.circular(6.0),
-                    border: Border.all(color: AegisColors.border, width: 1.0),
+                    border: Border.all(color: AegisColors.border1, width: 1.0),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

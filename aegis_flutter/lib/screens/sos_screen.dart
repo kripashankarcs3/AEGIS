@@ -1,5 +1,8 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
+import '../constants/aegis_styles.dart';
+import '../constants/aegis_animations.dart';
 import '../widgets/sos_banner.dart';
 
 class SosScreen extends StatefulWidget {
@@ -9,216 +12,155 @@ class SosScreen extends StatefulWidget {
   State<SosScreen> createState() => _SosScreenState();
 }
 
-class _SosScreenState extends State<SosScreen> {
-  int _selectedCategory = 0; // Default to Medical
-  int _selectedPriority = 2; // Default to High (High is selected red in mockup 9)
+class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
+  int _selectedCategory = 0;
+  int _selectedPriority = 2;
+  late AnimationController _bgPulse;
+  late Animation<double> _bgAnim;
 
   final List<Map<String, dynamic>> _categories = const [
-    {'label': 'Medical', 'icon': Icons.add_rounded, 'color': AegisColors.sosRed},
-    {'label': 'Fire', 'icon': Icons.local_fire_department_rounded, 'color': AegisColors.warningOrange},
-    {'label': 'Food', 'icon': Icons.restaurant_rounded, 'color': Colors.white},
-    {'label': 'Flood', 'icon': Icons.waves_rounded, 'color': AegisColors.primaryBlue},
-    {'label': 'Other', 'icon': Icons.more_horiz_rounded, 'color': Colors.white},
+    {'label': 'Medical', 'icon': Icons.medical_services_rounded, 'color': AegisColors.sosRed},
+    {'label': 'Fire', 'icon': Icons.local_fire_department_rounded, 'color': AegisColors.orange},
+    {'label': 'Water', 'icon': Icons.water_drop_rounded, 'color': AegisColors.electricCyan},
+    {'label': 'Trapped', 'icon': Icons.lock_rounded, 'color': AegisColors.amber},
+    {'label': 'Other', 'icon': Icons.more_horiz_rounded, 'color': AegisColors.violet},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _bgPulse = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
+    _bgAnim = Tween<double>(begin: 0.3, end: 0.6).animate(CurvedAnimation(parent: _bgPulse, curve: Curves.easeInOutSine));
+  }
+
+  @override
+  void dispose() {
+    _bgPulse.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AegisColors.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. Top Header Bar (Back arrow, Title "SOS", Info icon)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22.0),
-                          onPressed: () {},
-                        ),
-                        const Text(
-                          'SOS',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 22.0),
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0),
-
-                // 2. Central emergency countdown card
-                const SosBroadcastCard(countdownText: '05:00'),
-                const SizedBox(height: 24.0),
-
-                // 3. Select Category Section
-                const Text(
-                  'Select Category',
-                  style: TextStyle(
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.bold,
-                    color: AegisColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 12.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(_categories.length, (index) {
-                    final item = _categories[index];
-                    return _buildCategoryButton(
-                      index,
-                      item['icon'] as IconData,
-                      item['label'] as String,
-                      item['color'] as Color,
-                    );
-                  }),
-                ),
-                const SizedBox(height: 24.0),
-
-                // 4. Priority Level Section
-                const Text(
-                  'Priority Level',
-                  style: TextStyle(
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.bold,
-                    color: AegisColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 12.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildPriorityButton(0, 'Low', AegisColors.activeGreen),
-                    _buildPriorityButton(1, 'Medium', AegisColors.warningOrange),
-                    _buildPriorityButton(2, 'High', AegisColors.sosRed),
-                  ],
-                ),
-                const SizedBox(height: 20.0),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryButton(int index, IconData icon, String label, Color categoryColor) {
-    final bool isSelected = _selectedCategory == index;
-    final Color activeColor = isSelected ? AegisColors.sosRed : const Color(0xFF1E293B);
-    final Color contentColor = isSelected ? AegisColors.sosRed : AegisColors.textSecondary;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedCategory = index;
-        });
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 44.0,
-            height: 44.0,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: activeColor, width: 1.5),
-              color: isSelected ? AegisColors.sosRed.withOpacity(0.08) : Colors.transparent,
-            ),
-            child: Center(
-              child: Icon(
-                icon,
-                color: contentColor,
-                size: 20.0,
+      backgroundColor: Colors.transparent,
+      body: AnimatedBuilder(
+        animation: _bgAnim,
+        builder: (_, __) {
+          return Container(
+            decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AegisColors.sosRed.withOpacity(_bgAnim.value * 0.04), Colors.transparent])),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  StaggeredFadeIn(index: 0, child: _header()),
+                  const SizedBox(height: 20),
+                  StaggeredFadeIn(index: 1, child: const SosBroadcastCard()),
+                  const SizedBox(height: 32),
+                  StaggeredFadeIn(index: 2, child: _categorySection()),
+                  const SizedBox(height: 28),
+                  StaggeredFadeIn(index: 3, child: _prioritySection()),
+                ]),
               ),
             ),
-          ),
-          const SizedBox(height: 6.0),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10.5,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              color: contentColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPriorityButton(int index, String label, Color priorityColor) {
-    final bool isSelected = _selectedPriority == index;
-    final Color strokeColor = isSelected ? priorityColor : const Color(0xFF1E293B);
-    final Color textColor = isSelected ? priorityColor : AegisColors.textSecondary;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedPriority = index;
-          });
+          );
         },
-        child: Container(
-          margin: EdgeInsets.only(
-            left: index == 0 ? 0.0 : 6.0,
-            right: index == 2 ? 0.0 : 6.0,
-          ),
-          height: 38.0,
+      ),
+    );
+  }
+
+  Widget _header() {
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Row(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 40, height: 40, decoration: BoxDecoration(gradient: AegisColors.sosGradient, borderRadius: BorderRadius.circular(12), boxShadow: AegisColors.glowRed), child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 22)),
+        const SizedBox(width: 14),
+        const Text('SOS', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5)),
+      ]),
+      Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 18)),
+    ]);
+  }
+
+  Widget _categorySection() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        Container(width: 3, height: 16, decoration: BoxDecoration(gradient: AegisColors.sosGradient, borderRadius: BorderRadius.circular(2))),
+        const SizedBox(width: 10),
+        const Text('SELECT CATEGORY', style: AegisStyles.overline),
+      ]),
+      const SizedBox(height: 20),
+      Wrap(
+        spacing: 12, runSpacing: 16,
+        children: List.generate(_categories.length, (i) => _catBtn(i, _categories[i]['icon'], _categories[i]['label'], _categories[i]['color'])),
+      ),
+    ]);
+  }
+
+  Widget _catBtn(int idx, IconData icon, String label, Color catColor) {
+    final sel = _selectedCategory == idx;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedCategory = idx),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic,
+          width: 58, height: 58,
           decoration: BoxDecoration(
-            color: isSelected ? priorityColor.withOpacity(0.06) : Colors.transparent,
-            borderRadius: BorderRadius.circular(6.0),
-            border: Border.all(color: strokeColor, width: 1.2),
+            shape: BoxShape.circle,
+            gradient: sel ? LinearGradient(colors: [catColor.withOpacity(0.25), catColor.withOpacity(0.08)]) : null,
+            border: Border.all(color: sel ? catColor : AegisColors.border1, width: sel ? 2 : 1),
+            boxShadow: sel ? [BoxShadow(color: catColor.withOpacity(0.3), blurRadius: 16, spreadRadius: 3)] : null,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Circular radio outline/indicator
-              Container(
-                width: 12.0,
-                height: 12.0,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: strokeColor, width: 1.0),
-                ),
-                child: isSelected
-                    ? Center(
-                        child: Container(
-                          width: 6.0,
-                          height: 6.0,
-                          decoration: BoxDecoration(
-                            color: priorityColor,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      )
-                    : null,
-              ),
-              const SizedBox(width: 8.0),
-              Text(
-                label,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+          child: Icon(icon, color: sel ? catColor : AegisColors.textSecondary, size: 24),
         ),
+        const SizedBox(height: 8),
+        AnimatedDefaultTextStyle(duration: const Duration(milliseconds: 200),
+          style: TextStyle(fontSize: 11, fontWeight: sel ? FontWeight.w700 : FontWeight.w500, color: sel ? catColor : AegisColors.textSecondary),
+          child: Text(label)),
+      ]),
+    );
+  }
+
+  Widget _prioritySection() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        Container(width: 3, height: 16, decoration: BoxDecoration(gradient: const LinearGradient(colors: [AegisColors.neonGreen, AegisColors.warning, AegisColors.sosRed]), borderRadius: BorderRadius.circular(2))),
+        const SizedBox(width: 10),
+        const Text('PRIORITY LEVEL', style: AegisStyles.overline),
+      ]),
+      const SizedBox(height: 16),
+      Row(children: [
+        Expanded(child: _prioBtn(0, 'Low', AegisColors.neonGreen)),
+        const SizedBox(width: 12),
+        Expanded(child: _prioBtn(1, 'Medium', AegisColors.warning)),
+        const SizedBox(width: 12),
+        Expanded(child: _prioBtn(2, 'High', AegisColors.sosRed)),
+      ]),
+    ]);
+  }
+
+  Widget _prioBtn(int idx, String label, Color color) {
+    final sel = _selectedPriority == idx;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedPriority = idx),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic,
+        height: 46,
+        decoration: BoxDecoration(
+          gradient: sel ? LinearGradient(colors: [color.withOpacity(0.15), color.withOpacity(0.04)]) : null,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: sel ? color : AegisColors.border1, width: sel ? 1.5 : 1),
+          boxShadow: sel ? [BoxShadow(color: color.withOpacity(0.2), blurRadius: 12, spreadRadius: 1)] : null,
+        ),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 16, height: 16,
+            decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: sel ? color : AegisColors.textMuted, width: 1.5)),
+            child: sel ? Center(child: Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle))) : null,
+          ),
+          const SizedBox(width: 10),
+          AnimatedDefaultTextStyle(duration: const Duration(milliseconds: 200),
+            style: TextStyle(color: sel ? color : AegisColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w700),
+            child: Text(label)),
+        ]),
       ),
     );
   }

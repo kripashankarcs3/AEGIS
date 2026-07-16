@@ -2,69 +2,114 @@ import 'package:flutter/material.dart';
 import 'aegis_colors.dart';
 
 class AegisStyles {
-  static const double cardRadius = 12.0;
-  static const double buttonRadius = 24.0;
-  
-  static const EdgeInsets screenPadding = EdgeInsets.all(16.0);
-  static const EdgeInsets cardPadding = EdgeInsets.all(12.0);
-  
-  static final BorderRadius cardBorderRadius = BorderRadius.circular(cardRadius);
-  static final BorderRadius buttonBorderRadius = BorderRadius.circular(buttonRadius);
-  
-  static final BoxBorder cardBorder = Border.all(
-    color: AegisColors.border,
-    width: 1.0,
-  );
-  
-  static final List<BoxShadow> cardShadow = [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.2),
-      blurRadius: 8,
-      offset: const Offset(0, 4),
-    ),
-  ];
-  
-  static final List<BoxShadow> tightShadow = [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.15),
-      blurRadius: 4,
-      offset: const Offset(0, 2),
-    ),
-  ];
+  // ═══════════════════════════════════════════════
+  // RADII
+  // ═══════════════════════════════════════════════
+  static const double radiusSm = 8.0;
+  static const double radiusMd = 14.0;
+  static const double radiusLg = 20.0;
+  static const double radiusXl = 28.0;
+  static const double radiusFull = 999.0;
 
-  static const TextStyle headerTitle = TextStyle(
-    fontSize: 24,
-    fontWeight: FontWeight.bold,
-    color: AegisColors.textPrimary,
-    letterSpacing: -0.5,
+  static final BorderRadius brSm = BorderRadius.circular(radiusSm);
+  static final BorderRadius brMd = BorderRadius.circular(radiusMd);
+  static final BorderRadius brLg = BorderRadius.circular(radiusLg);
+  static final BorderRadius brXl = BorderRadius.circular(radiusXl);
+
+  // ═══════════════════════════════════════════════
+  // PADDING
+  // ═══════════════════════════════════════════════
+  static const EdgeInsets padH = EdgeInsets.symmetric(horizontal: 20.0);
+  static const EdgeInsets padAll = EdgeInsets.all(20.0);
+  static const EdgeInsets padCard = EdgeInsets.all(16.0);
+  static const EdgeInsets padCardLg = EdgeInsets.all(20.0);
+
+  // ═══════════════════════════════════════════════
+  // TYPOGRAPHY
+  // ═══════════════════════════════════════════════
+  static const TextStyle hero = TextStyle(
+    fontSize: 34, fontWeight: FontWeight.w800, color: AegisColors.textPrimary,
+    letterSpacing: -1.0, height: 1.05,
   );
 
-  static const TextStyle sectionTitle = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.bold,
-    color: AegisColors.textPrimary,
+  static const TextStyle h1 = TextStyle(
+    fontSize: 26, fontWeight: FontWeight.w800, color: AegisColors.textPrimary,
+    letterSpacing: -0.6, height: 1.1,
   );
 
-  static const TextStyle bodyBold = TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.bold,
-    color: AegisColors.textPrimary,
+  static const TextStyle h2 = TextStyle(
+    fontSize: 22, fontWeight: FontWeight.w800, color: AegisColors.textPrimary,
+    letterSpacing: -0.4, height: 1.15,
   );
 
-  static const TextStyle bodyNormal = TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.normal,
-    color: AegisColors.textSecondary,
+  static const TextStyle h3 = TextStyle(
+    fontSize: 18, fontWeight: FontWeight.w700, color: AegisColors.textPrimary,
+    letterSpacing: -0.2, height: 1.2,
+  );
+
+  static const TextStyle subtitle = TextStyle(
+    fontSize: 13, fontWeight: FontWeight.w600, color: AegisColors.textSecondary,
+    letterSpacing: 0.2, height: 1.3,
+  );
+
+  static const TextStyle body = TextStyle(
+    fontSize: 14, fontWeight: FontWeight.w400, color: AegisColors.textPrimary,
+    height: 1.5,
+  );
+
+  static const TextStyle bodySmall = TextStyle(
+    fontSize: 13, fontWeight: FontWeight.w500, color: AegisColors.textSecondary,
+    height: 1.4,
   );
 
   static const TextStyle caption = TextStyle(
-    fontSize: 12,
+    fontSize: 11, fontWeight: FontWeight.w500, color: AegisColors.textMuted,
+    height: 1.3,
+  );
+
+  static const TextStyle overline = TextStyle(
+    fontSize: 10, fontWeight: FontWeight.w700, color: AegisColors.textMuted,
+    letterSpacing: 1.2, height: 1.2,
+  );
+
+  static const TextStyle label = TextStyle(
+    fontSize: 16, fontWeight: FontWeight.w700, color: AegisColors.textPrimary,
+    letterSpacing: -0.2,
+  );
+
+  static const TextStyle mono = TextStyle(
+    fontFamily: 'monospace', fontSize: 13, fontWeight: FontWeight.w600,
+    color: AegisColors.textSecondary, letterSpacing: 0.2,
+  );
+
+  static const TextStyle monoSmall = TextStyle(
+    fontFamily: 'monospace', fontSize: 10, fontWeight: FontWeight.w500,
     color: AegisColors.textMuted,
   );
-  
-  static const TextStyle captionBold = TextStyle(
-    fontSize: 12,
-    fontWeight: FontWeight.bold,
-    color: AegisColors.textSecondary,
+
+  static const TextStyle badge = TextStyle(
+    fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white,
+    letterSpacing: 0.5,
   );
+
+  static const TextStyle message = TextStyle(
+    fontSize: 15, fontWeight: FontWeight.w400, color: AegisColors.textPrimary,
+    height: 1.4,
+  );
+
+  static const TextStyle timestamp = TextStyle(
+    fontSize: 10, fontWeight: FontWeight.w500, color: AegisColors.textMuted,
+    height: 1.2,
+  );
+
+  static const TextStyle button = TextStyle(
+    fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white,
+    letterSpacing: 0.3,
+  );
+
+  // ═══════════════════════════════════════════════
+  // COMMON BORDERS
+  // ═══════════════════════════════════════════════
+  static final Border border = Border.all(color: AegisColors.border1, width: 0.5);
+  static final Border borderLight = Border.all(color: AegisColors.border2, width: 0.5);
 }

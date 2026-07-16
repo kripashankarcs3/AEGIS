@@ -1,6 +1,6 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
+import '../constants/aegis_styles.dart';
 import 'share_file_screen.dart';
 import 'voice_message_screen.dart';
 
@@ -13,544 +13,267 @@ class ChatConversationScreen extends StatefulWidget {
 }
 
 class _ChatConversationScreenState extends State<ChatConversationScreen> {
-  final TextEditingController _messageController = TextEditingController();
+  final TextEditingController _msgCtrl = TextEditingController();
 
   @override
-  @override
   Widget build(BuildContext context) {
-    final bool isOfflineNode = widget.nodeId == 'SIG-4D2F';
+    final bool offline = widget.nodeId == 'SIG-4D2F';
 
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: AegisColors.surface0.withOpacity(0.95),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.nodeId,
-              style: const TextStyle(
-                fontSize: 15.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            Row(
-              children: [
-                Container(
-                  width: 6.0,
-                  height: 6.0,
-                  decoration: BoxDecoration(
-                    color: isOfflineNode ? const Color(0xFF64748B) : AegisColors.activeGreen,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 5.0),
-                Text(
-                  isOfflineNode ? 'Offline' : 'Online  •  2 hops away',
-                  style: const TextStyle(
-                    fontSize: 10.5,
-                    color: AegisColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        leading: Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)),
+          child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20), onPressed: () => Navigator.of(context).pop())),
+        title: Row(children: [
+          Container(width: 36, height: 36, decoration: BoxDecoration(gradient: offline ? const LinearGradient(colors: [AegisColors.textMuted, AegisColors.textDim]) : AegisColors.greenGradient, shape: BoxShape.circle, boxShadow: offline ? null : [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.3), blurRadius: 8, spreadRadius: 1)]), child: const Center(child: Icon(Icons.person_rounded, color: Colors.white, size: 18))),
+          const SizedBox(width: 12),
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(widget.nodeId, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.2)),
+            const SizedBox(height: 2),
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              Container(width: 6, height: 6, decoration: BoxDecoration(color: offline ? AegisColors.textMuted : AegisColors.neonGreen, shape: BoxShape.circle)),
+              const SizedBox(width: 6),
+              Text(offline ? 'Offline' : 'Online  •  2 hops away', style: const TextStyle(fontSize: 11, color: AegisColors.textSecondary, fontWeight: FontWeight.w500)),
+            ]),
+          ]),
+        ]),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
-            onPressed: () {},
-          ),
+          Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)),
+            child: IconButton(icon: const Icon(Icons.more_vert, color: Colors.white, size: 20), onPressed: () {})),
         ],
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Message List
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16.0),
-                children: isOfflineNode
-                    ? [
-                        _buildIncomingBubble('Hello! Are you safe?', '10:18 AM'),
-                        _buildOutgoingBubble('Yes, I\'m safe here.', '10:19 AM', doubleTickGreen: false),
-                        _buildIncomingBubble('We need medical supplies.', '10:20 AM'),
-                        _buildQueuedBubble('I can help. I have some basic medicines.', '10:21 AM'),
-                      ]
-                    : [
-                        _buildIncomingBubble('Are you safe?', '10:21 AM'),
-                        _buildOutgoingBubble('Yes, we are safe.', '10:22 AM'),
-                        _buildHopPathIndicator('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
-                        _buildIncomingBubble('Do you have any medical supplies?', '10:23 AM'),
-                        _buildOutgoingBubble('Yes, we have some basic medications.', '10:24 AM'),
-                        _buildHopPathIndicator('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
-                        _buildWarningBubble('Can you send bandages?', '10:25 AM'),
-                        _buildQueueIndicator(),
-                      ],
-              ),
-            ),
-
-            // Warning bottom message banner
-            if (isOfflineNode)
-              _buildQueuedMessageWarningBanner(),
-
-            // Message Input Bar
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-              decoration: const BoxDecoration(
-                color: Color(0xFF090D16),
-                border: Border(
-                  top: BorderSide(color: AegisColors.border, width: 1.0),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 40.0,
-                      decoration: BoxDecoration(
-                        color: AegisColors.cardBackground,
-                        borderRadius: BorderRadius.circular(20.0),
-                        border: Border.all(color: AegisColors.border, width: 1.0),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                      child: Row(
-                        children: [
-                          const Expanded(
-                            child: TextField(
-                              style: TextStyle(color: Colors.white, fontSize: 13.0),
-                              decoration: InputDecoration(
-                                hintText: 'Type a message...',
-                                hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 13.0),
-                                border: InputBorder.none,
-                                isDense: true,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                backgroundColor: const Color(0xFF161B22),
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(16.0),
-                                    topRight: Radius.circular(16.0),
-                                  ),
-                                ),
-                                builder: (context) => SafeArea(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ListTile(
-                                        leading: const Icon(Icons.file_present_rounded, color: AegisColors.busyPurple),
-                                        title: const Text('Share File', style: TextStyle(color: Colors.white, fontSize: 14.0)),
-                                        onTap: () {
-                                          Navigator.of(context).pop();
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) => const ShareFileScreen(),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                      const Divider(color: Color(0xFF1E293B), height: 1.0),
-                                      ListTile(
-                                        leading: const Icon(Icons.mic_none_rounded, color: AegisColors.busyPurple),
-                                        title: const Text('Voice Message', style: TextStyle(color: Colors.white, fontSize: 14.0)),
-                                        onTap: () {
-                                          Navigator.of(context).pop();
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) => const VoiceMessageScreen(),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                            child: const Icon(
-                              Icons.attach_file_rounded,
-                              color: AegisColors.textSecondary,
-                              size: 18.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  // Send Button
-                  Container(
-                    width: 40.0,
-                    height: 40.0,
-                    decoration: const BoxDecoration(
-                      color: AegisColors.activeGreen,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.send_rounded,
-                      color: Colors.white,
-                      size: 18.0,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildIncomingBubble(String text, String time) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12.0, right: 48.0),
-        padding: const EdgeInsets.all(12.0),
-        decoration: const BoxDecoration(
-          color: Color(0xFF1E293B),
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(12.0),
-            bottomLeft: Radius.circular(12.0),
-            bottomRight: Radius.circular(12.0),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              text,
-              style: const TextStyle(color: Colors.white, fontSize: 13.0),
-            ),
-            const SizedBox(height: 4.0),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Text(
-                time,
-                style: const TextStyle(color: AegisColors.textMuted, fontSize: 9.0),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOutgoingBubble(String text, String time, {bool doubleTickGreen = true}) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12.0, left: 48.0),
-        padding: const EdgeInsets.all(12.0),
-        decoration: const BoxDecoration(
-          color: Color(0xFF064E3B),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(12.0),
-            bottomLeft: Radius.circular(12.0),
-            bottomRight: Radius.circular(12.0),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              text,
-              style: const TextStyle(color: Colors.white, fontSize: 13.0),
-            ),
-            const SizedBox(height: 4.0),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  time,
-                  style: const TextStyle(color: AegisColors.textSecondary, fontSize: 9.0),
-                ),
-                const SizedBox(width: 4.0),
-                Icon(
-                  Icons.done_all_rounded,
-                  color: doubleTickGreen ? AegisColors.activeGreen : const Color(0xFF64748B),
-                  size: 12.0,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQueuedBubble(String text, String time) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12.0, left: 48.0),
-        child: CustomPaint(
-          painter: DashedRectPainter(
-            color: const Color(0xFFD97706).withOpacity(0.65), // Orange/Brown border
-            strokeWidth: 1.2,
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(12.0),
-            decoration: const BoxDecoration(
-              color: Color(0xFF2D1F10), // Dark brown/orange bg matching mockup
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12.0),
-                bottomLeft: Radius.circular(12.0),
-                bottomRight: Radius.circular(12.0),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  text,
-                  style: const TextStyle(color: Colors.white, fontSize: 13.0),
-                ),
-                const SizedBox(height: 6.0),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      time,
-                      style: const TextStyle(color: AegisColors.textSecondary, fontSize: 9.0),
-                    ),
-                    const SizedBox(width: 4.0),
-                    const Icon(
-                      Icons.access_time_rounded,
-                      color: AegisColors.warningOrange,
-                      size: 11.0,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2.0),
-                const Text(
-                  'Queued',
-                  style: TextStyle(
-                    color: AegisColors.warningOrange,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQueuedMessageWarningBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-      margin: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 8.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1710), // Dark orange/grey background matching mockup
-        borderRadius: BorderRadius.circular(6.0),
-        border: Border.all(
-          color: const Color(0xFFD97706).withOpacity(0.35),
-          width: 1.0,
-        ),
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.access_time_rounded,
-            color: AegisColors.warningOrange,
-            size: 18.0,
-          ),
-          const SizedBox(width: 12.0),
+        child: Column(children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Text(
-                  'Queued Message',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12.0,
-                  ),
-                ),
-                SizedBox(height: 2.0),
-                Text(
-                  'Will deliver when SIG-4D2F comes back online.',
-                  style: TextStyle(
-                    color: AegisColors.textSecondary,
-                    fontSize: 10.5,
-                  ),
-                ),
-              ],
-            ),
+            child: ListView(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), children: offline
+              ? [
+                  _incoming('Hello! Are you safe?', '10:18 AM'),
+                  _outgoing("Yes, I'm safe here.", '10:19 AM', green: false),
+                  _incoming('We need medical supplies.', '10:20 AM'),
+                  _queued('I can help. I have some basic medicines.', '10:21 AM'),
+                ]
+              : [
+                  _incoming('Are you safe?', '10:21 AM'),
+                  _outgoing('Yes, we are safe.', '10:22 AM'),
+                  _hopPath('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
+                  _incoming('Do you have any medical supplies?', '10:23 AM'),
+                  _outgoing('Yes, we have some basic medications.', '10:24 AM'),
+                  _hopPath('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
+                  _warning('Can you send bandages?', '10:25 AM'),
+                  _queueInd(),
+                ]),
           ),
-        ],
+          if (offline) _offlineBanner(),
+          _input(),
+        ]),
       ),
     );
   }
 
-  Widget _buildWarningBubble(String text, String time) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12.0, right: 48.0),
-        padding: const EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          color: const Color(0xFF451A03),
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(12.0),
-            bottomLeft: Radius.circular(12.0),
-            bottomRight: Radius.circular(12.0),
-          ),
-          border: Border.all(color: AegisColors.warningOrange.withOpacity(0.4), width: 1.0),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              text,
-              style: const TextStyle(color: Colors.white, fontSize: 13.0),
-            ),
-            const SizedBox(height: 4.0),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Text(
-                time,
-                style: const TextStyle(color: AegisColors.textMuted, fontSize: 9.0),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHopPathIndicator(String path) {
+  Widget _incoming(String text, String time) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(
-                Icons.check_circle_outline_rounded,
-                color: AegisColors.activeGreen,
-                size: 11.0,
-              ),
-              SizedBox(width: 4.0),
-              Text(
-                'via 2 hops',
-                style: TextStyle(
-                  color: AegisColors.activeGreen,
-                  fontSize: 10.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+        Container(width: 28, height: 28, decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.violet.withOpacity(0.3), AegisColors.violet.withOpacity(0.1)]), shape: BoxShape.circle), child: const Center(child: Icon(Icons.person_rounded, size: 14, color: AegisColors.violet))),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(color: AegisColors.cardBg, borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomLeft: Radius.circular(4), bottomRight: Radius.circular(20)), border: Border.all(color: AegisColors.border1.withOpacity(0.3), width: 0.5), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 2))]),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+              Text(text, style: AegisStyles.message),
+              const SizedBox(height: 6),
+              Align(alignment: Alignment.bottomRight, child: Text(time, style: AegisStyles.timestamp)),
+            ]),
           ),
-          const SizedBox(height: 2.0),
-          Text(
-            path,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AegisColors.textMuted,
-              fontSize: 9.5,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8.0),
-        ],
-      ),
+        ),
+      ]),
     );
   }
 
-  Widget _buildQueueIndicator() {
+  Widget _outgoing(String text, String time, {bool green = true}) {
     return Padding(
-      padding: const EdgeInsets.only(top: 4.0, bottom: 12.0),
-      child: Row(
-        children: const [
-          Icon(
-            Icons.hourglass_empty_rounded,
-            color: AegisColors.warningOrange,
-            size: 13.0,
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.end, mainAxisAlignment: MainAxisAlignment.end, children: [
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.electricBlue.withOpacity(0.2), AegisColors.electricCyan.withOpacity(0.05)]), borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(4)), border: Border.all(color: AegisColors.electricBlue.withOpacity(0.15), width: 0.5), boxShadow: [BoxShadow(color: AegisColors.electricBlue.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 2))]),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
+              Text(text, style: AegisStyles.message),
+              const SizedBox(height: 6),
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                Text(time, style: AegisStyles.timestamp),
+                const SizedBox(width: 4),
+                Icon(Icons.done_all_rounded, color: green ? AegisColors.neonGreen : AegisColors.textDim, size: 12),
+              ]),
+            ]),
           ),
-          SizedBox(width: 6.0),
-          Text(
-            'Queued',
-            style: TextStyle(
-              color: AegisColors.warningOrange,
-              fontSize: 11.0,
-              fontWeight: FontWeight.bold,
-            ),
+        ),
+      ]),
+    );
+  }
+
+  Widget _queued(String text, String time) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.end, mainAxisAlignment: MainAxisAlignment.end, children: [
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(color: const Color(0xFF2D1F10), borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(4)), border: Border.all(color: AegisColors.warning.withOpacity(0.3), width: 0.5)),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
+              Text(text, style: AegisStyles.message),
+              const SizedBox(height: 6),
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                Text(time, style: AegisStyles.timestamp),
+                const SizedBox(width: 4),
+                const Icon(Icons.access_time_rounded, color: AegisColors.warning, size: 11),
+              ]),
+              const SizedBox(height: 2),
+              const Text('Queued', style: TextStyle(color: AegisColors.warning, fontSize: 10, fontWeight: FontWeight.w700)),
+            ]),
           ),
-        ],
+        ),
+      ]),
+    );
+  }
+
+  Widget _offlineBanner() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(color: const Color(0xFF1E1710), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFFFB300).withOpacity(0.25), width: 0.5)),
+      child: Row(children: [
+        Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.warning.withOpacity(0.15), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.access_time_rounded, color: AegisColors.warning, size: 18)),
+        const SizedBox(width: 12),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+          const Text('Queued Message', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
+          const SizedBox(height: 2),
+          Text('Will deliver when ${widget.nodeId} comes back online.', style: TextStyle(color: AegisColors.textSecondary.withOpacity(0.8), fontSize: 11)),
+        ])),
+      ]),
+    );
+  }
+
+  Widget _warning(String text, String time) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+        Container(width: 28, height: 28, decoration: BoxDecoration(color: AegisColors.warning.withOpacity(0.15), shape: BoxShape.circle), child: const Center(child: Icon(Icons.warning_amber_rounded, size: 14, color: AegisColors.warning))),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(color: const Color(0xFF451A03).withOpacity(0.6), borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)), border: Border.all(color: AegisColors.warning.withOpacity(0.25), width: 0.5)),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+              Text(text, style: AegisStyles.message),
+              const SizedBox(height: 6),
+              Align(alignment: Alignment.bottomRight, child: Text(time, style: AegisStyles.timestamp)),
+            ]),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  Widget _hopPath(String path) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.06), borderRadius: BorderRadius.circular(12), border: Border.all(color: AegisColors.neonGreen.withOpacity(0.12), width: 0.5)),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(Icons.check_circle_outline_rounded, color: AegisColors.neonGreen.withOpacity(0.7), size: 12),
+            const SizedBox(width: 6),
+            Text('via 2 hops', style: TextStyle(color: AegisColors.neonGreen.withOpacity(0.8), fontSize: 10, fontWeight: FontWeight.w700)),
+            const SizedBox(width: 8),
+            Text(path, style: TextStyle(color: AegisColors.textMuted.withOpacity(0.6), fontSize: 9, fontWeight: FontWeight.w500)),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  Widget _queueInd() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 2, bottom: 10),
+      child: Row(children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(color: AegisColors.warning.withOpacity(0.08), borderRadius: BorderRadius.circular(8)),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            const Icon(Icons.hourglass_empty_rounded, color: AegisColors.warning, size: 14),
+            const SizedBox(width: 6),
+            const Text('Queued', style: TextStyle(color: AegisColors.warning, fontSize: 11, fontWeight: FontWeight.w700)),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  Widget _input() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AegisColors.background, Color(0xFF08080E)]), border: Border(top: BorderSide(color: AegisColors.border1.withOpacity(0.3), width: 0.5))),
+      child: Row(children: [
+        Expanded(
+          child: Container(
+            height: 46,
+            decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(16), border: Border.all(color: AegisColors.border1.withOpacity(0.5), width: 0.5)),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(children: [
+              const Expanded(child: TextField(style: TextStyle(color: Colors.white, fontSize: 14), decoration: InputDecoration(hintText: 'Type a message...', hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 14), border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.symmetric(horizontal: 12)))),
+              GestureDetector(
+                onTap: () => showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (_) => _attachSheet()),
+                child: Container(width: 36, height: 36, margin: const EdgeInsets.all(2), decoration: BoxDecoration(color: AegisColors.border1.withOpacity(0.3), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.attach_file_rounded, color: AegisColors.textMuted, size: 18)),
+              ),
+            ]),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          width: 46, height: 46,
+          decoration: BoxDecoration(gradient: AegisColors.greenGradient, shape: BoxShape.circle, boxShadow: [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.3), blurRadius: 12, spreadRadius: 1)]),
+          child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+        ),
+      ]),
+    );
+  }
+
+  Widget _attachSheet() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF141428), Color(0xFF0E0E1E)]), borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28))),
+      child: SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
+          const SizedBox(height: 20),
+          _sheetOpt(Icons.file_present_rounded, 'Share File', AegisColors.violet, () { Navigator.of(context).pop(); Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShareFileScreen())); }),
+          const SizedBox(height: 4),
+          _sheetDivider(),
+          const SizedBox(height: 4),
+          _sheetOpt(Icons.mic_none_rounded, 'Voice Message', AegisColors.violet, () { Navigator.of(context).pop(); Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VoiceMessageScreen())); }),
+        ]),
       ),
     );
   }
-}
 
-class DashedRectPainter extends CustomPainter {
-  final Color color;
-  final double strokeWidth;
-  final double gap;
-
-  DashedRectPainter({
-    required this.color,
-    this.strokeWidth = 1.0,
-    this.gap = 4.0,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke;
-
-    final Path path = Path();
-    path.addRRect(RRect.fromRectAndCorners(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      topLeft: const Radius.circular(12.0),
-      bottomLeft: const Radius.circular(12.0),
-      bottomRight: const Radius.circular(12.0),
-    ));
-
-    _drawDashedPath(canvas, path, paint);
+  Widget _sheetOpt(IconData icon, String label, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap, borderRadius: BorderRadius.circular(14),
+      child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12), child: Row(children: [
+        Container(width: 40, height: 40, decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.2), width: 0.5)), child: Icon(icon, color: color, size: 20)),
+        const SizedBox(width: 14),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
+      ])),
+    );
   }
 
-  void _drawDashedPath(Canvas canvas, Path path, Paint paint) {
-    final double dashLength = 4.0;
-    final double spaceLength = 3.0;
-
-    for (final PathMetric metric in path.computeMetrics()) {
-      double start = 0.0;
-      while (start < metric.length) {
-        final double end = (start + dashLength).clamp(0.0, metric.length);
-        canvas.drawPath(metric.extractPath(start, end), paint);
-        start += dashLength + spaceLength;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant DashedRectPainter oldDelegate) {
-    return oldDelegate.color != color || oldDelegate.strokeWidth != strokeWidth;
+  Widget _sheetDivider() {
+    return Container(margin: const EdgeInsets.symmetric(horizontal: 4), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
   }
 }

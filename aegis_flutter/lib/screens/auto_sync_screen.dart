@@ -46,9 +46,9 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
+                color: AegisColors.cardBg,
                 borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
+                border: Border.all(color: AegisColors.border1, width: 1.0),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,17 +61,17 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                         width: 44.0,
                         height: 44.0,
                         decoration: BoxDecoration(
-                          color: AegisColors.greenLightBg,
+                          color: AegisColors.neonGreen.withOpacity(0.08),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AegisColors.activeGreen.withOpacity(0.3),
+                            color: AegisColors.neonGreen.withOpacity(0.3),
                             width: 1.0,
                           ),
                         ),
                         child: const Center(
                           child: Icon(
                             Icons.cloud_queue_rounded,
-                            color: AegisColors.activeGreen,
+                            color: AegisColors.neonGreen,
                             size: 22.0,
                           ),
                         ),
@@ -102,7 +102,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                                       });
                                     },
                                     activeColor: Colors.white,
-                                    activeTrackColor: AegisColors.activeGreen,
+                                    activeTrackColor: AegisColors.neonGreen,
                                     inactiveThumbColor: Colors.grey,
                                     inactiveTrackColor: const Color(0xFF1E293B),
                                   ),
@@ -141,9 +141,9 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
             const SizedBox(height: 10.0),
             Container(
               decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
+                color: AegisColors.cardBg,
                 borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
+                border: Border.all(color: AegisColors.border1, width: 1.0),
               ),
               child: Column(
                 children: [
@@ -152,7 +152,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
                     child: Row(
                       children: [
-                        const Icon(Icons.settings_input_antenna_rounded, color: AegisColors.activeGreen, size: 18.0),
+                        const Icon(Icons.settings_input_antenna_rounded, color: AegisColors.neonGreen, size: 18.0),
                         const SizedBox(width: 12.0),
                         Expanded(
                           child: Column(
@@ -180,7 +180,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                               });
                             },
                             activeColor: Colors.white,
-                            activeTrackColor: AegisColors.activeGreen,
+                            activeTrackColor: AegisColors.neonGreen,
                             inactiveThumbColor: Colors.grey,
                             inactiveTrackColor: const Color(0xFF1E293B),
                           ),
@@ -208,7 +208,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                         Text(
                           '15 minutes',
                           style: TextStyle(
-                            color: AegisColors.activeGreen,
+                            color: AegisColors.neonGreen,
                             fontWeight: FontWeight.bold,
                             fontSize: 12.0,
                           ),
@@ -244,9 +244,9 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
             const SizedBox(height: 10.0),
             Container(
               decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
+                color: AegisColors.cardBg,
                 borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
+                border: Border.all(color: AegisColors.border1, width: 1.0),
               ),
               child: Column(
                 children: [
@@ -265,7 +265,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                             Text(
                               '2 min ago',
                               style: TextStyle(
-                                color: AegisColors.activeGreen,
+                                color: AegisColors.neonGreen,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12.5,
                               ),
@@ -273,7 +273,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                             SizedBox(width: 6.0),
                             Icon(
                               Icons.check_circle_outline_rounded,
-                              color: AegisColors.activeGreen,
+                              color: AegisColors.neonGreen,
                               size: 14.0,
                             ),
                           ],

@@ -59,7 +59,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF1E1B4B), // Dark Indigo/Purple card
                     borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: AegisColors.busyPurple.withOpacity(0.3), width: 1.0),
+                    border: Border.all(color: AegisColors.violet.withOpacity(0.3), width: 1.0),
                   ),
                   child: Row(
                     children: [
@@ -92,12 +92,12 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                         width: 38.0,
                         height: 38.0,
                         decoration: BoxDecoration(
-                          color: AegisColors.busyPurple.withOpacity(0.2),
+                          color: AegisColors.violet.withOpacity(0.2),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.podcasts_rounded,
-                          color: AegisColors.busyPurple,
+                          color: AegisColors.violet,
                           size: 20.0,
                         ),
                       ),
@@ -118,9 +118,9 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                 const SizedBox(height: 10.0),
                 Container(
                   decoration: BoxDecoration(
-                    color: AegisColors.cardBackground,
+                    color: AegisColors.cardBg,
                     borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: AegisColors.border, width: 1.0),
+                    border: Border.all(color: AegisColors.border1, width: 1.0),
                   ),
                   child: Column(
                     children: List.generate(_audiences.length, (index) {
@@ -149,9 +149,9 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                 Container(
                   padding: const EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
-                    color: AegisColors.cardBackground,
+                    color: AegisColors.cardBg,
                     borderRadius: BorderRadius.circular(8.0),
-                    border: Border.all(color: AegisColors.border, width: 1.0),
+                    border: Border.all(color: AegisColors.border1, width: 1.0),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -203,11 +203,11 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                   width: double.infinity,
                   height: 44.0,
                   decoration: BoxDecoration(
-                    color: AegisColors.busyPurple,
+                    color: AegisColors.violet,
                     borderRadius: BorderRadius.circular(6.0),
                     boxShadow: [
                       BoxShadow(
-                        color: AegisColors.busyPurple.withOpacity(0.3),
+                        color: AegisColors.violet.withOpacity(0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -258,7 +258,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? AegisColors.busyPurple : AegisColors.textMuted,
+                  color: isSelected ? AegisColors.violet : AegisColors.textMuted,
                   width: 1.5,
                 ),
               ),
@@ -268,7 +268,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                         width: 10.0,
                         height: 10.0,
                         decoration: const BoxDecoration(
-                          color: AegisColors.busyPurple,
+                          color: AegisColors.violet,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -305,7 +305,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                 width: 18.0,
                 height: 18.0,
                 decoration: const BoxDecoration(
-                  color: AegisColors.activeGreen,
+                  color: AegisColors.neonGreen,
                   shape: BoxShape.circle,
                 ),
                 child: const Center(

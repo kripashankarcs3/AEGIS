@@ -87,11 +87,11 @@ class VoiceMessageScreen extends StatelessWidget {
                       width: 64.0,
                       height: 64.0,
                       decoration: BoxDecoration(
-                        color: AegisColors.busyPurple,
+                        color: AegisColors.violet,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AegisColors.busyPurple.withOpacity(0.4),
+                            color: AegisColors.violet.withOpacity(0.4),
                             blurRadius: 12,
                             spreadRadius: 2,
                           ),
@@ -162,7 +162,7 @@ class VoiceMessageScreen extends StatelessWidget {
       height: height,
       margin: const EdgeInsets.symmetric(horizontal: 2.0),
       decoration: BoxDecoration(
-        color: AegisColors.busyPurple,
+        color: AegisColors.violet,
         borderRadius: BorderRadius.circular(10.0),
       ),
     );
@@ -181,12 +181,12 @@ class VoiceMessageScreen extends StatelessWidget {
                 width: 36.0,
                 height: 36.0,
                 decoration: BoxDecoration(
-                  color: AegisColors.activeGreen.withOpacity(0.15),
+                  color: AegisColors.neonGreen.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.sensors_rounded,
-                  color: AegisColors.activeGreen,
+                  color: AegisColors.neonGreen,
                   size: 16.0,
                 ),
               ),
@@ -220,14 +220,14 @@ class VoiceMessageScreen extends StatelessWidget {
             width: 32.0,
             height: 32.0,
             decoration: BoxDecoration(
-              color: AegisColors.purpleLightBg.withOpacity(0.3),
+              color: AegisColors.violet.withOpacity(0.1).withOpacity(0.3),
               shape: BoxShape.circle,
-              border: Border.all(color: AegisColors.busyPurple.withOpacity(0.4), width: 1.0),
+              border: Border.all(color: AegisColors.violet.withOpacity(0.4), width: 1.0),
             ),
             child: const Center(
               child: Icon(
                 Icons.send_rounded,
-                color: AegisColors.busyPurple,
+                color: AegisColors.violet,
                 size: 14.0,
               ),
             ),

@@ -32,9 +32,9 @@ class HelpSupportScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
+                color: AegisColors.cardBg,
                 borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
+                border: Border.all(color: AegisColors.border1, width: 1.0),
               ),
               child: Row(
                 children: [
@@ -42,17 +42,17 @@ class HelpSupportScreen extends StatelessWidget {
                     width: 44.0,
                     height: 44.0,
                     decoration: BoxDecoration(
-                      color: AegisColors.greenLightBg,
+                      color: AegisColors.neonGreen.withOpacity(0.08),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AegisColors.activeGreen.withOpacity(0.3),
+                        color: AegisColors.neonGreen.withOpacity(0.3),
                         width: 1.0,
                       ),
                     ),
                     child: const Center(
                       child: Icon(
                         Icons.headset_mic_rounded,
-                        color: AegisColors.activeGreen,
+                        color: AegisColors.neonGreen,
                         size: 22.0,
                       ),
                     ),
@@ -100,9 +100,9 @@ class HelpSupportScreen extends StatelessWidget {
             const SizedBox(height: 10.0),
             Container(
               decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
+                color: AegisColors.cardBg,
                 borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
+                border: Border.all(color: AegisColors.border1, width: 1.0),
               ),
               child: Column(
                 children: [
@@ -141,9 +141,9 @@ class HelpSupportScreen extends StatelessWidget {
             const SizedBox(height: 10.0),
             Container(
               decoration: BoxDecoration(
-                color: AegisColors.cardBackground,
+                color: AegisColors.cardBg,
                 borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AegisColors.border, width: 1.0),
+                border: Border.all(color: AegisColors.border1, width: 1.0),
               ),
               child: Column(
                 children: [
