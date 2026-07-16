@@ -5,6 +5,7 @@ import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
 import '../providers/survivor_provider.dart';
 import '../models/survivor_node_model.dart';
+import '../services/storage_service.dart';
 import 'chat_conversation_screen.dart';
 import 'broadcast_screen.dart';
 
@@ -40,13 +41,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     child: ListView(children: [
                       ..._buildPeerList(ref.watch(survivorProvider)),
                       const SizedBox(height: 16),
-                      _buildTipBanner(),
                     ]),
                   ),
                 ],
               ),
             ),
-            Positioned(right: 20, bottom: 100, child: StaggeredFadeIn(index: 5, child: FloatingActionButton(backgroundColor: AegisColors.violet, elevation: 8, child: Icon(Icons.add_rounded, color: Colors.white, size: 28), onPressed: () => showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (_) => _sheet())))),
+            Positioned(right: 20, bottom: 24, child: StaggeredFadeIn(index: 5, child: FloatingActionButton(backgroundColor: AegisColors.violet, elevation: 8, child: Icon(Icons.add_rounded, color: Colors.white, size: 28), onPressed: () => showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (_) => _sheet())))),
           ],
         ),
       ),
@@ -99,8 +99,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  bool _showTip = true;
-
   String _formatTime(int epochMs) {
     final dt = DateTime.fromMillisecondsSinceEpoch(epochMs);
     final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
@@ -112,15 +110,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   List<Widget> _buildPeerList(Map<String, SurvivorNodeModel> survivors) {
     if (survivors.isEmpty) {
       return [
-        _tile(AegisColors.violet, 'SIG-8AF3', '10:24 AM', 'All good here. We have supplies.', unread: 2, badgeText: 'SAFE', badgeColor: AegisColors.neonGreen, dot: true),
-        _divider(),
-        _tile(AegisColors.sosRed, 'SIG-4D2F', '10:18 AM', 'Need medical assistance.', unread: 1, urgent: true, badgeText: 'NEED HELP', badgeColor: AegisColors.sosRed),
-        _divider(),
-        _tile(AegisColors.neonGreen, 'SIG-1A9D', '9:56 AM', 'How many people in your group?', dot: true),
-        _divider(),
-        _tile(AegisColors.electricBlue, 'SIG-B2C1', '9:41 AM', 'Water available. 2 bottles left.', dot: true),
-        _divider(),
-        _tile(AegisColors.violet, 'SIG-3C7E', '9:32 AM', 'Heading north. Roads blocked.', dot: true),
+        Padding(
+          padding: const EdgeInsets.only(top: 60),
+          child: Center(
+            child: Column(
+              children: [
+                Icon(Icons.chat_bubble_outline_rounded, size: 48, color: AegisColors.textMuted),
+                SizedBox(height: 16),
+                Text('No conversations yet', style: TextStyle(color: AegisColors.textMuted, fontSize: 15, fontWeight: FontWeight.w500)),
+                SizedBox(height: 8),
+                Text('Tap + to start a new encrypted chat', style: TextStyle(color: AegisColors.textDim, fontSize: 13)),
+              ],
+            ),
+          ),
+        ),
       ];
     }
 
@@ -168,45 +171,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return tiles;
   }
 
-  Widget _buildTipBanner() {
-    if (!_showTip) return const SizedBox.shrink();
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: AegisColors.isLight ? const Color(0xFFE8F5E9) : const Color(0xFF1B2A1E),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AegisColors.isLight ? const Color(0xFFC8E6C9) : AegisColors.neonGreen.withOpacity(0.15),
-          width: 0.5,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.security_outlined, color: AegisColors.isLight ? const Color(0xFF2E7D32) : AegisColors.neonGreen, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Tip: Long press on a chat for more options',
-              style: TextStyle(
-                color: AegisColors.isLight ? const Color(0xFF2E7D32) : AegisColors.textSecondary,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'SF Pro Display',
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () => setState(() => _showTip = false),
-            child: Icon(Icons.close_rounded, color: AegisColors.isLight ? const Color(0xFF2E7D32).withOpacity(0.6) : AegisColors.textMuted, size: 18),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _tile(Color avatarColor, String nodeId, String time, String subtitle, {int unread = 0, bool urgent = false, bool dot = false, String? badgeText, Color? badgeColor}) {
     return InkWell(
       onTap: () => Navigator.of(context).push(PageRouteBuilder(pageBuilder: (_, a, __) => ChatConversationScreen(nodeId: nodeId), transitionsBuilder: (_, a, __, child) => SlideTransition(position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)), child: child))),
+      onLongPress: () => _showChatOptions(nodeId),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
         child: Row(children: [
@@ -306,6 +274,34 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Widget _sheetDivider() {
     return Container(margin: const EdgeInsets.symmetric(horizontal: 4), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
+  }
+
+  void _showChatOptions(String nodeId) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+        decoration: BoxDecoration(gradient: AegisColors.cardGradient, borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28))),
+        child: SafeArea(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
+            SizedBox(height: 20),
+            _sheetOpt(Icons.delete_outline_rounded, 'Delete Chat', AegisColors.sosRed, () {
+              Navigator.of(context).pop();
+              ref.read(survivorProvider.notifier).removeSurvivor(nodeId);
+            }),
+            SizedBox(height: 4),
+            _sheetDivider(),
+            SizedBox(height: 4),
+            _sheetOpt(Icons.cleaning_services_outlined, 'Clear Messages', AegisColors.textPrimary, () async {
+              Navigator.of(context).pop();
+              await StorageService.clearChatHistory(nodeId);
+            }),
+          ]),
+        ),
+      ),
+    );
   }
 
   void _showNewChatDialog() {

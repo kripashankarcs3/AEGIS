@@ -52,6 +52,14 @@ class StorageService {
   static Future<void> saveChatHistory(String peerId, List<Map<String, dynamic>> messages) =>
       Hive.box(_chatBox).put(peerId, messages);
 
+  static Future<void> clearChatHistory(String peerId) async {
+    await Hive.box(_chatBox).put(peerId, []);
+  }
+
+  static Future<void> deleteChatHistory(String peerId) async {
+    await Hive.box(_chatBox).delete(peerId);
+  }
+
   // ---- sos ----
   static Future<List<Map<String, dynamic>>> getSosLog() async {
     final raw = Hive.box(_sosBox).get('alerts', defaultValue: []) as List;

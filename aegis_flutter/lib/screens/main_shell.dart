@@ -2,22 +2,26 @@ import 'dart:ui' as ui;
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
+import '../providers/mesh_provider.dart';
 import 'radar_screen.dart';
 import 'chat_screen.dart';
 import 'sos_screen.dart';
 import 'resource_feed_screen.dart';
 import 'network_map_screen.dart';
+import 'sos_incoming_overlay.dart';
+import 'profile_screen.dart';
 
-class MainShell extends StatefulWidget {
+class MainShell extends ConsumerStatefulWidget {
   final int initialTab;
   const MainShell({super.key, this.initialTab = 0});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
+class _MainShellState extends ConsumerState<MainShell> with TickerProviderStateMixin {
   late int _currentIndex;
   late AnimationController _sosPulse;
   late AnimationController _glowShift;
@@ -35,6 +39,15 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(meshProvider.notifier).sosAlertStream.listen((packet) {
+        if (mounted) {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => SosIncomingOverlayScreen(packet: packet),
+          ));
+        }
+      });
+    });
     _currentIndex = widget.initialTab;
     _sosPulse = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
     _sosScale = Tween<double>(begin: 0.92, end: 1.08).animate(CurvedAnimation(parent: _sosPulse, curve: Curves.easeInOutSine));
@@ -93,14 +106,35 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
       child: Scaffold(
         backgroundColor: AegisColors.background,
       extendBody: true,
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 350),
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeInCubic,
-        transitionBuilder: (child, animation) {
-          return FadeTransition(opacity: animation, child: ScaleTransition(scale: Tween<double>(begin: 0.95, end: 1.0).animate(animation), child: child));
-        },
-        child: KeyedSubtree(key: ValueKey(_currentIndex), child: _screens[_currentIndex]),
+      body: Stack(
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) {
+              return FadeTransition(opacity: animation, child: ScaleTransition(scale: Tween<double>(begin: 0.95, end: 1.0).animate(animation), child: child));
+            },
+            child: KeyedSubtree(key: ValueKey(_currentIndex), child: _screens[_currentIndex]),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            right: 16,
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
+              child: Container(
+                width: 38, height: 38,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AegisColors.surface2,
+                  border: Border.all(color: AegisColors.border1),
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
+                ),
+                child: const Icon(Icons.person_rounded, color: AegisColors.violet, size: 20),
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: Container(
         margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),

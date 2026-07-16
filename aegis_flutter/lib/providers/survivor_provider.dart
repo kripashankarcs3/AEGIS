@@ -32,6 +32,11 @@ class SurvivorMapNotifier
     StorageService.saveSurvivorNodeModel(node);
   }
 
+  void removeSurvivor(String id) {
+    state = Map.from(state)..remove(id);
+    StorageService.deleteChatHistory(id);
+  }
+
   void refresh() => _load();
 }
 
