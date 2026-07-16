@@ -26,7 +26,18 @@ class IdentityScreen extends StatelessWidget {
               decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
-                  Container(width: 56, height: 56, decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.violet.withOpacity(0.2), AegisColors.violet.withOpacity(0.05)]), shape: BoxShape.circle, border: Border.all(color: AegisColors.violet.withOpacity(0.2), width: 1.5)), child: const Center(child: Icon(Icons.shield_outlined, color: AegisColors.violet, size: 28))),
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AegisColors.border1, width: 1.5),
+                      image: const DecorationImage(
+                        image: AssetImage('assets/images/logo.png'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
                   const SizedBox(width: 16),
                   Expanded(child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                     const Text('SIG-8AF3', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3)),

@@ -627,13 +627,13 @@ class _FuturisticOrbitalGraphicState extends State<FuturisticOrbitalGraphic> wit
         // Centered Shield Logo with custom Hero transition
         Positioned(
           left: centerDx - 22.0,
-          top: centerDy - 25.0,
+          top: centerDy - 22.0, // center it cleanly
           child: AnimatedBuilder(
             animation: _shieldFloatController,
             builder: (context, child) {
               // Floating -5px to +5px
               final double dy = sin(_shieldFloatController.value * 2 * pi) * 5.0;
-              // Very subtle rotation (-1 degree to +1 degree => -0.017 to +0.017 rad)
+              // Very subtle rotation (-1 degree to +1 degree)
               final double rotation = sin(_shieldFloatController.value * 2 * pi) * (1.0 * pi / 180.0);
 
               return Transform.translate(
@@ -642,38 +642,22 @@ class _FuturisticOrbitalGraphicState extends State<FuturisticOrbitalGraphic> wit
                   angle: rotation,
                   child: Hero(
                     tag: 'aegis_logo',
-                    child: SizedBox(
+                    child: Container(
                       width: 44.0,
-                      height: 50.0,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned.fill(
-                            child: CustomPaint(
-                              painter: LogoShieldPainter(glowFactor: 1.0),
-                            ),
-                          ),
-                          const Positioned(
-                            top: 8.0,
-                            child: Text(
-                              'A',
-                              style: TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontFamily: 'SF Pro Display',
-                              ),
-                            ),
-                          ),
-                          const Positioned(
-                            bottom: 8.0,
-                            child: Icon(
-                              Icons.wifi,
-                              color: Color(0xFF27D8FF),
-                              size: 9.0,
-                            ),
+                      height: 44.0,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF256DFF),
+                            blurRadius: 10.0,
+                            spreadRadius: -1.0,
                           ),
                         ],
+                      ),
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),

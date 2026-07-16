@@ -53,15 +53,11 @@ class NodeDetailsScreen extends StatelessWidget {
                       width: 52.0,
                       height: 52.0,
                       decoration: BoxDecoration(
-                        color: AegisColors.violet.withOpacity(0.15),
                         shape: BoxShape.circle,
-                        border: Border.all(color: AegisColors.violet.withOpacity(0.3), width: 1.0),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.shield_outlined,
-                          color: AegisColors.violet,
-                          size: 26.0,
+                        border: Border.all(color: AegisColors.border1, width: 1.0),
+                        image: const DecorationImage(
+                          image: AssetImage('assets/images/logo.png'),
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),

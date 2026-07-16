@@ -448,7 +448,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   children: [
                     const SizedBox(height: 10.0),
                     
-                    // Glossy custom shield logo (occupies ~32% of screen width)
+                    // Premium Asset-based Gold-Green Shield Logo
                     ScaleTransition(
                       scale: _logoScale,
                       child: FadeTransition(
@@ -461,42 +461,26 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                 ? 1.0 + (_breatheController.value * 0.15)
                                 : 1.0;
 
-                            return SizedBox(
+                            return Container(
                               width: screenWidth * 0.32,
-                              height: (screenWidth * 0.32) * 1.16, // proportional height
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  // Shield base custom paint with breathing glow
-                                  Positioned.fill(
-                                    child: CustomPaint(
-                                      painter: LogoShieldPainter(glowFactor: breatheVal),
-                                    ),
-                                  ),
-                                  // Bold white 'A' letter centered inside the shield
-                                  Positioned(
-                                    top: (screenWidth * 0.32) * 0.22,
-                                    child: Text(
-                                      'A',
-                                      style: TextStyle(
-                                        fontSize: (screenWidth * 0.32) * 0.42,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontFamily: 'SF Pro Display',
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                  // WiFi waves icon centered inside bottom of the shield
-                                  Positioned(
-                                    bottom: (screenWidth * 0.32) * 0.16,
-                                    child: Icon(
-                                      Icons.wifi,
-                                      color: const Color(0xFF27D8FF), // Accent Cyan
-                                      size: (screenWidth * 0.32) * 0.18,
-                                    ),
+                              height: screenWidth * 0.32,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  // Outer blue bloom shadow
+                                  BoxShadow(
+                                    color: const Color(0xFF256DFF).withOpacity(0.20 * (breatheVal - 1.0 + 1.0)),
+                                    blurRadius: 24.0 * breatheVal,
+                                    spreadRadius: 1.0,
                                   ),
                                 ],
+                              ),
+                              child: Hero(
+                                tag: 'aegis_logo',
+                                child: Image.asset(
+                                  'assets/images/logo.png',
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             );
                           },

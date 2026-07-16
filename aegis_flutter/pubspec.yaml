@@ -68,6 +68,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   
-  # Assets for audio files (SOS alarm)
+  # Assets for audio files (SOS alarm) and images
   assets:
     - assets/sounds/
+    - assets/images/logo.png

@@ -93,7 +93,17 @@ class _RadarScreenState extends State<RadarScreen> with TickerProviderStateMixin
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(children: [
-          Container(width: 38, height: 38, decoration: BoxDecoration(gradient: AegisColors.primaryGradient, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.shield_outlined, color: Colors.white, size: 20)),
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              image: const DecorationImage(
+                image: AssetImage('assets/images/logo.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           const SizedBox(width: 12),
           const Text('AEGIS', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: Colors.white)),
         ]),
