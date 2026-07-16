@@ -1,87 +1,69 @@
-import 'dart:math';
-
+import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
 import 'crypto_service.dart';
 
 class IdentityManager {
   IdentityManager();
-
   final CryptoService _cryptoService = CryptoService();
 
   String? _sigId;
   String? _publicKey;
   String? _privateKey;
+  DateTime? _createdAt;
 
-  // Getters
   String? get sigId => _sigId;
   String? get publicKey => _publicKey;
   String? get privateKey => _privateKey;
+  DateTime? get createdAt => _createdAt;
 
-  /// Called when the app starts.
   Future<void> initialize() async {
     await loadIdentity();
-
     if (_sigId == null) {
       await generateIdentity();
       await saveIdentity();
     }
   }
 
-  /// Generates a brand-new device identity.
   Future<void> generateIdentity() async {
-    // Generate unique device ID
-    _sigId = _generateSigId();
+    final keyPair = await _cryptoService.generateKeyPair();
+    final pubKey = await keyPair.extractPublicKey();
 
-    // Generate Ed25519 key pair
-    final KeyPair keyPair = await _cryptoService.generateKeyPair();
-
-    // Extract public key
-    final publicKey = await keyPair.extractPublicKey();
-
-    // Convert public key to hex string
-    if (publicKey is SimplePublicKey) {
-      _publicKey = publicKey.bytes
-          .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
-          .join();
-    } else {
-      _publicKey = "";
+    if (pubKey is SimplePublicKey && keyPair is SimpleKeyPair) {
+      final privKeyBytes = await keyPair.extractPrivateKeyBytes();
+      final pubBytes = pubKey.bytes;
+      final h = List<int>.filled(4, 0);
+      for (int i = 0; i < pubBytes.length; i++) {
+        h[i % 4] ^= pubBytes[i];
+      }
+      final code = h
+          .map((b) => b.toRadixString(16).padLeft(2, '0').toUpperCase())
+          .join()
+          .substring(0, 4);
+      _sigId = 'SIG-$code';
+      _publicKey =
+          pubBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+      _privateKey = base64Encode(privKeyBytes);
+      _createdAt = DateTime.now();
     }
-
-    // Temporary placeholder.
-    // In the next step we'll serialize and store the real private key in Hive.
-    _privateKey = "GENERATED_PRIVATE_KEY";
   }
 
-  /// Loads identity from Hive persistent storage.
   Future<void> loadIdentity() async {
     final box = Hive.box('settings');
-    _sigId = box.get('sigId') as String?;
-    _publicKey = box.get('publicKey') as String?;
-    _privateKey = box.get('privateKey') as String?;
+    _sigId = box.get('identity_sigId') as String?;
+    _publicKey = box.get('identity_publicKey') as String?;
+    _privateKey = box.get('identity_privateKey') as String?;
+    final createdAtMs = box.get('identity_createdAt') as int?;
+    _createdAt = createdAtMs != null
+        ? DateTime.fromMillisecondsSinceEpoch(createdAtMs)
+        : null;
   }
 
-  /// Saves identity to Hive persistent storage.
   Future<void> saveIdentity() async {
     final box = Hive.box('settings');
-    await box.put('sigId', _sigId);
-    await box.put('publicKey', _publicKey);
-    await box.put('privateKey', _privateKey);
-  }
-
-  /// Creates IDs like:
-  /// SIG-A7D2
-  String _generateSigId() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-
-    final random = Random();
-
-    final code = List.generate(
-      4,
-      (_) => chars[random.nextInt(chars.length)],
-    ).join();
-
-    return 'SIG-$code';
+    await box.put('identity_sigId', _sigId);
+    await box.put('identity_publicKey', _publicKey);
+    await box.put('identity_privateKey', _privateKey);
+    await box.put('identity_createdAt', _createdAt?.millisecondsSinceEpoch);
   }
 }

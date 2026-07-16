@@ -14,18 +14,26 @@ class IdentityState {
   final String sigId;
   final String publicKey;
   final bool isReady;
+  final DateTime? createdAt;
 
   const IdentityState({
     this.sigId = 'SIG-????',
     this.publicKey = '',
     this.isReady = false,
+    this.createdAt,
   });
 
-  IdentityState copyWith({String? sigId, String? publicKey, bool? isReady}) =>
+  IdentityState copyWith({
+    String? sigId,
+    String? publicKey,
+    bool? isReady,
+    DateTime? createdAt,
+  }) =>
       IdentityState(
         sigId: sigId ?? this.sigId,
         publicKey: publicKey ?? this.publicKey,
         isReady: isReady ?? this.isReady,
+        createdAt: createdAt ?? this.createdAt,
       );
 }
 
@@ -44,6 +52,7 @@ class IdentityNotifier extends StateNotifier<IdentityState> {
       sigId: _manager.sigId ?? 'SIG-????',
       publicKey: _manager.publicKey ?? '',
       isReady: true,
+      createdAt: _manager.createdAt,
     );
   }
 

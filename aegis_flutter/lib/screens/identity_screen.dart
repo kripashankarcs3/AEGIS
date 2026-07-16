@@ -76,14 +76,18 @@ class IdentityScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StaggeredFadeIn(index: 0, child: _profileCard(context, sigId)),
+              StaggeredFadeIn(
+                  index: 0,
+                  child: _profileCard(context, sigId, identity.createdAt)),
               const SizedBox(height: 28),
               StaggeredFadeIn(
                   index: 1, child: _publicKeySection(context, displayKey)),
               const SizedBox(height: 28),
               StaggeredFadeIn(index: 2, child: _qrCodeSection(qrData, sigId)),
               const SizedBox(height: 28),
-              StaggeredFadeIn(index: 3, child: _securitySection()),
+              StaggeredFadeIn(
+                  index: 3,
+                  child: _securitySection(identity.createdAt)),
               const SizedBox(height: 28),
               StaggeredFadeIn(index: 4, child: _infoBox()),
             ],
@@ -93,7 +97,15 @@ class IdentityScreen extends ConsumerWidget {
     );
   }
 
-  Widget _profileCard(BuildContext context, String sigId) {
+  String _formatDate(DateTime dt) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
+  }
+
+  Widget _profileCard(BuildContext context, String sigId, DateTime? createdAt) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -183,7 +195,7 @@ class IdentityScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '2 hops away • via SIG-B2C1',
+                      'Mesh node active',
                       style: TextStyle(
                         fontSize: 12,
                         color: AegisColors.textSecondary,
@@ -212,7 +224,9 @@ class IdentityScreen extends ConsumerWidget {
                     fontWeight: FontWeight.w500),
               ),
               Text(
-                '12 May 2024',
+                createdAt != null
+                    ? _formatDate(createdAt)
+                    : 'This session',
                 style: TextStyle(
                     fontSize: 12,
                     color: AegisColors.textPrimary,
@@ -377,7 +391,7 @@ class IdentityScreen extends ConsumerWidget {
     );
   }
 
-  Widget _securitySection() {
+  Widget _securitySection(DateTime? createdAt) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -417,7 +431,10 @@ class IdentityScreen extends ConsumerWidget {
                   statusColor: AegisColors.neonGreen,
                   icon: Icons.check_circle_outline_rounded),
               _divider(),
-              _securityRow('Key Created', '12 May 2024', isStatus: false),
+              _securityRow(
+                  'Key Created',
+                  createdAt != null ? _formatDate(createdAt) : 'This session',
+                  isStatus: false),
               _divider(),
               _securityRow('Last Rotated', 'Never', isStatus: false),
             ],
