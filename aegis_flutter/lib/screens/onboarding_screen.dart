@@ -389,7 +389,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                 ),
                               );
                             },
-                            transitionDuration: const Duration(milliseconds: 400),
+                            transitionDuration: const Duration(milliseconds: 550),
                           ),
                         );
                       },

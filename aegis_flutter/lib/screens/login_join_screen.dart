@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
-import 'splash_screen.dart';
+import 'splash_screen.dart'; // Reuse MeshGlobePainter and StarsBackgroundPainter
 import 'main_shell.dart';
 
 class LoginJoinScreen extends StatefulWidget {
@@ -12,134 +13,606 @@ class LoginJoinScreen extends StatefulWidget {
 }
 
 class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderStateMixin {
-  late AnimationController _globeCtrl;
-  late AnimationController _btnsCtrl;
-  late AnimationController _twinkleCtrl;
+  late AnimationController _globeController;
+  late AnimationController _sweepController;
+  late AnimationController _entranceController;
+  late AnimationController _glowBreatheController;
+  late AnimationController _backgroundController;
 
-  late Animation<double> _b1F, _b2F, _b3F;
-  late Animation<Offset> _b1S, _b2S, _b3S;
+  // Staggered entrance animations
+  late Animation<double> _titleFade;
+  late Animation<double> _titleSlide;
+  late Animation<double> _subtitleFade;
+  late Animation<double> _subtitleSlide;
+  
+  late Animation<double> _phoneFade;
+  late Animation<double> _phoneScale;
+  late Animation<double> _qrFade;
+  late Animation<double> _qrScale;
+  late Animation<double> _guestFade;
+  late Animation<double> _guestScale;
+  
+  late Animation<double> _offlineFade;
+  late Animation<double> _offlineSlide;
 
   @override
   void initState() {
     super.initState();
-    _globeCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 20))..repeat();
-    _btnsCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
 
-    _b1F = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _btnsCtrl, curve: const Interval(0.0, 0.45, curve: Curves.easeIn)));
-    _b1S = Tween<Offset>(begin: const Offset(0.0, 0.2), end: Offset.zero).animate(CurvedAnimation(parent: _btnsCtrl, curve: const Interval(0.0, 0.45, curve: Curves.easeOut)));
-    _b2F = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _btnsCtrl, curve: const Interval(0.3, 0.75, curve: Curves.easeIn)));
-    _b2S = Tween<Offset>(begin: const Offset(0.0, 0.2), end: Offset.zero).animate(CurvedAnimation(parent: _btnsCtrl, curve: const Interval(0.3, 0.75, curve: Curves.easeOut)));
-    _b3F = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _btnsCtrl, curve: const Interval(0.6, 1.0, curve: Curves.easeIn)));
-    _b3S = Tween<Offset>(begin: const Offset(0.0, 0.2), end: Offset.zero).animate(CurvedAnimation(parent: _btnsCtrl, curve: const Interval(0.6, 1.0, curve: Curves.easeOut)));
-    _btnsCtrl.forward();
+    // 1. Globe rotation (infinite rotation)
+    _globeController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 24),
+    )..repeat();
 
-    _twinkleCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat(reverse: true);
+    // 2. Horizon energy sweep (8 seconds cycle)
+    _sweepController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 8),
+    )..repeat();
+
+    // 3. Staggered entrance timeline (1200ms)
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    // Title (0ms to 500ms => Interval(0.0, 0.42))
+    _titleFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.0, 0.42, curve: Curves.easeOutCubic)),
+    );
+    _titleSlide = Tween<double>(begin: 18.0, end: 0.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.0, 0.42, curve: Curves.easeOutCubic)),
+    );
+
+    // Subtitle (120ms to 620ms => 120/1200 = 0.10 to 620/1200 = 0.52)
+    _subtitleFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.10, 0.52, curve: Curves.easeOutCubic)),
+    );
+    _subtitleSlide = Tween<double>(begin: 18.0, end: 0.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.10, 0.52, curve: Curves.easeOutCubic)),
+    );
+
+    // Phone Button (250ms to 700ms => 250/1200 = 0.21 to 700/1200 = 0.58)
+    _phoneFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.21, 0.58, curve: Curves.easeOutCubic)),
+    );
+    _phoneScale = Tween<double>(begin: 0.92, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.21, 0.58, curve: Curves.easeOutCubic)),
+    );
+
+    // QR Button (370ms to 820ms => 370/1200 = 0.31 to 820/1200 = 0.68)
+    _qrFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.31, 0.68, curve: Curves.easeOutCubic)),
+    );
+    _qrScale = Tween<double>(begin: 0.92, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.31, 0.68, curve: Curves.easeOutCubic)),
+    );
+
+    // Guest Button (490ms to 940ms => 490/1200 = 0.41 to 940/1200 = 0.78)
+    _guestFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.41, 0.78, curve: Curves.easeOutCubic)),
+    );
+    _guestScale = Tween<double>(begin: 0.92, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.41, 0.78, curve: Curves.easeOutCubic)),
+    );
+
+    // Offline Section (600ms to 1050ms => 600/1200 = 0.50 to 1050/1200 = 0.88)
+    _offlineFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.50, 0.88, curve: Curves.easeOutCubic)),
+    );
+    _offlineSlide = Tween<double>(begin: 18.0, end: 0.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.50, 0.88, curve: Curves.easeOutCubic)),
+    );
+
+    _entranceController.forward();
+
+    // 4. Primary Button glow breathe (pulsing 100% -> 112% -> 100% every 3s)
+    _glowBreatheController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+    
+    // Start breathing after 500ms
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _glowBreatheController.repeat(reverse: true);
+      }
+    });
+
+    // 5. Background stars animation (8s duration)
+    _backgroundController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 8),
+    )..repeat();
   }
 
   @override
-  void dispose() { _globeCtrl.dispose(); _btnsCtrl.dispose(); _twinkleCtrl.dispose(); super.dispose(); }
+  void dispose() {
+    _globeController.dispose();
+    _sweepController.dispose();
+    _entranceController.dispose();
+    _glowBreatheController.dispose();
+    _backgroundController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AegisColors.background,
-      body: SafeArea(
-        child: Stack(children: [
-          AnimatedBuilder(animation: _twinkleCtrl, builder: (_, __) => Positioned.fill(child: CustomPaint(painter: _StarsBgPainter(twinkleValue: _twinkleCtrl.value)))),
-          AnimatedBuilder(animation: _globeCtrl, builder: (_, __) => Positioned(left: 0, right: 0, bottom: 0, height: 160, child: CustomPaint(painter: _MeshGlobePainter(rotation: _globeCtrl.value * 2 * pi)))),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-              const SizedBox(height: 48),
-              const Text('Join the Network', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5)),
-              const SizedBox(height: 8),
-              Text('Choose a way to continue', style: TextStyle(fontSize: 13, color: AegisColors.textSecondary.withOpacity(0.8))),
-              const SizedBox(height: 56),
-              FadeTransition(opacity: _b1F, child: SlideTransition(position: _b1S, child: GestureDetector(
-                onTap: () => _nav(context),
-                child: Container(width: double.infinity, height: 54, decoration: BoxDecoration(gradient: AegisColors.purpleGradient, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: AegisColors.violet.withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6))]),
-                  child: Center(child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    const Icon(Icons.phone_rounded, color: Colors.white, size: 20),
-                    const SizedBox(width: 12),
-                    const Text('Continue with Phone', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: -0.2)),
-                  ]))),
-              ))),
-              const SizedBox(height: 16),
-              FadeTransition(opacity: _b2F, child: SlideTransition(position: _b2S, child: _outlineBtn(context, Icons.qr_code_scanner_rounded, 'Scan QR Code'))),
-              const SizedBox(height: 16),
-              FadeTransition(opacity: _b3F, child: SlideTransition(position: _b3S, child: _outlineBtn(context, Icons.person_outline_rounded, 'Join as Guest'))),
-              const SizedBox(height: 48),
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Icon(Icons.portable_wifi_off_rounded, color: AegisColors.textSecondary.withOpacity(0.6), size: 20),
-                const SizedBox(width: 12),
-                Text('No Internet? No problem.\nAEGIS works offline.', textAlign: TextAlign.left, style: TextStyle(color: AegisColors.textSecondary.withOpacity(0.8), fontSize: 12, height: 1.4, fontWeight: FontWeight.w500)),
-              ]),
-            ]),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF02040A),
+              Color(0xFF040814),
+            ],
           ),
-        ]),
+        ),
+        child: SafeArea(
+          top: false,
+          bottom: true,
+          child: Stack(
+            children: [
+              // 1. Moving Stars Background (subtle 8% opacity)
+              AnimatedBuilder(
+                animation: _backgroundController,
+                builder: (context, child) {
+                  return Positioned.fill(
+                    child: CustomPaint(
+                      painter: StarsBackgroundPainter(animationValue: _backgroundController.value),
+                    ),
+                  );
+                },
+              ),
+
+              // 2. Upper Hemisphere Earth Globe horizon at the bottom (Opacity 85%)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 240.0,
+                child: Opacity(
+                  opacity: 0.85,
+                  child: AnimatedBuilder(
+                    animation: Listenable.merge([_globeController, _sweepController]),
+                    builder: (context, child) {
+                      return CustomPaint(
+                        painter: MeshGlobePainter(
+                          rotationAngle: _globeController.value * 2 * pi,
+                          sweepValue: _sweepController.value,
+                          pulseValue: _sweepController.value,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+              // 3. Scrollable Main Layout
+              SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: const EdgeInsets.only(top: 60.0, left: 28.0, right: 28.0, bottom: 34.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // A. Header Text Block (around 100px from top)
+                    const SizedBox(height: 40.0),
+                    FadeTransition(
+                      opacity: _titleFade,
+                      child: AnimatedBuilder(
+                        animation: _titleSlide,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _titleSlide.value),
+                            child: const Text(
+                              'Join the Network',
+                              style: TextStyle(
+                                fontSize: 40.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontFamily: 'SF Pro Display',
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 14.0), // Spacing 14px below title
+                    FadeTransition(
+                      opacity: _subtitleFade,
+                      child: AnimatedBuilder(
+                        animation: _subtitleSlide,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _subtitleSlide.value),
+                            child: const Text(
+                              'Choose a way to continue',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFFA8B3C7),
+                                fontFamily: 'SF Pro Display',
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 52.0),
+
+                    // B. Reusable Buttons Block
+                    // Primary Hero Button (Continue with Phone)
+                    FadeTransition(
+                      opacity: _phoneFade,
+                      child: AnimatedBuilder(
+                        animation: _phoneScale,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: _phoneScale.value,
+                            child: child,
+                          );
+                        },
+                        child: FuturisticGradientButton(
+                          label: 'Continue with Phone',
+                          icon: Icons.phone_outlined,
+                          glowBreathe: _glowBreatheController,
+                          onTap: () => _navigateToMainShell(context),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24.0), // Spacing 24px between Phone & QR buttons
+
+                    // Secondary Glass Button (Scan QR Code)
+                    FadeTransition(
+                      opacity: _qrFade,
+                      child: AnimatedBuilder(
+                        animation: _qrScale,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: _qrScale.value,
+                            child: child,
+                          );
+                        },
+                        child: FuturisticGlassButton(
+                          label: 'Scan QR Code',
+                          icon: Icons.qr_code_scanner_rounded,
+                          hasGlow: true,
+                          onTap: () => _navigateToMainShell(context),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20.0), // Spacing 20px between QR & Guest buttons
+
+                    // Tertiary Glass Button (Join as Guest)
+                    FadeTransition(
+                      opacity: _guestFade,
+                      child: AnimatedBuilder(
+                        animation: _guestScale,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: _guestScale.value,
+                            child: child,
+                          );
+                        },
+                        child: FuturisticGlassButton(
+                          label: 'Join as Guest',
+                          icon: Icons.person_outline_rounded,
+                          hasGlow: false,
+                          onTap: () => _navigateToMainShell(context),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 48.0),
+
+                    // C. Offline Warning Notice (placed near lower third)
+                    FadeTransition(
+                      opacity: _offlineFade,
+                      child: AnimatedBuilder(
+                        animation: _offlineSlide,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _offlineSlide.value),
+                            child: Column(
+                              children: [
+                                Opacity(
+                                  opacity: 0.70,
+                                  child: const Icon(
+                                    Icons.portable_wifi_off_rounded,
+                                    color: Color(0xFFA8B3C7),
+                                    size: 26.0,
+                                  ),
+                                ),
+                                const SizedBox(height: 12.0),
+                                Opacity(
+                                  opacity: 0.78,
+                                  child: const Text(
+                                    'No Internet? No problem.\nAEGIS works offline.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Color(0xFFA8B3C7),
+                                      fontSize: 14.5,
+                                      height: 1.45,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'SF Pro Display',
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  void _nav(BuildContext context) {
-    Navigator.of(context).pushAndRemoveUntil(PageRouteBuilder(pageBuilder: (_, a, __) => const MainShell(), transitionsBuilder: (_, a, __, child) => FadeTransition(opacity: a, child: child), transitionDuration: const Duration(milliseconds: 600)), (r) => false);
-  }
-
-  Widget _outlineBtn(BuildContext context, IconData icon, String label) {
-    return GestureDetector(
-      onTap: () => _nav(context),
-      child: Container(width: double.infinity, height: 54, decoration: BoxDecoration(color: AegisColors.surface2.withOpacity(0.8), borderRadius: BorderRadius.circular(16), border: Border.all(color: AegisColors.border1.withOpacity(0.6), width: 0.5)),
-        child: Center(child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icon, color: Colors.white, size: 20),
-          const SizedBox(width: 12),
-          Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: -0.2)),
-        ]))),
+  void _navigateToMainShell(BuildContext context) {
+    Navigator.of(context).pushAndRemoveUntil(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const MainShell(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 600),
+      ),
+      (route) => false,
     );
   }
 }
 
-class _StarsBgPainter extends CustomPainter {
-  final double twinkleValue;
-  _StarsBgPainter({this.twinkleValue = 0.0});
+class FuturisticGradientButton extends StatefulWidget {
+  final String label;
+  final IconData icon;
+  final Animation<double> glowBreathe;
+  final VoidCallback onTap;
+
+  const FuturisticGradientButton({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.glowBreathe,
+    required this.onTap,
+  });
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final rng = Random(42);
-    for (int i = 0; i < 60; i++) {
-      final x = rng.nextDouble() * size.width;
-      final y = rng.nextDouble() * size.height * 0.6;
-      final r = rng.nextDouble() * 1.5 + 0.3;
-      final a = (0.1 + 0.4 * (rng.nextDouble() + twinkleValue) / 2).clamp(0.0, 0.5);
-      canvas.drawCircle(Offset(x, y), r, Paint()..color = Colors.white.withOpacity(a));
-    }
-  }
-
-  @override bool shouldRepaint(covariant _StarsBgPainter old) => old.twinkleValue != twinkleValue;
+  State<FuturisticGradientButton> createState() => _FuturisticGradientButtonState();
 }
 
-class _MeshGlobePainter extends CustomPainter {
-  final double rotation;
-  _MeshGlobePainter({this.rotation = 0.0});
+class _FuturisticGradientButtonState extends State<FuturisticGradientButton> with SingleTickerProviderStateMixin {
+  late AnimationController _pressController;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final c = Offset(size.width / 2, size.height / 2);
-    final maxR = min(size.width, size.height) * 0.45;
-
-    final g = Paint()..shader = RadialGradient(colors: [AegisColors.electricBlue.withOpacity(0.08), Colors.transparent]).createShader(Rect.fromCircle(center: c, radius: maxR));
-    canvas.drawCircle(c, maxR, g);
-
-    final lp = Paint()..color = AegisColors.electricBlue.withOpacity(0.08)..strokeWidth = 0.5;
-    for (int i = 0; i < 8; i++) {
-      final a = rotation + (i * pi / 4);
-      final dx = cos(a) * maxR, dy = sin(a) * maxR;
-      canvas.drawLine(Offset(c.dx - dx, c.dy - dy), Offset(c.dx + dx, c.dy + dy), lp);
-    }
-
-    for (int i = 0; i < 4; i++) {
-      canvas.drawCircle(c, maxR * (i + 1) / 4, lp);
-    }
+  void initState() {
+    super.initState();
+    // Press scale animation (140ms duration)
+    _pressController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 140),
+      lowerBound: 0.97,
+      upperBound: 1.0,
+      value: 1.0,
+    );
   }
 
-  @override bool shouldRepaint(covariant _MeshGlobePainter old) => old.rotation != rotation;
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _pressController.animateTo(0.97, curve: Curves.easeIn),
+      onTapUp: (_) {
+        _pressController.animateTo(1.0, curve: Curves.easeOut);
+        widget.onTap();
+      },
+      onTapCancel: () => _pressController.animateTo(1.0),
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_pressController, widget.glowBreathe]),
+        builder: (context, child) {
+          final double scale = _pressController.value;
+          final double breatheScale = 1.0 + (widget.glowBreathe.value * 0.12); // breathe 100% -> 112% -> 100%
+
+          return Transform.scale(
+            scale: scale,
+            child: Container(
+              width: double.infinity,
+              height: 60.0,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18.0),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF7B3EFF), // Left Purple
+                    Color(0xFF256DFF), // Right Blue
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF256DFF).withOpacity(0.24 * breatheScale),
+                    blurRadius: 55.0 * breatheScale,
+                    spreadRadius: 1.0,
+                  ),
+                ],
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Very subtle top edge glossy highlight
+                  Positioned(
+                    top: 1,
+                    left: 12,
+                    right: 12,
+                    child: Container(
+                      height: 1.0,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white.withOpacity(0.0),
+                            Colors.white.withOpacity(0.35),
+                            Colors.white.withOpacity(0.0),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Outlined white 22px phone icon at left padding 22px
+                  Positioned(
+                    left: 22.0,
+                    child: Icon(
+                      widget.icon,
+                      color: Colors.white,
+                      size: 22.0,
+                    ),
+                  ),
+                  // Centered label with tracking 0.2
+                  Center(
+                    child: Text(
+                      widget.label,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                        fontFamily: 'SF Pro Display',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class FuturisticGlassButton extends StatefulWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool hasGlow;
+
+  const FuturisticGlassButton({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onTap,
+    this.hasGlow = false,
+  });
+
+  @override
+  State<FuturisticGlassButton> createState() => _FuturisticGlassButtonState();
+}
+
+class _FuturisticGlassButtonState extends State<FuturisticGlassButton> with SingleTickerProviderStateMixin {
+  late AnimationController _pressController;
+  bool _isHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Press scale 0.985
+    _pressController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 140),
+      lowerBound: 0.985,
+      upperBound: 1.0,
+      value: 1.0,
+    );
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _pressController.animateTo(0.985, curve: Curves.easeIn),
+      onTapUp: (_) {
+        _pressController.animateTo(1.0, curve: Curves.easeOut);
+        widget.onTap();
+      },
+      onTapCancel: () => _pressController.animateTo(1.0),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: AnimatedBuilder(
+          animation: _pressController,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _pressController.value,
+              child: Container(
+                width: double.infinity,
+                height: 60.0,
+                decoration: BoxDecoration(
+                  color: _pressController.value < 1.0
+                      ? Colors.white.withOpacity(0.06) // slightly lighter on press
+                      : Colors.white.withOpacity(0.02), // default rgba(255,255,255,.02)
+                  borderRadius: BorderRadius.circular(18.0),
+                  border: Border.all(
+                    color: _isHovered 
+                        ? Colors.white.withOpacity(0.20) // border brightens on hover
+                        : Colors.white.withOpacity(0.08), // default rgba(255,255,255,.08)
+                    width: 1.0,
+                  ),
+                  boxShadow: widget.hasGlow
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF256DFF).withOpacity(_isHovered ? 0.08 : 0.05), // soft glow
+                            blurRadius: 25.0,
+                            spreadRadius: 1.0,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Outlined white 20px icon at left padding 22px (perfect alignment)
+                    Positioned(
+                      left: 22.0,
+                      child: Icon(
+                        widget.icon,
+                        color: Colors.white,
+                        size: 20.0,
+                      ),
+                    ),
+                    // Centered label with tracking 0.2
+                    Center(
+                      child: Text(
+                        widget.label,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                          fontFamily: 'SF Pro Display',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 }
