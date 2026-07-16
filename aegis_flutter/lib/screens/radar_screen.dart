@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
+import '../models/signal_packet.dart';
 import '../models/survivor_node.dart';
 import '../widgets/radar_painter.dart';
 import '../widgets/mesh_stats_bar.dart';
@@ -300,8 +301,20 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                   child: GestureDetector(
                     onTap: () {
                       if (isSos) {
+                        final dummyPacket = SignalPacket(
+                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          from: node.id,
+                          to: 'broadcast',
+                          type: PacketType.sos,
+                          payload: 'Emergency assistance needed!',
+                          ttl: 5,
+                          hopCount: node.hops,
+                          path: [node.id],
+                          timestamp: DateTime.now(),
+                        );
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => const SosIncomingOverlayScreen()));
+                            builder: (_) =>
+                                SosIncomingOverlayScreen(packet: dummyPacket)));
                       } else {
                         showModalBottomSheet(
                           context: context,

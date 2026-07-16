@@ -7,6 +7,8 @@
 // Usage: ProviderScope wraps MaterialApp in main.dart.
 //        SplashScreen calls ref.read(meshProvider.notifier).start().
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,6 +19,7 @@ import '../core/sos_handler.dart';
 import '../core/status_beacon.dart';
 import '../core/resource_manager.dart';
 import '../models/signal_packet.dart';
+import '../models/survivor_node_model.dart';
 import '../services/background_service.dart';
 import '../services/storage_service.dart';
 import '../transport/transport_manager.dart';
@@ -25,6 +28,7 @@ import '../transport/bluetooth_service.dart' as bt;
 import '../core/mdns_discovery.dart';
 import 'identity_provider.dart';
 import 'chat_provider.dart';
+import 'survivor_provider.dart';
 
 // ──────────────────────────────────────────────
 // State
@@ -89,6 +93,12 @@ class MeshNotifier extends StateNotifier<MeshState> {
   ResourceManager get resourceManager => _resourceManager;
   MeshRouter get meshRouter => _router;
   PeerManager get peerManager => _peerManager;
+
+  /// Broadcast stream that emits SOS packets as they arrive.
+  final StreamController<SignalPacket> _sosAlertStreamController =
+      StreamController<SignalPacket>.broadcast();
+
+  Stream<SignalPacket> get sosAlertStream => _sosAlertStreamController.stream;
 
   /// Callback wired by ChatProvider to receive incoming chat packets.
   void Function(SignalPacket)? onChatReceived;
@@ -166,10 +176,21 @@ class MeshNotifier extends StateNotifier<MeshState> {
     _router
       ..onSosReceived = (p) async {
         _addActivity('🆘 SOS from ${p.from}');
+        _sosAlertStreamController.add(p);
       }
       ..onStatusReceived = (p) async {
         _addActivity('📡 Status update from ${p.from}');
         state = state.copyWith(peerCount: _peerManager.peerCount);
+        final node = SurvivorNodeModel(
+          id: p.from,
+          status: p.payload == 'ONLINE' ? 'safe' : p.payload,
+          lat: p.latitude,
+          lng: p.longitude,
+          resources: [],
+          message: '',
+          lastSeen: DateTime.now().millisecondsSinceEpoch,
+        );
+        _ref.read(survivorProvider.notifier).updateFromIncoming(node);
       }
       ..onResourceReceived = (p) async {
         _addActivity('📦 Resource from ${p.from}: ${p.payload}');
@@ -231,6 +252,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
 
   @override
   void dispose() {
+    _sosAlertStreamController.close();
     stop();
     super.dispose();
   }

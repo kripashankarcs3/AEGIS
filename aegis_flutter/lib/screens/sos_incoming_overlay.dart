@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
+import '../models/signal_packet.dart';
 import 'chat_conversation_screen.dart';
 
-class SosIncomingOverlayScreen extends StatefulWidget {
-  const SosIncomingOverlayScreen({super.key});
+class SosIncomingOverlayScreen extends ConsumerStatefulWidget {
+  final SignalPacket packet;
+
+  const SosIncomingOverlayScreen({super.key, required this.packet});
 
   @override
-  State<SosIncomingOverlayScreen> createState() => _SosIncomingOverlayScreenState();
+  ConsumerState<SosIncomingOverlayScreen> createState() =>
+      _SosIncomingOverlayScreenState();
 }
 
-class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> with SingleTickerProviderStateMixin {
+class _SosIncomingOverlayScreenState
+    extends ConsumerState<SosIncomingOverlayScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -32,8 +39,27 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
     super.dispose();
   }
 
+  String _formatTime(DateTime dt) {
+    final h = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+    final amPm = dt.hour >= 12 ? 'PM' : 'AM';
+    final min = dt.minute.toString().padLeft(2, '0');
+    final months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '$h:$min $amPm  •  ${dt.day} ${months[dt.month - 1]} ${dt.year}';
+  }
+
+  String _formatLocation(double? lat, double? lng) {
+    if (lat == null || lng == null) return 'Location unknown';
+    final latDir = lat >= 0 ? 'N' : 'S';
+    final lngDir = lng >= 0 ? 'E' : 'W';
+    return '${lat.abs().toStringAsFixed(4)}° $latDir, ${lng.abs().toStringAsFixed(4)}° $lngDir';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final p = widget.packet;
     return Scaffold(
       backgroundColor: const Color(0xFF070B11),
       body: SafeArea(
@@ -57,7 +83,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: 36.0),
-                
+
                 // concentric glowing waves and alert icon
                 Center(
                   child: Stack(
@@ -72,7 +98,9 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: AegisColors.sosRed.withOpacity(0.04),
-                            border: Border.all(color: AegisColors.sosRed.withOpacity(0.12), width: 1.5),
+                            border: Border.all(
+                                color: AegisColors.sosRed.withOpacity(0.12),
+                                width: 1.5),
                           ),
                         ),
                       ),
@@ -83,7 +111,9 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: AegisColors.sosRed.withOpacity(0.08),
-                          border: Border.all(color: AegisColors.sosRed.withOpacity(0.24), width: 2.0),
+                          border: Border.all(
+                              color: AegisColors.sosRed.withOpacity(0.24),
+                              width: 2.0),
                         ),
                       ),
                       // Red Siren Icon
@@ -116,7 +146,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                 ),
                 SizedBox(height: 6.0),
                 Text(
-                  'Medical Emergency',
+                  p.category ?? 'Emergency',
                   style: TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.bold,
@@ -132,7 +162,8 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                   decoration: BoxDecoration(
                     color: const Color(0xFF0F131A),
                     borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: const Color(0xFF1F2937), width: 1.0),
+                    border:
+                        Border.all(color: const Color(0xFF1F2937), width: 1.0),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,7 +171,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                       _buildDetailRow(
                         label: 'From',
                         valueWidget: Text(
-                          'SIG-8AF3',
+                          p.from,
                           style: TextStyle(
                             color: AegisColors.sosRed,
                             fontWeight: FontWeight.bold,
@@ -155,11 +186,15 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              '28.6139° N, 77.2090° E',
-                              style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.w500),
+                              _formatLocation(p.latitude, p.longitude),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13.0,
+                                  fontWeight: FontWeight.w500),
                             ),
                             SizedBox(width: 6.0),
-                            Icon(Icons.location_on_rounded, color: AegisColors.textSecondary, size: 16.0),
+                            Icon(Icons.location_on_rounded,
+                                color: AegisColors.textSecondary, size: 16.0),
                           ],
                         ),
                       ),
@@ -170,11 +205,15 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              '3 hops away',
-                              style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.w500),
+                              '${p.hopCount} hops away',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13.0,
+                                  fontWeight: FontWeight.w500),
                             ),
                             SizedBox(width: 6.0),
-                            Icon(Icons.share_rounded, color: AegisColors.textSecondary, size: 15.0),
+                            Icon(Icons.share_rounded,
+                                color: AegisColors.textSecondary, size: 15.0),
                           ],
                         ),
                       ),
@@ -185,11 +224,15 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              '10:24 AM  •  12 May 2024',
-                              style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w500),
+                              _formatTime(p.timestamp),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w500),
                             ),
                             SizedBox(width: 6.0),
-                            Icon(Icons.access_time_rounded, color: AegisColors.textSecondary, size: 15.0),
+                            Icon(Icons.access_time_rounded,
+                                color: AegisColors.textSecondary, size: 15.0),
                           ],
                         ),
                       ),
@@ -197,15 +240,20 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                       // Emergency text banner description
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 12.0),
                         decoration: BoxDecoration(
                           color: AegisColors.sosRed.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(6.0),
-                          border: Border.all(color: AegisColors.sosRed.withOpacity(0.24), width: 1.0),
+                          border: Border.all(
+                              color: AegisColors.sosRed.withOpacity(0.24),
+                              width: 1.0),
                         ),
                         child: Center(
                           child: Text(
-                            'Emergency assistance needed!',
+                            p.payload.isNotEmpty
+                                ? p.payload
+                                : 'Emergency assistance needed!',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -225,7 +273,8 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                     Navigator.of(context).pop(); // pop overlay
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const ChatConversationScreen(nodeId: 'SIG-8AF3'),
+                        builder: (context) =>
+                            ChatConversationScreen(nodeId: p.from),
                       ),
                     );
                   },
@@ -246,7 +295,8 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.chat_bubble_rounded, color: Colors.white, size: 18.0),
+                        Icon(Icons.chat_bubble_rounded,
+                            color: Colors.white, size: 18.0),
                         SizedBox(width: 8.0),
                         Text(
                           'OPEN CHAT',
@@ -271,7 +321,8 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                     decoration: BoxDecoration(
                       color: const Color(0xFF161A22),
                       borderRadius: BorderRadius.circular(6.0),
-                      border: Border.all(color: const Color(0xFF374151), width: 1.0),
+                      border: Border.all(
+                          color: const Color(0xFF374151), width: 1.0),
                     ),
                     child: Center(
                       child: Text(
@@ -289,7 +340,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
 
                 // Expiry timer sub-tagline
                 Text(
-                  '3 beeps sent  •  Alert will auto-expire in 60s',
+                  '${p.hopCount} beeps sent  •  Alert will auto-expire in 60s',
                   style: TextStyle(
                     color: AegisColors.sosRed,
                     fontSize: 11.5,
