@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
@@ -34,16 +35,10 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _currentIndex = widget.initialTab;
-    _sosPulse =
-        AnimationController(vsync: this, duration: const Duration(seconds: 2))
-          ..repeat(reverse: true);
-    _sosScale = Tween<double>(begin: 0.92, end: 1.08).animate(
-        CurvedAnimation(parent: _sosPulse, curve: Curves.easeInOutSine));
-    _glowShift =
-        AnimationController(vsync: this, duration: const Duration(seconds: 4))
-          ..repeat(reverse: true);
-    _glowAnim = Tween<double>(begin: 0.3, end: 0.7).animate(
-        CurvedAnimation(parent: _glowShift, curve: Curves.easeInOutSine));
+    _sosPulse = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
+    _sosScale = Tween<double>(begin: 0.92, end: 1.08).animate(CurvedAnimation(parent: _sosPulse, curve: Curves.easeInOutSine));
+    _glowShift = AnimationController(vsync: this, duration: const Duration(seconds: 4))..repeat(reverse: true);
+    _glowAnim = Tween<double>(begin: 0.3, end: 0.7).animate(CurvedAnimation(parent: _glowShift, curve: Curves.easeInOutSine));
   }
 
   @override
@@ -67,45 +62,45 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
         transitionBuilder: (child, animation) {
-          return FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(
-                  scale:
-                      Tween<double>(begin: 0.95, end: 1.0).animate(animation),
-                  child: child));
+          return FadeTransition(opacity: animation, child: ScaleTransition(scale: Tween<double>(begin: 0.95, end: 1.0).animate(animation), child: child));
         },
-        child: KeyedSubtree(
-            key: ValueKey(_currentIndex), child: _screens[_currentIndex]),
+        child: KeyedSubtree(key: ValueKey(_currentIndex), child: _screens[_currentIndex]),
       ),
       bottomNavigationBar: Container(
-        height: 86,
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        height: 70,
         decoration: BoxDecoration(
-          color: AegisColors.isLight ? Colors.white : AegisColors.cardBg,
-          border: Border(
-              top: BorderSide(
-                  color: AegisColors.isLight
-                      ? const Color(0xFFE5E7EB)
-                      : AegisColors.border1,
-                  width: 1)),
-          boxShadow: [
-            BoxShadow(
-                color:
-                    Colors.black.withOpacity(AegisColors.isLight ? 0.06 : 0.45),
-                blurRadius: 22,
-                offset: const Offset(0, -4)),
-          ],
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: AegisColors.isLight
+              ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4))]
+              : [
+                  BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 40, offset: const Offset(0, 12), spreadRadius: -8),
+                  BoxShadow(color: AegisColors.electricBlue.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4)),
+                ],
         ),
-        child: SafeArea(
-          top: false,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _navItem(0, Icons.radar_rounded, 'Radar'),
-              _navItem(1, Icons.chat_bubble_outline_rounded, 'Chat'),
-              _sosFab(),
-              _navItem(3, Icons.inventory_2_outlined, 'Resources'),
-              _navItem(4, Icons.map_outlined, 'Map'),
-            ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft, end: Alignment.bottomRight,
+                  colors: [AegisColors.cardBg.withOpacity(0.92), AegisColors.surface1.withOpacity(0.92)],
+                ),
+                border: Border.all(color: AegisColors.isLight ? AegisColors.border1 : AegisColors.glassBorder, width: 0.5),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _navItem(0, Icons.radar_rounded, 'Radar'),
+                  _navItem(1, Icons.chat_bubble_outline_rounded, 'Chat'),
+                  _sosFab(),
+                  _navItem(3, Icons.library_books_outlined, 'Resources'),
+                  _navItem(4, Icons.map_outlined, 'Map'),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -129,10 +124,13 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeOutCubic,
-                width: 24,
-                height: 24,
+                width: 24, height: 24,
                 child: sel
-                    ? Icon(icon, color: AegisColors.electricBlue, size: 23)
+                    ? Container(
+                        width: 36, height: 36,
+                        decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: AegisColors.electricBlue.withOpacity(0.15), blurRadius: 12, spreadRadius: 2)]),
+                        child: Icon(icon, color: AegisColors.electricBlue, size: 22),
+                      )
                     : Icon(icon, color: AegisColors.textMuted, size: 22),
               ),
               SizedBox(height: 3),
@@ -140,9 +138,9 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
                 duration: const Duration(milliseconds: 250),
                 style: TextStyle(
                   color: sel ? AegisColors.electricBlue : AegisColors.textMuted,
-                  fontSize: 10,
+                  fontSize: sel ? 10 : 9.5,
                   fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
-                  letterSpacing: 0,
+                  letterSpacing: 0.3,
                 ),
                 child: Text(label),
               ),
@@ -163,34 +161,20 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
             animation: Listenable.merge([_sosPulse, _glowShift]),
             builder: (_, __) {
               return Container(
-                width: 52,
-                height: 52,
+                width: 52, height: 52,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: AegisColors.sosGradient,
                   boxShadow: [
-                    BoxShadow(
-                        color: AegisColors.sosRed
-                            .withOpacity(_glowAnim.value * 0.35),
-                        blurRadius: 14 + 8 * sin(_sosPulse.value * pi),
-                        spreadRadius: 1 + sin(_sosPulse.value * pi)),
+                    BoxShadow(color: AegisColors.sosRed.withOpacity(_glowAnim.value * 0.5), blurRadius: 20 + 10 * sin(_sosPulse.value * pi), spreadRadius: 3 + 2 * sin(_sosPulse.value * pi)),
+                    BoxShadow(color: AegisColors.sosRed.withOpacity(0.2), blurRadius: 40, spreadRadius: 6),
                   ],
-                  border: Border.all(color: Colors.white, width: 3),
+                  border: sel ? Border.all(color: Colors.white.withOpacity(0.8), width: 2.5) : Border.all(color: Colors.white.withOpacity(0.15), width: 1),
                 ),
                 child: Transform.scale(
                   scale: sel ? 1.0 : _sosScale.value,
                   child: Center(
-                    child: Text('SOS',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 13,
-                            letterSpacing: 0,
-                            shadows: [
-                              Shadow(
-                                  color: Colors.white.withOpacity(0.3),
-                                  blurRadius: 8)
-                            ])),
+                    child: Text('SOS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.8, shadows: [Shadow(color: Colors.white.withOpacity(0.3), blurRadius: 8)])),
                   ),
                 ),
               );

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../constants/aegis_colors.dart';
 import 'settings_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -12,236 +12,232 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   int _selectedFilter = 0;
 
-  static const _ink = Color(0xFF111827);
-  static const _muted = Color(0xFF6B7280);
-  static const _line = Color(0xFFE5E7EB);
-  static const _blue = Color(0xFF2563EB);
-  static const _green = Color(0xFF22C55E);
-  static const _red = Color(0xFFFF3B30);
-  static const _violet = Color(0xFF7C3AED);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF090D16),
         elevation: 0,
-        scrolledUnderElevation: 0,
-        titleSpacing: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: _ink),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Notifications',
-          style:
-              TextStyle(color: _ink, fontSize: 20, fontWeight: FontWeight.w900),
+          style: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: _ink),
+            icon: Icon(Icons.settings_outlined, color: Colors.white, size: 22.0),
             onPressed: () {
               Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()));
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
             },
           ),
-          const SizedBox(width: 8),
         ],
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1, color: _line),
-        ),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-              child: _filters(),
-            ),
-            Expanded(
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
-                children: const [
-                  _NotificationTile(
-                    icon: Icons.medical_services_rounded,
-                    color: _red,
-                    title: 'Medical Help Needed',
-                    subtitle: 'Near Central Park',
-                    time: '2 min ago',
-                  ),
-                  _TileDivider(),
-                  _NotificationTile(
-                    icon: Icons.restaurant_rounded,
-                    color: _green,
-                    title: 'Food Available',
-                    subtitle: 'At Green Area',
-                    time: '15 min ago',
-                  ),
-                  _TileDivider(),
-                  _NotificationTile(
-                    icon: Icons.sos_rounded,
-                    color: _red,
-                    title: 'SOS Alert',
-                    subtitle: 'From 1.2 km away',
-                    time: '20 min ago',
-                    badgeText: 'SOS',
-                  ),
-                  _TileDivider(),
-                  _NotificationTile(
-                    icon: Icons.chat_bubble_rounded,
-                    color: _blue,
-                    title: 'New Message',
-                    subtitle: 'From Riya',
-                    time: '25 min ago',
-                  ),
-                  _TileDivider(),
-                  _NotificationTile(
-                    icon: Icons.battery_alert_rounded,
-                    color: _red,
-                    title: 'Battery Low',
-                    subtitle: 'Your device battery is low',
-                    time: '30 min ago',
-                  ),
-                  _TileDivider(),
-                  _NotificationTile(
-                    icon: Icons.wifi_tethering_rounded,
-                    color: _violet,
-                    title: 'Network Congestion',
-                    subtitle: 'Some messages delayed',
-                    time: '35 min ago',
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Horizontal filters tags
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildFilterPill(0, 'All'),
+                  _buildFilterPill(1, 'Alerts'),
+                  _buildFilterPill(2, 'Messages'),
+                  _buildFilterPill(3, 'System'),
                 ],
               ),
-            ),
-          ],
+              SizedBox(height: 20.0),
+
+              // 2. Notifications List
+              Expanded(
+                child: ListView(
+                  children: [
+                    _buildNotificationTile(
+                      icon: Icons.add_rounded,
+                      iconBgColor: AegisColors.sosRed,
+                      title: 'Medical Help Needed',
+                      subtitle: 'Near Central Park',
+                      time: '2 min ago',
+                    ),
+                    _buildDivider(),
+                    _buildNotificationTile(
+                      icon: Icons.check_circle_rounded,
+                      iconBgColor: AegisColors.neonGreen,
+                      title: 'Food Available',
+                      subtitle: 'At Green Area',
+                      time: '15 min ago',
+                    ),
+                    _buildDivider(),
+                    _buildNotificationTile(
+                      titleIcon: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 3.0),
+                        decoration: const BoxDecoration(
+                          color: AegisColors.sosRed,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          'SOS',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 8.0),
+                        ),
+                      ),
+                      title: 'SOS Alert',
+                      subtitle: 'From 1.2 km away',
+                      time: '20 min ago',
+                    ),
+                    _buildDivider(),
+                    _buildNotificationTile(
+                      icon: Icons.chat_bubble_rounded,
+                      iconBgColor: AegisColors.electricBlue,
+                      title: 'New Message',
+                      subtitle: 'From Riya',
+                      time: '25 min ago',
+                    ),
+                    _buildDivider(),
+                    _buildNotificationTile(
+                      icon: Icons.battery_alert_rounded,
+                      iconBgColor: AegisColors.sosRed,
+                      title: 'Battery Low',
+                      subtitle: 'Your device battery is low',
+                      time: '30 min ago',
+                    ),
+                    _buildDivider(),
+                    _buildNotificationTile(
+                      icon: Icons.wifi_tethering_rounded,
+                      iconBgColor: AegisColors.violet,
+                      title: 'Network Congestion',
+                      subtitle: 'Some messages delayed',
+                      time: '35 min ago',
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _filters() {
-    final labels = ['All', 'Alerts', 'Messages', 'System'];
-    return Row(
-      children: List.generate(labels.length, (index) {
-        final selected = _selectedFilter == index;
-        return Padding(
-          padding: EdgeInsets.only(right: index == labels.length - 1 ? 0 : 10),
-          child: GestureDetector(
-            onTap: () => setState(() => _selectedFilter = index),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: selected
-                    ? const Color(0xFFEFF6FF)
-                    : const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                    color: selected ? const Color(0xFFBFDBFE) : _line),
-              ),
-              child: Text(
-                labels[index],
-                style: TextStyle(
-                  color: selected ? _blue : _muted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
+  Widget _buildFilterPill(int index, String label) {
+    final bool isSelected = _selectedFilter == index;
+    final Color bgColor = isSelected ? AegisColors.violet : Colors.transparent;
+    final Color strokeColor = isSelected ? AegisColors.violet : const Color(0xFF1E293B);
+    final Color textColor = isSelected ? Colors.white : AegisColors.textSecondary;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedFilter = index;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 7.0),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16.0),
+          border: Border.all(color: strokeColor, width: 1.0),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: textColor,
+            fontSize: 12.0,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
-}
 
-class _NotificationTile extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String title;
-  final String subtitle;
-  final String time;
-  final String? badgeText;
-
-  const _NotificationTile({
-    required this.icon,
-    required this.color,
-    required this.title,
-    required this.subtitle,
-    required this.time,
-    this.badgeText,
-  });
-
-  static const _ink = Color(0xFF111827);
-  static const _muted = Color(0xFF6B7280);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildNotificationTile({
+    IconData? icon,
+    Color iconBgColor = Colors.grey,
+    Widget? titleIcon,
+    required String title,
+    required String subtitle,
+    required String time,
+  }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (badgeText == null)
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 18),
-            )
+          // Left circle icon
+          if (titleIcon != null)
+            titleIcon
           else
             Container(
-              width: 38,
-              height: 38,
+              width: 32.0,
+              height: 32.0,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: iconBgColor.withOpacity(0.15),
                 shape: BoxShape.circle,
               ),
-              child: Center(
-                child: Text(
-                  badgeText!,
-                  style: TextStyle(
-                      color: color, fontSize: 9, fontWeight: FontWeight.w900),
-                ),
+              child: Icon(
+                icon,
+                color: iconBgColor,
+                size: 16.0,
               ),
             ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14.0),
+
+          // Title & subtitle
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        color: _ink,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w800)),
-                const SizedBox(height: 2),
-                Text(subtitle,
-                    style: const TextStyle(color: _muted, fontSize: 11.5)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 2.0),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    color: AegisColors.textSecondary,
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          Text(time,
-              style: const TextStyle(
-                  color: _muted, fontSize: 10.5, fontWeight: FontWeight.w700)),
+
+          // Time ago
+          Text(
+            time,
+style: TextStyle(
+                fontSize: 10.0,
+                color: AegisColors.textMuted,
+              ),
+          ),
         ],
       ),
     );
   }
-}
 
-class _TileDivider extends StatelessWidget {
-  const _TileDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6));
+  Widget _buildDivider() {
+    return const Divider(
+      color: Color(0xFF1E293B),
+      height: 1.0,
+      thickness: 0.5,
+    );
   }
 }

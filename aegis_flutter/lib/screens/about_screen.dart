@@ -1,207 +1,230 @@
 import 'package:flutter/material.dart';
+import '../constants/aegis_colors.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
-  static const _ink = Color(0xFF111827);
-  static const _muted = Color(0xFF6B7280);
-  static const _line = Color(0xFFE5E7EB);
-  static const _violet = Color(0xFF7C3AED);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF090D16),
         elevation: 0,
-        scrolledUnderElevation: 0,
-        titleSpacing: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: _ink),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'About AEGIS',
-          style:
-              TextStyle(color: _ink, fontSize: 20, fontWeight: FontWeight.w900),
+          style: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.ios_share_rounded, color: _ink),
+            icon: Icon(Icons.ios_share_rounded, color: Colors.white),
             onPressed: () {},
           ),
-          const SizedBox(width: 8),
         ],
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1, color: _line),
-        ),
       ),
       body: SafeArea(
-        bottom: false,
         child: ListView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 40),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
           children: [
-            _hero(),
-            const SizedBox(height: 20),
-            _infoCard(),
-            const SizedBox(height: 14),
-            _linksCard(),
+            // 1. Core Shield Logo + Titles
+            Center(
+              child: Column(
+                children: [
+                  // Shield Logo
+                  Container(
+                    width: 90.0,
+                    height: 104.0,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8.0),
+                        topRight: Radius.circular(8.0),
+                        bottomLeft: Radius.circular(45.0),
+                        bottomRight: Radius.circular(45.0),
+                      ),
+                      border: Border.all(
+                        color: AegisColors.neonGreen,
+                        width: 2.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AegisColors.neonGreen.withOpacity(0.15),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        'A',
+                        style: TextStyle(
+                          color: AegisColors.neonGreen,
+                          fontSize: 48.0,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+
+                  // Brand name titles
+                  Text(
+                    'AEGIS',
+                    style: TextStyle(
+                      fontSize: 22.0,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  SizedBox(height: 2.0),
+                  Text(
+                    'Mesh Network',
+                    style: TextStyle(
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.bold,
+                      color: AegisColors.neonGreen,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  SizedBox(height: 10.0),
+
+                  // Version badge tag
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF042F1A),
+                      borderRadius: BorderRadius.circular(4.0),
+                      border: Border.all(
+                        color: AegisColors.neonGreen.withOpacity(0.25),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Text(
+                      'v1.0.0',
+                      style: TextStyle(
+                        color: AegisColors.neonGreen,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+
+                  // Platform descriptive pitch
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      'AEGIS is an offline-first emergency communication platform that connects devices in a secure mesh network.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AegisColors.textSecondary,
+                        fontSize: 12.0,
+                        height: 1.45,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 32.0),
+
+            // 2. Info Details Cards
+            Container(
+              decoration: BoxDecoration(
+                color: AegisColors.cardBg,
+                borderRadius: BorderRadius.circular(10.0),
+                border: Border.all(color: AegisColors.border1, width: 1.0),
+              ),
+              child: Column(
+                children: [
+                  _buildAboutInfoTile('Version', '1.0.0'),
+                  _buildDivider(),
+                  _buildAboutInfoTile('Build', '100'),
+                  _buildDivider(),
+                  _buildAboutInfoTile(
+                    'Website',
+                    'aegis.app',
+                    valueColor: AegisColors.neonGreen,
+                  ),
+                  _buildDivider(),
+                  _buildAboutNavTile('Terms of Service'),
+                  _buildDivider(),
+                  _buildAboutNavTile('Privacy Policy'),
+                  _buildDivider(),
+                  _buildAboutNavTile('Open Source Licenses'),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _hero() {
-    return Center(
-      child: Column(
-        children: [
-          Container(
-            width: 94,
-            height: 94,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFFF5F3FF),
-              border: Border.all(color: const Color(0xFFEDE9FE)),
-              boxShadow: const [
-                BoxShadow(
-                    color: Color(0x10000000),
-                    blurRadius: 16,
-                    offset: Offset(0, 4)),
-              ],
-            ),
-            child: const Center(
-              child: Text(
-                'A',
-                style: TextStyle(
-                  color: _violet,
-                  fontSize: 44,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 18),
-          const Text('AEGIS',
-              style: TextStyle(
-                  color: _ink, fontSize: 24, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 4),
-          const Text('Mesh Network',
-              style: TextStyle(
-                  color: _violet, fontSize: 13, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5F3FF),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: const Color(0xFFEDE9FE)),
-            ),
-            child: const Text('v1.0.0',
-                style: TextStyle(
-                    color: _violet,
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w800)),
-          ),
-          const SizedBox(height: 14),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Text(
-              'AEGIS is an offline-first emergency communication platform designed to keep people connected when the network gets shaky.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: _muted, fontSize: 12.5, height: 1.45),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _infoCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _line),
-        boxShadow: const [
-          BoxShadow(
-              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 4)),
-        ],
-      ),
-      child: Column(
-        children: [
-          _row('Version', '1.0.0'),
-          const Divider(height: 1, thickness: 1, color: _line),
-          _row('Build', '100'),
-          const Divider(height: 1, thickness: 1, color: _line),
-          _row('Website', 'aegis.app', valueColor: _violet),
-          const Divider(height: 1, thickness: 1, color: _line),
-          _linkRow('Terms of Service'),
-          const Divider(height: 1, thickness: 1, color: _line),
-          _linkRow('Privacy Policy'),
-          const Divider(height: 1, thickness: 1, color: _line),
-          _linkRow('Open Source Licenses'),
-        ],
-      ),
-    );
-  }
-
-  Widget _linksCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _line),
-      ),
-      child: const Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline_rounded, color: _violet, size: 20),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Built for local-first coordination, fast recovery, and calm communication when it matters most.',
-              style: TextStyle(color: _muted, fontSize: 12.5, height: 1.45),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _row(String label, String value, {Color valueColor = _ink}) {
+  Widget _buildAboutInfoTile(String label, String value, {Color? valueColor}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: _muted, fontSize: 12.5)),
-          Text(value,
-              style: TextStyle(
-                  color: valueColor,
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w800)),
+          Text(
+            label,
+            style: TextStyle(
+              color: AegisColors.textSecondary,
+              fontSize: 12.5,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              color: valueColor ?? Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 12.5,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _linkRow(String title) {
+  Widget _buildAboutNavTile(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title,
-              style: const TextStyle(
-                  color: _ink, fontSize: 12.5, fontWeight: FontWeight.w700)),
-          const Icon(Icons.chevron_right_rounded, size: 18, color: _muted),
+          Text(
+            title,
+            style: TextStyle(
+              color: AegisColors.textSecondary,
+              fontSize: 12.5,
+            ),
+          ),
+          Icon(
+            Icons.chevron_right,
+            size: 14.0,
+            color: AegisColors.textMuted,
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return const Divider(
+      color: Color(0xFF1E293B),
+      height: 1.0,
+      thickness: 0.5,
     );
   }
 }

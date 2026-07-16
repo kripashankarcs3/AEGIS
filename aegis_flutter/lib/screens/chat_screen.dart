@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-
-import 'broadcast_screen.dart';
+import '../constants/aegis_colors.dart';
+import '../constants/aegis_styles.dart';
+import '../constants/aegis_animations.dart';
 import 'chat_conversation_screen.dart';
+import 'broadcast_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -11,376 +13,234 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  bool _showTip = true;
-
-  static const _ink = Color(0xFF111827);
-  static const _muted = Color(0xFF6B7280);
-  static const _line = Color(0xFFE5E7EB);
-  static const _blue = Color(0xFF1877F2);
-  static const _green = Color(0xFF10B981);
-  static const _red = Color(0xFFFF253A);
+  int _tab = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: _blue,
-        elevation: 10,
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
-        onPressed: () => showModalBottomSheet(
-          context: context,
-          backgroundColor: Colors.transparent,
-          builder: (_) => _sheet(),
-        ),
-      ),
+      backgroundColor: Colors.transparent,
       body: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 96),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _header(),
-              const SizedBox(height: 14),
-              _meshSummary(),
-              const SizedBox(height: 2),
-              Expanded(
-                child: ListView(
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    _chatTile(
-                      avatarColor: const Color(0xFF6D5DFB),
-                      icon: Icons.support_agent_rounded,
-                      nodeId: 'SIG-8AF3',
-                      message: 'All good here. We have supplies.',
-                      time: '',
-                      badge: 'SAFE',
-                      badgeColor: _green,
-                      unread: 2,
-                    ),
-                    _divider(),
-                    _chatTile(
-                      avatarColor: _red,
-                      icon: Icons.medical_services_rounded,
-                      nodeId: 'SIG-4D2F',
-                      message: 'Urgent! Need medical assistance.',
-                      time: '10:18 AM',
-                      badge: 'NEED HELP',
-                      badgeColor: _red,
-                      unread: 1,
-                    ),
-                    _divider(),
-                    _chatTile(
-                      avatarColor: Colors.black87,
-                      icon: Icons.person_rounded,
-                      nodeId: 'SIG-1A9D',
-                      message: 'How many people in your group?',
-                      time: '9:56 AM',
-                    ),
-                    _divider(),
-                    _chatTile(
-                      avatarColor: Colors.black87,
-                      icon: Icons.person_rounded,
-                      nodeId: 'SIG-B2C1',
-                      message: 'Water available. 2 bottles left.',
-                      time: '9:41 AM',
-                    ),
-                    _divider(),
-                    _chatTile(
-                      avatarColor: Colors.black87,
-                      icon: Icons.person_rounded,
-                      nodeId: 'SIG-3C7E',
-                      message: 'Heading north. Roads blocked.',
-                      time: '9:32 AM',
-                    ),
-                    const SizedBox(height: 26),
-                    _tipBanner(),
-                  ],
-                ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 80),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  StaggeredFadeIn(index: 0, child: _header()),
+                  SizedBox(height: 6),
+                  StaggeredFadeIn(index: 1, child: _tabs()),
+                  SizedBox(height: 20),
+                  Expanded(
+                    child: ListView(children: [
+                      _tile(AegisColors.violet, 'SIG-8AF3', '10:24 AM', 'All good here. We have supplies.', unread: 2, badgeText: 'SAFE', badgeColor: AegisColors.neonGreen, dot: true),
+                      _divider(),
+                      _tile(AegisColors.sosRed, 'SIG-4D2F', '10:18 AM', 'Need medical assistance.', unread: 1, urgent: true, badgeText: 'NEED HELP', badgeColor: AegisColors.sosRed),
+                      _divider(),
+                      _tile(AegisColors.neonGreen, 'SIG-1A9D', '9:56 AM', 'How many people in your group?', dot: true),
+                      _divider(),
+                      _tile(AegisColors.electricBlue, 'SIG-B2C1', '9:41 AM', 'Water available. 2 bottles left.', dot: true),
+                      _divider(),
+                      _tile(AegisColors.violet, 'SIG-3C7E', '9:32 AM', 'Heading north. Roads blocked.', dot: true),
+                      const SizedBox(height: 16),
+                      _buildTipBanner(),
+                    ]),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            Positioned(right: 20, bottom: 100, child: StaggeredFadeIn(index: 5, child: FloatingActionButton(backgroundColor: AegisColors.violet, elevation: 8, child: Icon(Icons.add_rounded, color: Colors.white, size: 28), onPressed: () => showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (_) => _sheet())))),
+          ],
         ),
       ),
     );
   }
 
   Widget _header() {
-    return Row(
-      children: [
-        const Expanded(
-          child: Text(
-            'Chat',
-            style: TextStyle(
-              color: _ink,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              height: 1,
-            ),
-          ),
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Row(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 3, height: 24, decoration: BoxDecoration(gradient: AegisColors.purpleGradient, borderRadius: BorderRadius.circular(2))),
+        SizedBox(width: 12),
+        Text('ENCRYPTED CHAT', style: AegisStyles.h2),
+      ]),
+      Row(mainAxisSize: MainAxisSize.min, children: [
+        _hdrIcon(Icons.search_rounded),
+        SizedBox(width: 4),
+        _hdrIcon(Icons.tune_rounded),
+      ]),
+    ]);
+  }
+
+  Widget _hdrIcon(IconData icon) {
+    return Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: Icon(icon, color: AegisColors.textPrimary, size: 18));
+  }
+
+  Widget _tabs() {
+    return Row(children: [
+      _tabItem(0, 'All Chats'),
+      _tabItem(1, 'Nearby'),
+      _tabItem(2, 'Groups'),
+    ]);
+  }
+
+  Widget _tabItem(int idx, String title) {
+    final sel = _tab == idx;
+    return GestureDetector(
+      onTap: () => setState(() => _tab = idx),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        margin: const EdgeInsets.only(right: 28),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(border: sel ? Border(bottom: BorderSide(color: AegisColors.electricBlue, width: 2.5)) : null),
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 200),
+          style: TextStyle(color: sel ? AegisColors.textPrimary : AegisColors.textMuted, fontSize: 14, fontWeight: sel ? FontWeight.w700 : FontWeight.w500, letterSpacing: -0.2),
+          child: Text(title),
         ),
-        _iconButton(Icons.search_rounded),
-        const SizedBox(width: 12),
-        _iconButton(Icons.tune_rounded),
-      ],
+      ),
     );
   }
 
-  Widget _iconButton(IconData icon) {
-    return SizedBox(
-      width: 30,
-      height: 30,
-      child: Icon(icon, color: _ink, size: 23),
-    );
-  }
+  bool _showTip = true;
 
-  Widget _meshSummary() {
+  Widget _buildTipBanner() {
+    if (!_showTip) return const SizedBox.shrink();
     return Container(
-      height: 32,
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: _line, width: 1),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AegisColors.isLight ? const Color(0xFFE8F5E9) : const Color(0xFF1B2A1E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AegisColors.isLight ? const Color(0xFFC8E6C9) : AegisColors.neonGreen.withOpacity(0.15),
+          width: 0.5,
         ),
       ),
       child: Row(
         children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration:
-                const BoxDecoration(color: _green, shape: BoxShape.circle),
+          Icon(Icons.security_outlined, color: AegisColors.isLight ? const Color(0xFF2E7D32) : AegisColors.neonGreen, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Tip: Long press on a chat for more options',
+              style: TextStyle(
+                color: AegisColors.isLight ? const Color(0xFF2E7D32) : AegisColors.textSecondary,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'SF Pro Display',
+              ),
+            ),
           ),
-          const SizedBox(width: 6),
-          const Text(
-            '8 Nodes Online',
-            style: TextStyle(
-                color: _muted, fontSize: 13, fontWeight: FontWeight.w600),
-          ),
-          const Spacer(),
-          const Icon(Icons.arrow_upward_rounded, color: _muted, size: 14),
-          const SizedBox(width: 3),
-          const Text(
-            '127 Relayed',
-            style: TextStyle(
-                color: _muted, fontSize: 13, fontWeight: FontWeight.w600),
+          GestureDetector(
+            onTap: () => setState(() => _showTip = false),
+            child: Icon(Icons.close_rounded, color: AegisColors.isLight ? const Color(0xFF2E7D32).withOpacity(0.6) : AegisColors.textMuted, size: 18),
           ),
         ],
       ),
     );
   }
 
-  Widget _chatTile({
-    required Color avatarColor,
-    required IconData icon,
-    required String nodeId,
-    required String message,
-    required String time,
-    String? badge,
-    Color? badgeColor,
-    int unread = 0,
-  }) {
+  Widget _tile(Color avatarColor, String nodeId, String time, String subtitle, {int unread = 0, bool urgent = false, bool dot = false, String? badgeText, Color? badgeColor}) {
     return InkWell(
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(
-            builder: (_) => ChatConversationScreen(nodeId: nodeId)),
-      ),
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      child: SizedBox(
-        height: 92,
-        child: Row(
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                color: avatarColor.withOpacity(0.11),
-                shape: BoxShape.circle,
-                border: Border.all(color: avatarColor.withOpacity(0.12)),
+      onTap: () => Navigator.of(context).push(PageRouteBuilder(pageBuilder: (_, a, __) => ChatConversationScreen(nodeId: nodeId), transitionsBuilder: (_, a, __, child) => SlideTransition(position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)), child: child))),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+        child: Row(children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 48, height: 48,
+                decoration: BoxDecoration(gradient: LinearGradient(colors: [avatarColor.withOpacity(0.2), avatarColor.withOpacity(0.05)]), shape: BoxShape.circle, border: Border.all(color: avatarColor.withOpacity(urgent ? 0.5 : 0.2), width: urgent ? 1.5 : 1), boxShadow: urgent ? [BoxShadow(color: avatarColor.withOpacity(0.3), blurRadius: 12, spreadRadius: 2)] : null),
+                child: Icon(Icons.person_rounded, color: avatarColor, size: 24),
               ),
-              child: Center(
-                child: Icon(icon, color: avatarColor, size: 24),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          nodeId,
-                          style: const TextStyle(
-                            color: _ink,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                      if (badge != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: badgeColor!.withOpacity(0.13),
-                            borderRadius: BorderRadius.circular(7),
-                          ),
-                          child: Text(
-                            badge,
-                            style: TextStyle(
-                              color: badgeColor,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        )
-                      else
-                        Text(
-                          time,
-                          style: const TextStyle(
-                            color: _muted,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                    ],
+              if (dot)
+                Positioned(
+                  bottom: -1, right: -1,
+                  child: Container(
+                    width: 12, height: 12,
+                    decoration: BoxDecoration(
+                      color: AegisColors.neonGreen,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AegisColors.isLight ? Colors.white : const Color(0xFF08080E), width: 2),
+                    ),
                   ),
-                  const SizedBox(height: 9),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          message,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Color(0xFF374151),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                ),
+            ],
+          ),
+          SizedBox(width: 14),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  Text(nodeId, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AegisColors.textPrimary, letterSpacing: -0.2)),
+                  if (badgeText != null) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: badgeColor!.withOpacity(AegisColors.isLight ? 0.12 : 0.2),
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      if (time.isNotEmpty && badge != null) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          time,
-                          style: const TextStyle(
-                            color: _muted,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                      if (unread > 0) ...[
-                        const SizedBox(width: 10),
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: unread == 1 ? _red : _blue,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              '$unread',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+                      child: Text(
+                        badgeText,
+                        style: TextStyle(color: badgeColor, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                      ),
+                    ),
+                  ],
+                ]),
+                Text(time, style: TextStyle(fontSize: 11, color: AegisColors.textMuted, fontWeight: FontWeight.w500)),
+              ]),
+              SizedBox(height: 6),
+              Row(children: [
+                Expanded(child: Text(subtitle, style: TextStyle(fontSize: 13, color: AegisColors.textSecondary.withOpacity(0.8), fontWeight: urgent ? FontWeight.w600 : FontWeight.w400), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                if (unread > 0)
+                  Container(width: 24, height: 24, decoration: BoxDecoration(gradient: urgent ? AegisColors.sosGradient : AegisColors.purpleGradient, shape: BoxShape.circle), child: Center(child: Text('$unread', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)))),
+              ]),
+            ]),
+          ),
+        ]),
       ),
     );
   }
 
   Widget _divider() {
-    return const Divider(height: 1, thickness: 1, color: _line, indent: 62);
-  }
-
-  Widget _tipBanner() {
-    if (!_showTip) return const SizedBox.shrink();
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEAF3FF),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline_rounded, color: _blue, size: 20),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Text(
-              'Tip: Long press on a chat\nfor more options',
-              style: TextStyle(
-                  color: _blue,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  height: 1.25),
-            ),
-          ),
-          IconButton(
-            visualDensity: VisualDensity.compact,
-            onPressed: () => setState(() => _showTip = false),
-            icon: const Icon(Icons.close_rounded, color: _blue, size: 20),
-          ),
-        ],
-      ),
-    );
+    return Container(margin: const EdgeInsets.only(left: 62), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
   }
 
   Widget _sheet() {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-      ),
+      decoration: BoxDecoration(gradient: AegisColors.cardGradient, borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28))),
       child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-                width: 42,
-                height: 5,
-                decoration: BoxDecoration(
-                    color: _line, borderRadius: BorderRadius.circular(3))),
-            const SizedBox(height: 20),
-            _sheetOpt(Icons.chat_bubble_outline_rounded, 'New Chat',
-                () => Navigator.of(context).pop()),
-            _sheetOpt(Icons.podcasts_rounded, 'Broadcast Message', () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const BroadcastScreen()));
-            }),
-          ],
-        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
+          SizedBox(height: 20),
+          _sheetOpt(Icons.chat_bubble_outline_rounded, 'New Chat', AegisColors.violet, () => Navigator.of(context).pop()),
+          SizedBox(height: 4),
+          _sheetDivider(),
+          SizedBox(height: 4),
+          _sheetOpt(Icons.podcasts_rounded, 'Broadcast Message', AegisColors.violet, () { Navigator.of(context).pop(); Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BroadcastScreen())); }),
+        ]),
       ),
     );
   }
 
-  Widget _sheetOpt(IconData icon, String label, VoidCallback onTap) {
-    return ListTile(
-      onTap: onTap,
-      leading: Icon(icon, color: _blue),
-      title: Text(label,
-          style: const TextStyle(color: _ink, fontWeight: FontWeight.w700)),
+  Widget _sheetOpt(IconData icon, String label, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap, borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+        child: Row(children: [
+          Container(width: 40, height: 40, decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.2), width: 0.5)), child: Icon(icon, color: color, size: 20)),
+          SizedBox(width: 14),
+          Text(label, style: TextStyle(color: AegisColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
+        ]),
+      ),
     );
+  }
+
+  Widget _sheetDivider() {
+    return Container(margin: const EdgeInsets.symmetric(horizontal: 4), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
   }
 }

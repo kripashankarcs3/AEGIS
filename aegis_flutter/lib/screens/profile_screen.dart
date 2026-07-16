@@ -24,44 +24,25 @@ class ProfileScreen extends StatelessWidget {
           children: [
             SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 126),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 80),
               child: Column(
                 children: [
                   _header(context),
-                  const SizedBox(height: 35),
-                  _avatar(),
-                  const SizedBox(height: 23),
-                  const Text(
-                    'Kripashankar Yadav',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: _ink,
-                        fontSize: 30,
-                        fontWeight: FontWeight.w900,
-                        height: 1),
-                  ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'ID: NEXUS_7FA2B3',
-                    style: TextStyle(
-                        color: _muted,
-                        fontSize: 21,
-                        fontWeight: FontWeight.w600,
-                        height: 1),
-                  ),
-                  const SizedBox(height: 25),
-                  _activeBadge(),
+                  _avatarAndName(),
                   const SizedBox(height: 18),
+                  _activeBadge(),
+                  const SizedBox(height: 16),
                   _statsCard(),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 18),
                   _menuCard(context),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 22),
                   _logoutButton(),
                 ],
               ),
             ),
             Positioned(
-                left: 6, right: 6, bottom: 18, child: _bottomNav(context)),
+                left: 6, right: 6, bottom: 12, child: _bottomNav(context)),
           ],
         ),
       ),
@@ -72,15 +53,7 @@ class ProfileScreen extends StatelessWidget {
     return Row(
       children: [
         _topButton(Icons.arrow_back_rounded, () => Navigator.of(context).pop()),
-        const SizedBox(width: 30),
-        const Expanded(
-          child: Text('Profile',
-              style: TextStyle(
-                  color: _ink,
-                  fontSize: 34,
-                  fontWeight: FontWeight.w900,
-                  height: 1)),
-        ),
+        const Spacer(),
         _topButton(Icons.more_vert_rounded, () {}),
       ],
     );
@@ -90,66 +63,89 @@ class ProfileScreen extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 76,
-        height: 76,
+        width: 44,
+        height: 44,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: const Color(0xFFF1F5F9)),
           boxShadow: const [
             BoxShadow(
-                color: Color(0x16000000), blurRadius: 22, offset: Offset(0, 8))
+                color: Color(0x16000000), blurRadius: 14, offset: Offset(0, 4))
           ],
         ),
-        child: Icon(icon, color: _ink, size: 33),
+        child: Icon(icon, color: _ink, size: 22),
       ),
     );
   }
 
-  Widget _avatar() {
-    return Container(
-      width: 190,
-      height: 190,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFFEFF2F6), width: 1),
-      ),
-      child: Center(
-        child: Container(
-          width: 146,
-          height: 146,
-          decoration: const BoxDecoration(
+  Widget _avatarAndName() {
+    return Column(
+      children: [
+        Container(
+          width: 96,
+          height: 96,
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFFC05CFF), _purple],
+            color: Colors.white,
+            border: Border.all(color: const Color(0xFFEFF2F6), width: 1),
+          ),
+          child: Center(
+            child: Container(
+              width: 78,
+              height: 78,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFC05CFF), _purple],
+                ),
+              ),
+              child: const Icon(Icons.person_rounded,
+                  color: Color(0xFFF6EDFF), size: 48),
             ),
           ),
-          child: const Icon(Icons.person_rounded,
-              color: Color(0xFFF6EDFF), size: 96),
         ),
-      ),
+        const SizedBox(height: 14),
+        const Text(
+          'Kripashankar Yadav',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: _ink,
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              height: 1),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'ID: NEXUS_7FA2B3',
+          style: TextStyle(
+              color: _muted,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              height: 1),
+        ),
+      ],
     );
   }
 
   Widget _activeBadge() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
         color: const Color(0xFFE5F8EE),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _Dot(color: _green, size: 15),
-          SizedBox(width: 11),
+          _Dot(color: _green, size: 10),
+          SizedBox(width: 8),
           Text('Active',
               style: TextStyle(
                   color: _green,
-                  fontSize: 20,
+                  fontSize: 14,
                   fontWeight: FontWeight.w900,
                   height: 1)),
         ],
@@ -159,14 +155,14 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _statsCard() {
     return Container(
-      height: 133,
+      height: 90,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: _line),
         boxShadow: const [
           BoxShadow(
-              color: Color(0x11000000), blurRadius: 18, offset: Offset(0, 5))
+              color: Color(0x11000000), blurRadius: 14, offset: Offset(0, 4))
         ],
       ),
       child: Row(
@@ -186,17 +182,17 @@ class ProfileScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: _purple, size: 32),
-          const SizedBox(height: 12),
+          Icon(icon, color: _purple, size: 22),
+          const SizedBox(height: 6),
           Text(label,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                  color: _muted, fontSize: 16, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 18),
+                  color: _muted, fontSize: 11, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
           Text(value,
               style: const TextStyle(
                   color: _ink,
-                  fontSize: 28,
+                  fontSize: 20,
                   fontWeight: FontWeight.w900,
                   height: 1)),
         ],
@@ -204,17 +200,17 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _divider() => Container(width: 1, height: 88, color: _line);
+  Widget _divider() => Container(width: 1, height: 56, color: _line);
 
   Widget _menuCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: _line),
         boxShadow: const [
           BoxShadow(
-              color: Color(0x10000000), blurRadius: 18, offset: Offset(0, 5))
+              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 4))
         ],
       ),
       child: Column(
@@ -248,29 +244,29 @@ class ProfileScreen extends StatelessWidget {
       BuildContext context, IconData icon, String label, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(14),
       child: SizedBox(
-        height: 92,
+        height: 56,
         child: Row(
           children: [
-            const SizedBox(width: 34),
+            const SizedBox(width: 20),
             Container(
-              width: 52,
-              height: 52,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 color: const Color(0xFFF4F4F6),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: _purple, size: 29),
+              child: Icon(icon, color: _purple, size: 20),
             ),
-            const SizedBox(width: 24),
+            const SizedBox(width: 14),
             Expanded(
               child: Text(label,
                   style: const TextStyle(
-                      color: _ink, fontSize: 21, fontWeight: FontWeight.w600)),
+                      color: _ink, fontSize: 15, fontWeight: FontWeight.w600)),
             ),
-            const Icon(Icons.chevron_right_rounded, color: _muted, size: 34),
-            const SizedBox(width: 32),
+            const Icon(Icons.chevron_right_rounded, color: _muted, size: 24),
+            const SizedBox(width: 16),
           ],
         ),
       ),
@@ -278,24 +274,24 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _rowLine() => const Divider(
-      height: 1, thickness: 1, color: _line, indent: 34, endIndent: 34);
+      height: 1, thickness: 1, color: _line, indent: 20, endIndent: 20);
 
   Widget _logoutButton() {
     return Container(
-      height: 75,
+      height: 52,
       decoration: BoxDecoration(
         color: const Color(0xFFFFF9F9),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFFFCDD2)),
       ),
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.logout_rounded, color: _red, size: 29),
-          SizedBox(width: 18),
+          Icon(Icons.logout_rounded, color: _red, size: 22),
+          SizedBox(width: 12),
           Text('Log Out',
               style: TextStyle(
-                  color: _red, fontSize: 23, fontWeight: FontWeight.w800)),
+                  color: _red, fontSize: 16, fontWeight: FontWeight.w800)),
         ],
       ),
     );
@@ -303,14 +299,14 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _bottomNav(BuildContext context) {
     return Container(
-      height: 112,
+      height: 72,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(36),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: const [
           BoxShadow(
-              color: Color(0x18000000), blurRadius: 24, offset: Offset(0, 8))
+              color: Color(0x18000000), blurRadius: 18, offset: Offset(0, 6))
         ],
       ),
       child: SafeArea(
@@ -324,23 +320,23 @@ class ProfileScreen extends StatelessWidget {
             Expanded(
               child: Center(
                 child: Container(
-                  width: 82,
-                  height: 82,
+                  width: 52,
+                  height: 52,
                   decoration: const BoxDecoration(
                     color: _red,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
                           color: Color(0x40FF2D3D),
-                          blurRadius: 24,
-                          spreadRadius: 2)
+                          blurRadius: 18,
+                          spreadRadius: 1)
                     ],
                   ),
                   child: const Center(
                     child: Text('SOS',
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 26,
+                            fontSize: 18,
                             fontWeight: FontWeight.w900)),
                   ),
                 ),
@@ -365,11 +361,11 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: _muted, size: 31),
-            const SizedBox(height: 9),
+            Icon(icon, color: _muted, size: 22),
+            const SizedBox(height: 4),
             Text(label,
                 style: const TextStyle(
-                    color: _muted, fontSize: 17, fontWeight: FontWeight.w600)),
+                    color: _muted, fontSize: 11, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

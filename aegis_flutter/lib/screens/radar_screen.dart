@@ -1,535 +1,605 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../providers/mesh_provider.dart';
-import 'chat_conversation_screen.dart';
+import '../constants/aegis_colors.dart';
+import '../constants/aegis_styles.dart';
+import '../constants/aegis_animations.dart';
+import '../models/survivor_node.dart';
+import '../widgets/radar_painter.dart';
+import '../widgets/mesh_stats_bar.dart';
+import '../providers/theme_provider.dart';
+import 'notifications_screen.dart';
+import 'profile_screen.dart';
 import 'sos_incoming_overlay.dart';
+import '../widgets/node_popup_card.dart';
+import 'chat_conversation_screen.dart';
 
-class RadarScreen extends ConsumerWidget {
+class RadarScreen extends StatefulWidget {
   const RadarScreen({super.key});
 
-  static const _ink = Color(0xFF111827);
-  static const _muted = Color(0xFF6B7280);
-  static const _line = Color(0xFFE5E7EB);
-  static const _blue = Color(0xFF1877F2);
-  static const _green = Color(0xFF12C878);
-  static const _orange = Color(0xFFFF8A1D);
-  static const _red = Color(0xFFFF253A);
+  @override
+  State<RadarScreen> createState() => _RadarScreenState();
+}
+
+class _RadarScreenState extends State<RadarScreen>
+    with TickerProviderStateMixin {
+  bool _isEmptyRadar = false;
+
+  static const _nodes = [
+    SurvivorNode(
+        id: 'SIG-7F3A',
+        hops: 0,
+        status: NodeStatus.online,
+        isUser: true,
+        dx: 0.0,
+        dy: 0.0),
+    SurvivorNode(
+        id: 'SIG-8AF3', hops: 2, status: NodeStatus.online, dx: 0.0, dy: -0.58),
+    SurvivorNode(
+        id: 'SIG-C4E1',
+        hops: 1,
+        status: NodeStatus.online,
+        dx: -0.48,
+        dy: -0.38),
+    SurvivorNode(
+        id: 'SIG-B2C1', hops: 2, status: NodeStatus.relay, dx: 0.58, dy: -0.22),
+    SurvivorNode(
+        id: 'SIG-9E10', hops: 3, status: NodeStatus.busy, dx: 0.45, dy: 0.38),
+    SurvivorNode(
+        id: 'SIG-1D9A', hops: 3, status: NodeStatus.sos, dx: -0.58, dy: 0.22),
+  ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final peerCount = ref.watch(meshPeerCountProvider);
-    final packetsRelayed = ref.watch(meshPacketsRelayedProvider);
-    final isConnected = ref.watch(meshConnectedProvider);
-    final activity = ref.watch(meshActivityProvider);
-
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
-        bottom: false,
         child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 102),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 455,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    const Positioned.fill(child: _RadarMap()),
-                    Positioned(
-                        left: 8, top: 2, child: _statusPill(isConnected)),
-                    Positioned(right: 8, top: 0, child: _nodesPill(peerCount)),
-                    Positioned(right: 4, top: 290, child: _mapTools()),
-                  ],
+              StaggeredFadeIn(index: 0, child: _header()),
+              const SizedBox(height: 18),
+              StaggeredFadeIn(index: 1, child: _statusRow()),
+              const SizedBox(height: 24),
+              StaggeredFadeIn(index: 2, child: _radarSection()),
+              const SizedBox(height: 24),
+              if (!_isEmptyRadar) ...[
+                StaggeredFadeIn(index: 3, child: _statsSection()),
+                const SizedBox(height: 28),
+                StaggeredFadeIn(index: 4, child: _activitySection()),
+              ],
+              if (_isEmptyRadar) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: StaggeredFadeIn(index: 3, child: _emptyState()),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _header() {
+    final themeProvider = ThemeProviderWidget.of(context);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/logo.png'),
+                  fit: BoxFit.cover,
                 ),
               ),
-              const SizedBox(height: 8),
-              _networkOverview(peerCount, packetsRelayed),
-              const SizedBox(height: 12),
-              _recentActivity(activity),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _statusPill(bool isConnected) {
-    return Row(
-      children: [
-        _SmallDot(color: isConnected ? _green : _muted, size: 11),
-        const SizedBox(width: 9),
-        Text(
-          isConnected ? 'Mesh Active' : 'Searching...',
-          style: TextStyle(
-              color: isConnected ? _green : _muted,
-              fontSize: 16,
-              fontWeight: FontWeight.w900),
-        ),
-      ],
-    );
-  }
-
-  Widget _nodesPill(int peerCount) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8F3FF),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text('$peerCount Node${peerCount == 1 ? '' : 's'}',
-          style: const TextStyle(
-              color: _blue, fontSize: 16, fontWeight: FontWeight.w900)),
-    );
-  }
-
-  Widget _mapTools() {
-    return Column(
-      children: [
-        _toolButton(Icons.open_in_full_rounded),
-        const SizedBox(height: 20),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(13),
-            boxShadow: const [
-              BoxShadow(
-                  color: Color(0x1A000000),
-                  blurRadius: 12,
-                  offset: Offset(0, 4))
-            ],
-            border: Border.all(color: _line),
-          ),
-          child: const Column(
-            children: [
-              SizedBox(
-                  width: 40,
-                  height: 42,
-                  child: Icon(Icons.add_rounded, color: _ink, size: 26)),
-              SizedBox(width: 40, child: Divider(height: 1, color: _line)),
-              SizedBox(
-                  width: 40,
-                  height: 42,
-                  child: Icon(Icons.remove_rounded, color: _ink, size: 26)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _toolButton(IconData icon) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _line),
-        boxShadow: const [
-          BoxShadow(
-              color: Color(0x18000000), blurRadius: 12, offset: Offset(0, 4))
-        ],
-      ),
-      child: Icon(icon, color: _ink, size: 22),
-    );
-  }
-
-  Widget _networkOverview(int peerCount, int packetsRelayed) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _line),
-        boxShadow: const [
-          BoxShadow(
-              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 3))
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('NETWORK OVERVIEW',
+            ),
+            const SizedBox(width: 10),
+            Text(
+              'AEGIS',
               style: TextStyle(
-                  color: Color(0xFF374151),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900)),
-          const SizedBox(height: 17),
-          Row(
-            children: [
-              _stat('$peerCount', 'Nodes'),
-              _vLine(),
-              _stat('$packetsRelayed', 'Packets Relayed'),
-              _vLine(),
-              _stat('—', 'Avg Latency'),
-              _vLine(),
-              _stat('—', 'Coverage'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _stat(String value, String label) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(value,
-              style: const TextStyle(
-                  color: _ink,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  height: 1)),
-          const SizedBox(height: 9),
-          Text(label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  color: _muted, fontSize: 11, fontWeight: FontWeight.w700)),
-        ],
-      ),
-    );
-  }
-
-  Widget _vLine() => Container(width: 1, height: 45, color: _line);
-
-  Widget _recentActivity(List<String> activity) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 12, 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _line),
-        boxShadow: const [
-          BoxShadow(
-              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 3))
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text('RECENT ACTIVITY',
-                    style: TextStyle(
-                        color: Color(0xFF374151),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900)),
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.3,
+                color: AegisColors.textPrimary,
               ),
-              Icon(Icons.close_rounded, color: Colors.grey.shade400, size: 17),
-            ],
-          ),
-          const SizedBox(height: 16),
-          if (activity.isEmpty)
-            const Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: Text('No recent activity.',
-                  style: TextStyle(
-                      color: Color(0xFF9CA3AF),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600)),
-            )
-          else
-            ...activity.take(5).map((msg) => _activity(
-                  _green,
-                  Icons.circle,
-                  msg,
-                  '',
-                )),
-        ],
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            // Wifi/Mesh Connection Button
+            _iconBtn(
+              _isEmptyRadar ? Icons.wifi_off_rounded : Icons.wifi_rounded,
+              _isEmptyRadar ? AegisColors.sosRed : AegisColors.neonGreen,
+              () => setState(() => _isEmptyRadar = !_isEmptyRadar),
+            ),
+            const SizedBox(width: 8),
+            // Theme Toggle Button
+            _iconBtn(
+              themeProvider.isLightActive
+                  ? Icons.dark_mode_rounded
+                  : Icons.light_mode_rounded,
+              AegisColors.textPrimary,
+              () {
+                if (themeProvider.isLightActive) {
+                  themeProvider.setMode(AppThemeMode.dark);
+                } else {
+                  themeProvider.setMode(AppThemeMode.light);
+                }
+              },
+            ),
+            const SizedBox(width: 8),
+            // Notification Bell Button
+            _iconBtn(
+              Icons.notifications_none_outlined,
+              AegisColors.textPrimary,
+              () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const NotificationsScreen())),
+              badge: true,
+            ),
+            const SizedBox(width: 8),
+            // Profile Button
+            _avatarBtn(),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _iconBtn(IconData icon, Color color, VoidCallback onTap,
+      {bool badge = false}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+            color: AegisColors.surface2,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AegisColors.border1, width: 0.5)),
+        child: Stack(clipBehavior: Clip.none, children: [
+          Center(child: Icon(icon, color: color, size: 18)),
+          if (badge)
+            Positioned(
+                right: 6,
+                top: 6,
+                child: Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                        color: AegisColors.sosRed, shape: BoxShape.circle))),
+        ]),
       ),
     );
   }
 
-  Widget _activity(Color color, IconData icon, String text, String time) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+  Widget _avatarBtn() {
+    return GestureDetector(
+      onTap: () => Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AegisColors.isLight
+              ? const Color(0xFF8B5CF6)
+              : const Color(0xFF5B21B6),
+          border: Border.all(
+              color: AegisColors.isLight
+                  ? const Color(0xFFDDD6FE)
+                  : AegisColors.violet.withOpacity(0.15),
+              width: 1.5),
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.person_rounded,
+            size: 18,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _statusRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: AegisColors.neonGreen,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Mesh Active',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AegisColors.neonGreen,
+              ),
+            ),
+          ],
+        ),
+        GestureDetector(
+          onTap: () => setState(() => _isEmptyRadar = !_isEmptyRadar),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: AegisColors.electricBlue.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                  color: AegisColors.electricBlue.withOpacity(0.2), width: 0.5),
+            ),
+            child: Text(
+              _isEmptyRadar ? '0 Nodes' : '8 Nodes',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: AegisColors.electricBlue,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _radarSection() {
+    return AspectRatio(
+      aspectRatio: 1.12,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AegisColors.cardBg,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AegisColors.border1, width: 0.5),
+          boxShadow: AegisColors.cardShadow,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: LayoutBuilder(builder: (_, constraints) {
+          final c = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+          final maxR =
+              min(constraints.maxWidth, constraints.maxHeight) / 2 * 0.82;
+
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: RadarBackgroundPainter(
+                    nodes: _isEmptyRadar
+                        ? _nodes.where((n) => n.isUser).toList()
+                        : _nodes,
+                    pulseValue: 0.0,
+                  ),
+                ),
+              ),
+              ...(_isEmptyRadar
+                      ? _nodes.where((n) => n.isUser).toList()
+                      : _nodes)
+                  .map((node) {
+                final floatY = 0.0;
+                final nx = c.dx + node.dx * maxR;
+                final ny = c.dy + node.dy * maxR + floatY;
+                final size = node.isUser ? 38.0 : 30.0;
+                final isSos = node.status == NodeStatus.sos;
+
+                return Positioned(
+                  left: nx - 30,
+                  top: ny - 30,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (isSos) {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => const SosIncomingOverlayScreen()));
+                      } else {
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          isScrollControlled: true,
+                          builder: (_) => NodePopupCard(
+                            nodeId: node.id,
+                            onOpenChat: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (_) =>
+                                      ChatConversationScreen(nodeId: node.id)));
+                            },
+                          ),
+                        );
+                      }
+                    },
+                    child: SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: size,
+                            height: size,
+                            decoration: BoxDecoration(
+                              gradient: node.isUser
+                                  ? AegisColors.primaryGradient
+                                  : LinearGradient(colors: [
+                                      node.color,
+                                      node.color.withOpacity(0.8)
+                                    ]),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.9),
+                                width: node.isUser ? 2.5 : 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: node.color.withOpacity(0.25),
+                                  blurRadius: 8,
+                                  spreadRadius: 1,
+                                )
+                              ],
+                            ),
+                            child: Center(
+                              child: Icon(
+                                node.isUser
+                                    ? Icons.person_rounded
+                                    : (isSos
+                                        ? Icons.warning_amber_rounded
+                                        : Icons.sensors_rounded),
+                                color: Colors.white,
+                                size: node.isUser ? 18 : 14,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            node.isUser
+                                ? 'You'
+                                : (node.status == NodeStatus.busy
+                                    ? 'Offline'
+                                    : '${node.hops} hops'),
+                            style: TextStyle(
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.w700,
+                              color: AegisColors.textSecondary,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+              // Floating Zoom Controls on the Right
+              Positioned(
+                right: 14,
+                top: constraints.maxHeight / 2 - 50,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                  decoration: BoxDecoration(
+                    color: AegisColors.surface2,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AegisColors.border1, width: 0.5),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.zoom_out_map_rounded,
+                          size: 15, color: AegisColors.textSecondary),
+                      const SizedBox(height: 12),
+                      Icon(Icons.add_rounded,
+                          size: 15, color: AegisColors.textSecondary),
+                      const SizedBox(height: 12),
+                      Icon(Icons.remove_rounded,
+                          size: 15, color: AegisColors.textSecondary),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _statsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+                width: 3,
+                height: 16,
+                decoration: BoxDecoration(
+                    gradient: AegisColors.primaryGradient,
+                    borderRadius: BorderRadius.circular(2))),
+            const SizedBox(width: 10),
+            Text('NETWORK OVERVIEW', style: AegisStyles.overline),
+          ],
+        ),
+        const SizedBox(height: 14),
+        const MeshStatsBar(),
+      ],
+    );
+  }
+
+  Widget _activitySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                    width: 3,
+                    height: 16,
+                    decoration: BoxDecoration(
+                        gradient: AegisColors.cyanGradient,
+                        borderRadius: BorderRadius.circular(2))),
+                const SizedBox(width: 10),
+                Text('RECENT ACTIVITY', style: AegisStyles.overline),
+              ],
+            ),
+            Icon(Icons.close_rounded, color: AegisColors.textMuted, size: 18),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _activityLog(AegisColors.neonGreen, Icons.link_rounded,
+            'SIG-8AF3 joined the network', '2m ago'),
+        const SizedBox(height: 10),
+        _activityLog(AegisColors.electricBlue, Icons.swap_horiz_rounded,
+            'Message relayed to SIG-B2C1', '3m ago'),
+        const SizedBox(height: 10),
+        _activityLog(AegisColors.sosRed, Icons.warning_amber_rounded,
+            'SOS from SIG-1D9A received', '5m ago'),
+        const SizedBox(height: 10),
+        _activityLog(AegisColors.textMuted, Icons.cloud_download_rounded,
+            'Resource from SIG-C4E1 relayed', '7m ago'),
+      ],
+    );
+  }
+
+  Widget _activityLog(Color color, IconData icon, String text, String time) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AegisColors.cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AegisColors.border1, width: 0.5),
+      ),
       child: Row(
         children: [
-          SizedBox(
-              width: 18,
-              child: Icon(icon,
-                  color: color, size: icon == Icons.circle ? 11 : 14)),
-          const SizedBox(width: 8),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 15),
+          ),
+          const SizedBox(width: 12),
           Expanded(
-            child: Text(text,
-                style: const TextStyle(
-                    color: Color(0xFF4B5563),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700)),
+            child: Text(
+              text,
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: AegisColors.textPrimary),
+            ),
           ),
           Text(time,
-              style: const TextStyle(
-                  color: _muted, fontSize: 11, fontWeight: FontWeight.w700)),
+              style: TextStyle(
+                  fontSize: 11,
+                  color: AegisColors.textMuted,
+                  fontWeight: FontWeight.w500)),
         ],
       ),
     );
   }
-}
 
-class _RadarMap extends StatelessWidget {
-  const _RadarMap();
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final w = constraints.maxWidth;
-        final h = constraints.maxHeight;
-        final center = Offset(w * 0.50, h * 0.49);
-
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned.fill(
-                child: CustomPaint(painter: _RadarPainter(center: center))),
-            _userNode(context, center),
-            _node(context, center + Offset(0, -154), 'SIG-8AF3', '2 hops',
-                RadarScreen._green, Icons.local_fire_department_rounded),
-            _node(context, center + Offset(-118, -86), 'SIG-C4E1', '1 hop',
-                RadarScreen._green, Icons.local_fire_department_rounded),
-            _node(context, center + Offset(118, -47), 'SIG-B2C1', '2 hops',
-                RadarScreen._orange, Icons.local_fire_department_rounded),
-            _node(context, center + Offset(-120, 126), 'SIG-1D9A', '3 hops',
-                RadarScreen._red, Icons.local_fire_department_rounded,
-                sos: true),
-            _node(context, center + Offset(80, 176), 'SIG-9E10', 'Offline',
-                const Color(0xFFD8DDE3), Icons.circle,
-                offline: true),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _userNode(BuildContext context, Offset center) {
-    return Positioned(
-      left: center.dx - 44,
-      top: center.dy - 36,
-      child: const SizedBox(
-        width: 88,
-        child: Column(
-          children: [
-            _GlowNode(
-                color: RadarScreen._blue,
-                icon: Icons.person_rounded,
-                size: 58,
-                ring: true),
-            SizedBox(height: 9),
-            Text('SIG-7F3A',
-                style: TextStyle(
-                    color: RadarScreen._ink,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    height: 1)),
-            SizedBox(height: 5),
-            Text('You',
-                style: TextStyle(
-                    color: RadarScreen._ink,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    height: 1)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _node(
-    BuildContext context,
-    Offset position,
-    String title,
-    String subtitle,
-    Color color,
-    IconData icon, {
-    bool sos = false,
-    bool offline = false,
-  }) {
-    return Positioned(
-      left: position.dx - 45,
-      top: position.dy - 39,
-      child: GestureDetector(
-        onTap: () {
-          if (sos) {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const SosIncomingOverlayScreen()));
-          } else {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => ChatConversationScreen(nodeId: title)));
-          }
-        },
-        child: SizedBox(
-          width: 90,
+  Widget _emptyState() {
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AegisColors.cardBg,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AegisColors.border1, width: 0.5),
+          ),
           child: Column(
             children: [
-              _GlowNode(color: color, icon: icon, size: 44, muted: offline),
-              const SizedBox(height: 7),
-              Text(title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      color: RadarScreen._ink,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                      height: 1.05)),
-              const SizedBox(height: 4),
-              Text(subtitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: offline ? Colors.grey.shade500 : RadarScreen._ink,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      height: 1)),
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: AegisColors.sosRed.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: AegisColors.sosRed.withOpacity(0.2), width: 1),
+                ),
+                child: Icon(Icons.wifi_off_rounded,
+                    color: AegisColors.sosRed, size: 26),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '0 nodes detected',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AegisColors.textPrimary,
+                    letterSpacing: -0.3),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Make sure other AEGIS devices are\non the same WiFi network.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 13,
+                    color: AegisColors.textSecondary,
+                    height: 1.5),
+              ),
             ],
           ),
         ),
-      ),
+        const SizedBox(height: 28),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _legendItem(AegisColors.neonGreen, 'Strong'),
+            const SizedBox(width: 24),
+            _legendItem(AegisColors.warning, 'Medium'),
+            const SizedBox(width: 24),
+            _legendItem(AegisColors.sosRed, 'Weak'),
+            const SizedBox(width: 24),
+            _legendItem(AegisColors.textMuted, 'Offline'),
+          ],
+        ),
+      ],
     );
   }
-}
 
-class _RadarPainter extends CustomPainter {
-  final Offset center;
-  const _RadarPainter({required this.center});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final maxR = min(size.width, size.height) * 0.59;
-    final ringPaint = Paint()
-      ..color = const Color(0xFFE8F1FA)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    for (var i = 1; i <= 9; i++) {
-      canvas.drawCircle(center, maxR * i / 9, ringPaint);
-    }
-
-    final spoke = Paint()
-      ..color = const Color(0xFFEAF2FA)
-      ..strokeWidth = 1;
-    for (var i = 0; i < 12; i++) {
-      final a = pi * 2 * i / 12;
-      canvas.drawLine(center, center + Offset(cos(a), sin(a)) * maxR, spoke);
-    }
-
-    final glow = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          RadarScreen._blue.withOpacity(0.13),
-          RadarScreen._blue.withOpacity(0.04),
-          Colors.transparent
-        ],
-        stops: const [0.0, 0.45, 1.0],
-      ).createShader(Rect.fromCircle(center: center, radius: maxR * 0.72));
-    canvas.drawCircle(center, maxR * 0.72, glow);
-
-    _line(canvas, center, center + const Offset(0, -154), RadarScreen._green,
-        dashed: true);
-    _line(canvas, center, center + const Offset(-118, -86), RadarScreen._green,
-        dashed: true);
-    _line(canvas, center, center + const Offset(118, -47), RadarScreen._orange,
-        dashed: true);
-    _line(canvas, center, center + const Offset(-120, 126), RadarScreen._red,
-        dashed: true);
-    _line(canvas, center, center + const Offset(80, 176), Colors.grey.shade400,
-        dashed: true);
-
-    final sector = Path()
-      ..moveTo(center.dx, center.dy)
-      ..lineTo(center.dx - 34, center.dy + 176)
-      ..lineTo(center.dx - 76, center.dy + 150)
-      ..close();
-    canvas.drawPath(
-        sector, Paint()..color = RadarScreen._blue.withOpacity(0.20));
-  }
-
-  void _line(Canvas canvas, Offset a, Offset b, Color color,
-      {bool dashed = false}) {
-    final paint = Paint()
-      ..color = color.withOpacity(0.60)
-      ..strokeWidth = 1.4;
-    if (!dashed) {
-      canvas.drawLine(a, b, paint);
-      return;
-    }
-    final delta = b - a;
-    final distance = delta.distance;
-    const dash = 5.0;
-    const gap = 4.0;
-    for (double t = 0; t < distance; t += dash + gap) {
-      final start = a + delta * (t / distance);
-      final end = a + delta * (min(t + dash, distance) / distance);
-      canvas.drawLine(start, end, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _RadarPainter oldDelegate) => false;
-}
-
-class _GlowNode extends StatelessWidget {
-  final Color color;
-  final IconData icon;
-  final double size;
-  final bool ring;
-  final bool muted;
-
-  const _GlowNode({
-    required this.color,
-    required this.icon,
-    required this.size,
-    this.ring = false,
-    this.muted = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size + 18,
-      height: size + 18,
-      decoration: BoxDecoration(
-        color: color.withOpacity(muted ? 0.14 : 0.13),
-        shape: BoxShape.circle,
-        border:
-            ring ? Border.all(color: color.withOpacity(0.26), width: 7) : null,
-      ),
-      child: Center(
-        child: Container(
-          width: size,
-          height: size,
+  Widget _legendItem(Color c, String t) {
+    return Column(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
           decoration: BoxDecoration(
-            color: muted ? color.withOpacity(0.75) : color,
+            color: c,
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 5),
             boxShadow: [
               BoxShadow(
-                  color: color.withOpacity(muted ? 0.08 : 0.25),
-                  blurRadius: 12,
-                  spreadRadius: 2),
+                  color: c.withOpacity(0.4), blurRadius: 6, spreadRadius: 1)
             ],
           ),
-          child: Icon(icon, color: Colors.white, size: size * 0.38),
         ),
-      ),
+        const SizedBox(height: 6),
+        Text(t,
+            style: TextStyle(
+                color: AegisColors.textSecondary,
+                fontSize: 11,
+                fontWeight: FontWeight.w500)),
+      ],
     );
-  }
-}
-
-class _SmallDot extends StatelessWidget {
-  final Color color;
-  final double size;
-  const _SmallDot({required this.color, required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle));
   }
 }

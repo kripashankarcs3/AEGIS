@@ -1,87 +1,433 @@
 import 'package:flutter/material.dart';
+import '../constants/aegis_colors.dart';
+import '../constants/aegis_animations.dart';
 
-class StatusHistoryScreen extends StatelessWidget {
+class StatusHistoryScreen extends StatefulWidget {
   const StatusHistoryScreen({super.key});
 
-  static const _ink = Color(0xFF111827);
-  static const _muted = Color(0xFF6B7280);
-  static const _line = Color(0xFFE5E7EB);
-  static const _blue = Color(0xFF2563EB);
-  static const _green = Color(0xFF22C55E);
-  static const _red = Color(0xFFFF3B30);
-  static const _amber = Color(0xFFF59E0B);
+  @override
+  State<StatusHistoryScreen> createState() => _StatusHistoryScreenState();
+}
 
+class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: _ink),
-          onPressed: () => Navigator.of(context).pop(),
+        leading: Container(
+          margin: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: AegisColors.surface2,
+            shape: BoxShape.circle,
+            border: Border.all(color: AegisColors.border1, width: 0.5),
+          ),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back,
+                color: AegisColors.textPrimary, size: 18),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
-        title: const Text('Status History',
-            style: TextStyle(
-                color: _ink, fontSize: 20, fontWeight: FontWeight.w900)),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1, color: _line),
+        title: Text(
+          'Status & History',
+          style: TextStyle(
+            color: AegisColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
         ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 14),
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AegisColors.surface2,
+              shape: BoxShape.circle,
+              border: Border.all(color: AegisColors.border1, width: 0.5),
+            ),
+            child: Icon(Icons.calendar_today_rounded,
+                color: AegisColors.textPrimary, size: 16),
+          ),
+        ],
       ),
       body: SafeArea(
-        bottom: false,
-        child: ListView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 40),
-          children: [
-            _summary(),
-            const SizedBox(height: 16),
-            _section('TODAY'),
-            const SizedBox(height: 10),
-            _timelineCard([
-              _event(_green, 'SIG-8AF3', 'Safe check-in received', '10:24 AM'),
-              _divider(),
-              _event(_blue, 'SIG-B2C1', 'Resource relayed successfully',
-                  '09:50 AM'),
-              _divider(),
-              _event(
-                  _amber, 'SIG-1D9A', 'Route updated: 3 hops away', '08:35 AM'),
-            ]),
-            const SizedBox(height: 16),
-            _section('YESTERDAY'),
-            const SizedBox(height: 10),
-            _timelineCard([
-              _event(_red, 'SIG-4D2F', 'SOS received and forwarded', '6:12 PM'),
-              _divider(),
-              _event(_green, 'SIG-C4E1', 'Joined the mesh', '2:31 PM'),
-              _divider(),
-              _event(_blue, 'SIG-7F3A', 'Identity verified', '11:08 AM'),
-            ]),
-          ],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              StaggeredFadeIn(index: 0, child: _myStatusCard()),
+              const SizedBox(height: 28),
+              StaggeredFadeIn(index: 1, child: _beaconsSection()),
+              const SizedBox(height: 28),
+              StaggeredFadeIn(index: 2, child: _historySection()),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _summary() {
+  Widget _myStatusCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _line),
+        color: AegisColors.cardBg,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AegisColors.border1, width: 0.5),
+        boxShadow: AegisColors.cardShadow,
       ),
-      child: const Row(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.timeline_rounded, color: _blue, size: 20),
-          SizedBox(width: 12),
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: AegisColors.neonGreen.withOpacity(0.08),
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: AegisColors.neonGreen.withOpacity(0.15), width: 1),
+            ),
+            child: Center(
+              child: Icon(Icons.shield_outlined,
+                  color: AegisColors.neonGreen, size: 20),
+            ),
+          ),
+          const SizedBox(width: 14),
           Expanded(
-            child: Text(
-              'A clean log of key mesh events, SOS alerts, and status changes.',
-              style: TextStyle(color: _muted, fontSize: 12.5, height: 1.4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'My Status (Broadcasting)',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AegisColors.textSecondary,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AegisColors.neonGreen.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                            color: AegisColors.neonGreen.withOpacity(0.2),
+                            width: 0.5),
+                      ),
+                      child: Text(
+                        'Online',
+                        style: TextStyle(
+                          color: AegisColors.neonGreen,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'I am safe and available.',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: AegisColors.textPrimary,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Updated just now',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AegisColors.textMuted,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(Icons.edit_outlined, color: AegisColors.textMuted, size: 18),
+        ],
+      ),
+    );
+  }
+
+  Widget _beaconsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+                width: 3,
+                height: 14,
+                decoration: BoxDecoration(
+                    color: AegisColors.violet,
+                    borderRadius: BorderRadius.circular(2))),
+            const SizedBox(width: 8),
+            Text(
+              'RECENT STATUS BEACONS',
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: AegisColors.textSecondary,
+                  letterSpacing: 0.5),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: AegisColors.cardBg,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AegisColors.border1, width: 0.5),
+            boxShadow: AegisColors.cardShadow,
+          ),
+          child: Column(
+            children: [
+              _beaconRow('SIG-8AF3', 'Online', AegisColors.neonGreen,
+                  'Just now', '2 hops away'),
+              _divider(),
+              _beaconRow('SIG-C4E1', 'Online', AegisColors.neonGreen,
+                  '1 min ago', '1 hop away'),
+              _divider(),
+              _beaconRow('SIG-B2C1', 'Busy', AegisColors.orange, '2 min ago',
+                  '2 hops away'),
+              _divider(),
+              _beaconRow('SIG-1D9A', 'Needs Help', AegisColors.sosRed,
+                  '5 min ago', '3 hops away'),
+              _divider(),
+              _beaconRow('SIG-9E10', 'Offline', AegisColors.textMuted,
+                  '10 min ago', 'Unknown',
+                  isOffline: true),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _beaconRow(String nodeId, String status, Color statusColor,
+      String time, String distance,
+      {bool isOffline = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration:
+                    BoxDecoration(color: statusColor, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                nodeId,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AegisColors.textPrimary,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            status,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: statusColor,
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                time,
+                style: TextStyle(
+                    fontSize: 11,
+                    color: AegisColors.textPrimary,
+                    fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                distance,
+                style: TextStyle(
+                    fontSize: 10,
+                    color: AegisColors.textSecondary,
+                    fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _historySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                    width: 3,
+                    height: 14,
+                    decoration: BoxDecoration(
+                        color: AegisColors.violet,
+                        borderRadius: BorderRadius.circular(2))),
+                const SizedBox(width: 8),
+                Text(
+                  'HISTORY LOG',
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: AegisColors.textSecondary,
+                      letterSpacing: 0.5),
+                ),
+              ],
+            ),
+            Text(
+              'View all',
+              style: TextStyle(
+                color: AegisColors.isLight
+                    ? const Color(0xFF6D28D9)
+                    : AegisColors.violet,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: AegisColors.cardBg,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AegisColors.border1, width: 0.5),
+            boxShadow: AegisColors.cardShadow,
+          ),
+          child: Column(
+            children: [
+              _logRow(
+                icon: Icons.sensors_rounded,
+                iconColor: AegisColors.neonGreen,
+                title: 'Status from SIG-8AF3',
+                subtitle: 'Online',
+                time: 'Just now',
+              ),
+              _divider(),
+              _logRow(
+                icon: Icons.warning_amber_rounded,
+                iconColor: AegisColors.sosRed,
+                title: 'SOS from SIG-1D9A',
+                subtitle: 'Needs medical assistance',
+                time: '5 min ago',
+                isAlert: true,
+              ),
+              _divider(),
+              _logRow(
+                icon: Icons.library_books_rounded,
+                iconColor: const Color(0xFF8B5CF6),
+                title: 'Resource from SIG-C4E1',
+                subtitle: 'Relayed item: Water',
+                time: '7 min ago',
+              ),
+              _divider(),
+              _logRow(
+                icon: Icons.sensors_rounded,
+                iconColor: AegisColors.neonGreen,
+                title: 'SIG-4D2F joined the network',
+                subtitle: '',
+                time: '8 min ago',
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _logRow({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required String time,
+    bool isAlert = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.08),
+              shape: BoxShape.circle,
+              border: Border.all(color: iconColor.withOpacity(0.15), width: 1),
+            ),
+            child: Center(
+              child: Icon(icon, color: iconColor, size: 16),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AegisColors.textPrimary,
+                  ),
+                ),
+                if (subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isAlert
+                          ? AegisColors.sosRed
+                          : AegisColors.textSecondary,
+                      fontWeight: isAlert ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            time,
+            style: TextStyle(
+              fontSize: 11,
+              color: AegisColors.textSecondary,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -89,61 +435,11 @@ class StatusHistoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _section(String title) {
-    return Row(
-      children: [
-        Container(
-            width: 3,
-            height: 18,
-            decoration: BoxDecoration(
-                color: _blue, borderRadius: BorderRadius.circular(3))),
-        const SizedBox(width: 10),
-        Text(title,
-            style: const TextStyle(
-                color: _muted,
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.6)),
-      ],
-    );
-  }
-
-  Widget _timelineCard(List<Widget> children) {
+  Widget _divider() {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _line),
-        boxShadow: const [
-          BoxShadow(
-              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 4))
-        ],
-      ),
-      child: Column(children: children),
+      margin: const EdgeInsets.symmetric(horizontal: 18),
+      height: 0.5,
+      color: AegisColors.border1.withOpacity(0.5),
     );
   }
-
-  Widget _event(Color color, String node, String text, String time) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      leading: Container(
-        width: 34,
-        height: 34,
-        decoration: BoxDecoration(
-            color: color.withOpacity(0.12), shape: BoxShape.circle),
-        child: Icon(Icons.circle, color: color, size: 12),
-      ),
-      title: Text(node,
-          style: const TextStyle(
-              color: _ink, fontSize: 13.5, fontWeight: FontWeight.w800)),
-      subtitle:
-          Text(text, style: const TextStyle(color: _muted, fontSize: 11.5)),
-      trailing: Text(time,
-          style: const TextStyle(
-              color: _muted, fontSize: 10.5, fontWeight: FontWeight.w700)),
-    );
-  }
-
-  Widget _divider() =>
-      const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6));
 }
