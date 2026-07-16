@@ -379,33 +379,7 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                     ),
                   ),
                 );
-              }),
-              Positioned(
-                right: 14,
-                top: constraints.maxHeight / 2 - 50,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-                  decoration: BoxDecoration(
-                    color: AegisColors.surface2,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AegisColors.border1, width: 0.5),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.zoom_out_map_rounded,
-                          size: 15, color: AegisColors.textSecondary),
-                      const SizedBox(height: 12),
-                      Icon(Icons.add_rounded,
-                          size: 15, color: AegisColors.textSecondary),
-                      const SizedBox(height: 12),
-                      Icon(Icons.remove_rounded,
-                          size: 15, color: AegisColors.textSecondary),
-                    ],
-                  ),
-                ),
-              ),
+              });
             ],
           );
         }),
