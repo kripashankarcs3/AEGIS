@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../constants/aegis_colors.dart';
 import '../providers/mesh_provider.dart';
 import 'onboarding_screen.dart';
@@ -333,7 +334,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   void initState() {
     super.initState();
 
-    ref.read(meshProvider.notifier).start();
+    _startMeshAndNavigate();
 
     // 1. Globe rotation controller (infinite rotation)
     _globeController = AnimationController(
@@ -428,6 +429,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     _breatheController.dispose();
     _backgroundController.dispose();
     super.dispose();
+  }
+
+  Future<void> _startMeshAndNavigate() async {
+    await [
+      Permission.location,
+      Permission.bluetooth,
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+      Permission.bluetoothAdvertise,
+      Permission.nearbyWifiDevices,
+      Permission.notification,
+    ].request();
+
+    ref.read(meshProvider.notifier).start();
   }
 
   @override

@@ -89,7 +89,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         curve: Curves.easeOutCubic,
         margin: const EdgeInsets.only(right: 28),
         padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(border: sel ? Border(bottom: BorderSide(color: AegisColors.electricBlue, width: 2.5)) : null),
+        decoration: null,
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 200),
           style: TextStyle(color: sel ? AegisColors.textPrimary : AegisColors.textMuted, fontSize: 14, fontWeight: sel ? FontWeight.w700 : FontWeight.w500, letterSpacing: -0.2),

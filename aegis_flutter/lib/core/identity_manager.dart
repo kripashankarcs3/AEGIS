@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'crypto_service.dart';
 
@@ -53,13 +54,21 @@ class IdentityManager {
     _privateKey = "GENERATED_PRIVATE_KEY";
   }
 
-  /// Loads identity from local storage.
-  /// Hive implementation will be added next.
-  Future<void> loadIdentity() async {}
+  /// Loads identity from Hive persistent storage.
+  Future<void> loadIdentity() async {
+    final box = Hive.box('settings');
+    _sigId = box.get('sigId') as String?;
+    _publicKey = box.get('publicKey') as String?;
+    _privateKey = box.get('privateKey') as String?;
+  }
 
-  /// Saves identity to local storage.
-  /// Hive implementation will be added next.
-  Future<void> saveIdentity() async {}
+  /// Saves identity to Hive persistent storage.
+  Future<void> saveIdentity() async {
+    final box = Hive.box('settings');
+    await box.put('sigId', _sigId);
+    await box.put('publicKey', _publicKey);
+    await box.put('privateKey', _privateKey);
+  }
 
   /// Creates IDs like:
   /// SIG-A7D2
