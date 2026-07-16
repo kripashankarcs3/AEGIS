@@ -1,90 +1,92 @@
-import 'dart:async';
+import 'package:flutter/foundation.dart';
+import '../models/resource_item.dart';
 import '../models/signal_packet.dart';
-import '../models/resource_model.dart';
-import '../services/storage_service.dart';
+import 'mesh_router.dart';
 
 class ResourceManager {
-  Timer? _cleanupTimer;
-  String myIdentity = 'SIG-UNKNOWN';
+  ResourceManager({
+    required MeshRouter meshRouter,
+    required String selfId,
+  })  : _meshRouter = meshRouter,
+        _selfId = selfId;
 
-  // Part 1 wires this — broadcasts to every reachable peer
-  Future<void> Function(Map<String, dynamic> packet) broadcastToMesh = (_) async {};
+  final MeshRouter _meshRouter;
+  final String _selfId;
 
-  void start() {
-    _cleanupTimer?.cancel();
-    _cleanupTimer = Timer.periodic(const Duration(minutes: 5), (_) => _purgeExpired());
+  final List<ResourceItem> _resources = [];
+
+  List<ResourceItem> get resources => List.unmodifiable(_resources);
+
+  void addResource(ResourceItem item) {
+    _resources.add(item);
   }
 
-  void stop() => _cleanupTimer?.cancel();
+  void removeResource(String id) {
+    _resources.removeWhere((e) => e.id == id);
+  }
 
-  Future<ResourceModel> post({
-    required String subtype, // 'offer' | 'request'
-    required String category,
-    required String quantity,
-    required String message,
-    double? lat,
-    double? lng,
-  }) async {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final expires = now + (2 * 60 * 60 * 1000); // 2hr per spec
+  ResourceItem? getResource(String id) {
+    try {
+      return _resources.firstWhere((e) => e.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
 
+  Future<void> broadcastResource(ResourceItem item) async {
     final packet = SignalPacket(
-      id: 'res_${DateTime.now().millisecondsSinceEpoch}',
-      from: myIdentity,
-      to: 'broadcast',
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      from: _selfId,
+      to: 'ALL',
       type: PacketType.resource,
-      subtype: subtype,
-      category: category,
-      quantity: quantity,
-      message: message,
-      lat: lat,
-      lng: lng,
-      expires: expires,
-      timestamp: now,
-      ttl: 10,
+      payload: item.title,
+      ttl: 5,
+      hopCount: 0,
+      path: [_selfId],
+      timestamp: DateTime.now(),
+      category: item.category.name,
     );
 
-    await broadcastToMesh(packet.toJson());
-
-    final item = ResourceModel(
-      id: packet.id,
-      from: myIdentity,
-      subtype: subtype,
-      category: category,
-      quantity: quantity,
-      message: message,
-      lat: lat,
-      lng: lng,
-      timestamp: now,
-      expires: expires,
-      isMine: true,
-    );
-    await StorageService.saveResourceModel(item);
-    return item;
+    await _meshRouter.sendPacket(packet);
   }
 
-  // called from mesh_router.dart once incoming routing is wired
+  /// Handle an incoming resource packet: add a synthetic ResourceItem entry.
   Future<void> onIncoming(SignalPacket packet) async {
-    if (packet.type != PacketType.resource) return;
-    if (packet.from == myIdentity) return;
-    if (DateTime.now().millisecondsSinceEpoch > (packet.expires ?? 0)) return;
-
-    final item = ResourceModel(
+    debugPrint(
+        '📦 ResourceManager.onIncoming: ${packet.from} → ${packet.payload}');
+    final item = ResourceItem(
       id: packet.id,
-      from: packet.from,
-      subtype: packet.subtype ?? 'offer',
-      category: packet.category ?? 'water',
-      quantity: packet.quantity ?? '',
-      message: packet.message ?? '',
-      lat: packet.lat,
-      lng: packet.lng,
-      timestamp: packet.timestamp,
-      expires: packet.expires ?? 0,
+      category: _categoryFromString(packet.category),
+      title: packet.payload,
+      detail: '',
+      nodeId: packet.from,
+      hops: packet.hopCount,
+      timeAgo: 'just now',
+      type: ResourceType.offered,
     );
-    await StorageService.saveResourceModel(item);
+    // Avoid duplicates
+    if (_resources.any((r) => r.id == item.id)) return;
+    _resources.add(item);
   }
 
-  Future<List<ResourceModel>> get feed => StorageService.getResourceFeed();
+  ResourceCategory _categoryFromString(String? raw) {
+    switch (raw?.toLowerCase()) {
+      case 'water':
+        return ResourceCategory.water;
+      case 'food':
+        return ResourceCategory.food;
+      case 'medical':
+        return ResourceCategory.medical;
+      case 'battery':
+        return ResourceCategory.battery;
+      default:
+        return ResourceCategory.other;
+    }
+  }
 
-  Future<void> _purgeExpired() => StorageService.purgeExpiredResources();
+  void clear() {
+    _resources.clear();
+  }
+
+  int get totalResources => _resources.length;
 }

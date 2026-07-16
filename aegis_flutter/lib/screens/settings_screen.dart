@@ -1,11 +1,10 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../constants/aegis_colors.dart';
+
 import '../providers/theme_provider.dart';
-import 'auto_sync_screen.dart';
-import 'language_screen.dart';
-import 'battery_saver_screen.dart';
 import 'about_screen.dart';
+import 'auto_sync_screen.dart';
+import 'battery_saver_screen.dart';
+import 'language_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -20,282 +19,185 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _relayThroughMe = true;
   bool _lockApp = true;
 
+  static const _ink = Color(0xFF111827);
+  static const _muted = Color(0xFF6B7280);
+  static const _line = Color(0xFFE5E7EB);
+  static const _blue = Color(0xFF2563EB);
+  static const _green = Color(0xFF22C55E);
+  static const _violet = Color(0xFF7C3AED);
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = ThemeProviderWidget.of(context);
+
     return Scaffold(
-      backgroundColor: AegisColors.background, // Deep space black background
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
-        leadingWidth: 70,
-        leading: Container(
-          margin: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
-          decoration: BoxDecoration(
-            color: AegisColors.cardBg.withOpacity(0.5),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: AegisColors.border1,
-              width: 1.0,
-            ),
-          ),
-          child: IconButton(
-            icon: Icon(
-              Icons.arrow_back_rounded,
-              color: AegisColors.textPrimary,
-              size: 20,
-            ),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+        scrolledUnderElevation: 0,
+        titleSpacing: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: _ink),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(
+        title: const Text(
           'Settings',
-          style: TextStyle(
-            fontSize: 24.0,
-            fontWeight: FontWeight.w700,
-            color: AegisColors.textPrimary,
-            fontFamily: 'SF Pro Display',
-            letterSpacing: -0.5,
-          ),
+          style:
+              TextStyle(color: _ink, fontSize: 20, fontWeight: FontWeight.w900),
         ),
-        centerTitle: false,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: _line),
+        ),
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 120),
           children: [
-            // 0. APPEARANCE SECTION
-            Text(
-              'APPEARANCE',
-              style: TextStyle(
-                fontSize: 12.0,
-                fontWeight: FontWeight.w600,
-                color: AegisColors.textSecondary,
-                letterSpacing: 1.2,
-                fontFamily: 'SF Pro Display',
-              ),
-            ),
-            SizedBox(height: 12.0),
-            _buildCardSection([
-              _buildThemeOption(
-                icon: Icons.brightness_auto_rounded,
-                label: 'Follow System',
-                selected: themeProvider.mode == AppThemeMode.system,
-                onTap: () => themeProvider.setMode(AppThemeMode.system),
-              ),
-              _buildDivider(),
-              _buildThemeOption(
-                icon: Icons.light_mode_rounded,
-                label: 'Light',
-                selected: themeProvider.mode == AppThemeMode.light,
-                onTap: () => themeProvider.setMode(AppThemeMode.light),
-              ),
-              _buildDivider(),
-              _buildThemeOption(
-                icon: Icons.dark_mode_rounded,
-                label: 'Dark',
-                selected: themeProvider.mode == AppThemeMode.dark,
-                onTap: () => themeProvider.setMode(AppThemeMode.dark),
-              ),
+            _section('APPEARANCE'),
+            const SizedBox(height: 10),
+            _card([
+              _themeRow(
+                  Icons.brightness_auto_rounded,
+                  'Follow System',
+                  themeProvider.mode == AppThemeMode.system,
+                  () => themeProvider.setMode(AppThemeMode.system)),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _themeRow(
+                  Icons.light_mode_rounded,
+                  'Light',
+                  themeProvider.mode == AppThemeMode.light,
+                  () => themeProvider.setMode(AppThemeMode.light)),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _themeRow(
+                  Icons.dark_mode_rounded,
+                  'Dark',
+                  themeProvider.mode == AppThemeMode.dark,
+                  () => themeProvider.setMode(AppThemeMode.dark)),
             ]),
-            SizedBox(height: 28.0),
-
-            // 1. GENERAL SECTION
-            Text(
-              'GENERAL',
-              style: TextStyle(
-                fontSize: 12.0,
-                fontWeight: FontWeight.w600,
-                color: AegisColors.textSecondary,
-                letterSpacing: 1.2,
-                fontFamily: 'SF Pro Display',
-              ),
-            ),
-            SizedBox(height: 12.0),
-            _buildCardSection([
-              _buildNavRow(
-                icon: Icons.sensors_outlined,
-                label: 'Mesh Network',
-                statusText: 'Connected',
-                statusColor: const Color(0xFF00FF88),
-                onTap: () {},
-              ),
-              _buildDivider(),
-              _buildNavRow(
-                icon: Icons.portable_wifi_off_outlined,
-                label: 'Offline Mode',
-                statusText: 'Enabled',
-                statusColor: const Color(0xFF00FF88),
-                onTap: () {},
-              ),
-              _buildDivider(),
-              _buildNavRow(
-                icon: Icons.offline_bolt_outlined,
-                label: 'Battery Saver',
-                statusText: 'Enabled',
-                statusColor: const Color(0xFF00FF88),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const BatterySaverScreen()),
-                ),
-              ),
-              _buildDivider(),
-              _buildNavRow(
-                icon: Icons.settings_outlined,
-                label: 'Auto Sync',
-                statusText: 'When Connected',
-                statusColor: const Color(0xFF00FF88),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AutoSyncScreen()),
-                ),
-              ),
-              _buildDivider(),
-              _buildNavRow(
-                icon: Icons.track_changes_outlined,
-                label: 'Language',
-                statusText: 'English',
-                statusColor: const Color(0xFFA8B3C7),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const LanguageScreen()),
-                ),
-              ),
-              _buildDivider(),
-              _buildNavRow(
-                icon: Icons.info_outline_rounded,
-                label: 'About AEGIS',
-                statusText: 'v1.0.0',
-                statusColor: const Color(0xFFA8B3C7),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AboutScreen()),
-                ),
-              ),
+            const SizedBox(height: 24),
+            _section('GENERAL'),
+            const SizedBox(height: 10),
+            _card([
+              _navRow(Icons.sensors_outlined, 'Mesh Network', 'Connected',
+                  _green, () {}),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _navRow(
+                  Icons.offline_bolt_outlined,
+                  'Battery Saver',
+                  'Enabled',
+                  _green,
+                  () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const BatterySaverScreen()))),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _navRow(
+                  Icons.settings_outlined,
+                  'Auto Sync',
+                  'When Connected',
+                  _green,
+                  () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const AutoSyncScreen()))),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _navRow(
+                  Icons.track_changes_outlined,
+                  'Language',
+                  'English',
+                  _muted,
+                  () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const LanguageScreen()))),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _navRow(
+                  Icons.info_outline_rounded,
+                  'About AEGIS',
+                  'v1.0.0',
+                  _muted,
+                  () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const AboutScreen()))),
             ]),
-            SizedBox(height: 28.0),
-
-            // 2. NETWORK SECTION
-            Text(
-              'NETWORK',
-              style: TextStyle(
-                fontSize: 12.0,
-                fontWeight: FontWeight.w600,
-                color: AegisColors.textSecondary,
-                letterSpacing: 1.2,
-                fontFamily: 'SF Pro Display',
-              ),
-            ),
-            SizedBox(height: 12.0),
-            _buildCardSection([
-              _buildToggleRow(
-                icon: Icons.wifi_protected_setup_rounded,
-                label: 'Auto Connect',
-                value: _autoConnect,
-                onChanged: (v) => setState(() => _autoConnect = v),
-              ),
-              _buildDivider(),
-              _buildToggleRow(
-                icon: Icons.track_changes_rounded,
-                label: 'Background Discovery',
-                value: _backgroundDiscovery,
-                onChanged: (v) => setState(() => _backgroundDiscovery = v),
-              ),
-              _buildDivider(),
-              _buildToggleRow(
-                icon: Icons.alt_route_rounded,
-                label: 'Relay Through Me',
-                value: _relayThroughMe,
-                onChanged: (v) => setState(() => _relayThroughMe = v),
-                sublabel: 'Allow other nodes to relay via this device',
-              ),
+            const SizedBox(height: 24),
+            _section('NETWORK'),
+            const SizedBox(height: 10),
+            _card([
+              _toggleRow(Icons.wifi_protected_setup_rounded, 'Auto Connect',
+                  _autoConnect, (v) => setState(() => _autoConnect = v)),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _toggleRow(
+                  Icons.track_changes_rounded,
+                  'Background Discovery',
+                  _backgroundDiscovery,
+                  (v) => setState(() => _backgroundDiscovery = v)),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _toggleRow(Icons.alt_route_rounded, 'Relay Through Me',
+                  _relayThroughMe, (v) => setState(() => _relayThroughMe = v),
+                  sublabel: 'Allow other nodes to relay via this device'),
             ]),
-            SizedBox(height: 28.0),
-
-            // 3. SECURITY SECTION
-            Text(
-              'SECURITY',
-              style: TextStyle(
-                fontSize: 12.0,
-                fontWeight: FontWeight.w600,
-                color: AegisColors.textSecondary,
-                letterSpacing: 1.2,
-                fontFamily: 'SF Pro Display',
-              ),
-            ),
-            SizedBox(height: 12.0),
-            _buildCardSection([
-              _buildToggleRow(
-                icon: Icons.lock_outline_rounded,
-                label: 'Lock App',
-                value: _lockApp,
-                onChanged: (v) => setState(() => _lockApp = v),
-              ),
+            const SizedBox(height: 24),
+            _section('SECURITY'),
+            const SizedBox(height: 10),
+            _card([
+              _toggleRow(Icons.lock_outline_rounded, 'Lock App', _lockApp,
+                  (v) => setState(() => _lockApp = v)),
             ]),
-            SizedBox(height: 120.0),
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
-  Widget _buildCardSection(List<Widget> children) {
+  Widget _section(String title) {
+    return Row(
+      children: [
+        Container(
+            width: 3,
+            height: 18,
+            decoration: BoxDecoration(
+                color: _violet, borderRadius: BorderRadius.circular(3))),
+        const SizedBox(width: 10),
+        Text(title,
+            style: const TextStyle(
+                color: _muted,
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.6)),
+      ],
+    );
+  }
+
+  Widget _card(List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
-        color: AegisColors.cardBg,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AegisColors.border1,
-          width: 1.0,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _line),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 4)),
+        ],
       ),
       child: Column(children: children),
     );
   }
 
-  Widget _buildThemeOption({
-    required IconData icon,
-    required String label,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
+  Widget _themeRow(
+      IconData icon, String label, bool selected, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 13.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: AegisColors.background,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AegisColors.border1,
-                      width: 1.0,
-                    ),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: selected
-                        ? const Color(0xFF256DFF)
-                        : Colors.white.withOpacity(0.7),
-                    size: 16,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: selected ? AegisColors.textPrimary : AegisColors.textSecondary,
-                    fontSize: 15,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                    fontFamily: 'SF Pro Display',
-                  ),
-                ),
+                _iconTile(icon, selected ? _blue : _muted),
+                const SizedBox(width: 12),
+                Text(label,
+                    style: TextStyle(
+                        color: selected ? _ink : _muted,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700)),
               ],
             ),
             Container(
@@ -303,18 +205,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               height: 20,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: selected
-                      ? const Color(0xFF256DFF)
-                      : Colors.white.withOpacity(0.2),
-                  width: selected ? 2.0 : 1.5,
-                ),
-                color: selected
-                    ? const Color(0xFF256DFF)
-                    : Colors.transparent,
+                color: selected ? _blue : Colors.transparent,
+                border: Border.all(color: selected ? _blue : _line),
               ),
               child: selected
-                  ? Icon(Icons.check, size: 12, color: Colors.white)
+                  ? const Icon(Icons.check, size: 12, color: Colors.white)
                   : null,
             ),
           ],
@@ -323,88 +218,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildNavRow({
-    required IconData icon,
-    required String label,
-    required String statusText,
-    required Color statusColor,
-    required VoidCallback onTap,
-  }) {
+  Widget _navRow(IconData icon, String title, String subtitle,
+      Color statusColor, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 15.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: AegisColors.background,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AegisColors.border1,
-                      width: 1.0,
-                    ),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: AegisColors.textSecondary,
-                    size: 16,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: AegisColors.textPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'SF Pro Display',
-                  ),
+                _iconTile(icon, _muted),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                            color: _ink,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 3),
+                    Text(subtitle,
+                        style: TextStyle(color: statusColor, fontSize: 11.5)),
+                  ],
                 ),
               ],
             ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  statusText,
-                  style: TextStyle(
-                    color: statusColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    fontFamily: 'SF Pro Display',
-                  ),
-                ),
-                SizedBox(width: 8),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 18,
-                  color: AegisColors.textMuted,
-                ),
-              ],
-            ),
+            const Icon(Icons.chevron_right_rounded, size: 18, color: _muted),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildToggleRow({
-    required IconData icon,
-    required String label,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-    String? sublabel,
-  }) {
+  Widget _toggleRow(
+      IconData icon, String label, bool value, ValueChanged<bool> onChanged,
+      {String? sublabel}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 11.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -412,59 +265,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: AegisColors.background,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AegisColors.border1,
-                        width: 1.0,
-                      ),
-                    ),
-                    child: Icon(
-                      icon,
-                      color: AegisColors.textSecondary,
-                      size: 16,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: AegisColors.textPrimary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'SF Pro Display',
-                    ),
-                  ),
+                  _iconTile(icon, _muted),
+                  const SizedBox(width: 12),
+                  Text(label,
+                      style: const TextStyle(
+                          color: _ink,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700)),
                 ],
               ),
               Switch(
                 value: value,
                 onChanged: onChanged,
-                activeColor: AegisColors.cardBg,
-                activeTrackColor: AegisColors.electricBlue,
-                inactiveThumbColor: AegisColors.textMuted,
-                inactiveTrackColor: AegisColors.border2,
+                activeColor: Colors.white,
+                activeTrackColor: _blue,
+                inactiveThumbColor: const Color(0xFFCBD5E1),
+                inactiveTrackColor: const Color(0xFFE2E8F0),
               ),
             ],
           ),
           if (sublabel != null) ...[
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Padding(
-              padding: const EdgeInsets.only(left: 44.0),
-              child: Text(
-                sublabel,
-                style: TextStyle(
-                  color: AegisColors.textSecondary,
-                  fontSize: 11,
-                  fontFamily: 'SF Pro Display',
-                ),
-              ),
+              padding: const EdgeInsets.only(left: 44),
+              child: Text(sublabel,
+                  style: const TextStyle(
+                      color: _muted, fontSize: 11.5, height: 1.3)),
             ),
           ],
         ],
@@ -472,146 +299,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildDivider() {
+  Widget _iconTile(IconData icon, Color color) {
     return Container(
-      height: 1.0,
-      color: AegisColors.border1,
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      height: 70,
+      width: 32,
+      height: 32,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.6),
-            blurRadius: 40,
-            offset: const Offset(0, 12),
-            spreadRadius: -8,
-          ),
-          BoxShadow(
-            color: const Color(0xFF256DFF).withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _line),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF09111F).withOpacity(0.92),
-                  const Color(0xFF08080E).withOpacity(0.92),
-                ],
-              ),
-              border: Border.all(
-                color: AegisColors.border1,
-                width: 0.5,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildNavItem(context, 'Radar', Icons.radar_rounded),
-                _buildNavItem(context, 'Chats', Icons.chat_bubble_outline_rounded),
-                _buildSosFab(context),
-                _buildNavItem(context, 'Resources', Icons.library_books_outlined),
-                _buildNavItem(context, 'Map', Icons.map_outlined),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(BuildContext context, String label, IconData icon) {
-    return Expanded(
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).pop();
-        },
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: AegisColors.textSecondary,
-              size: 22,
-            ),
-            SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
-                color: AegisColors.textSecondary,
-                fontSize: 9.5,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSosFab(BuildContext context) {
-    return Expanded(
-      child: Center(
-        child: GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-          child: Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFFFF0030),
-                  Color(0xFF8B0000),
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFFF0030).withOpacity(0.4),
-                  blurRadius: 15,
-                  spreadRadius: 2,
-                ),
-              ],
-              border: Border.all(
-                color: AegisColors.border2.withOpacity(0.3),
-                width: 1,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                'SOS',
-                style: TextStyle(
-                  color: AegisColors.textPrimary,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 13,
-                  letterSpacing: 0.8,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+      child: Icon(icon, color: color, size: 17),
     );
   }
 }

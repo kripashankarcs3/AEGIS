@@ -326,39 +326,32 @@ class _SosScreenState extends ConsumerState<SosScreen> {
 
   Widget _detailsBox() {
     return Container(
-      height: 68,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFF3F4F6),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _line),
-        boxShadow: const [
-          BoxShadow(
-              color: Color(0x0F000000), blurRadius: 10, offset: Offset(0, 3))
-        ],
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
-      child: const Stack(
-        children: [
-          Positioned(
-            left: 14,
-            top: 13,
-            child: Text(
-              'Describe your emergency...',
-              style: TextStyle(
-                  color: Color(0xFFB2B8C4),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600),
-            ),
-          ),
-          Positioned(
-            right: 14,
-            bottom: 9,
-            child: Text('0 / 200',
-                style: TextStyle(
-                    color: Color(0xFF9CA3AF),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800)),
-          ),
-        ],
+      child: TextField(
+        controller: _detailsController,
+        maxLines: 3,
+        maxLength: 200,
+        style: const TextStyle(
+            color: Color(0xFF111827),
+            fontSize: 13,
+            fontWeight: FontWeight.w600),
+        decoration: const InputDecoration(
+          hintText: 'Describe your emergency...',
+          hintStyle: TextStyle(
+              color: Color(0xFFB2B8C4),
+              fontSize: 13,
+              fontWeight: FontWeight.w600),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.fromLTRB(14, 13, 14, 8),
+          counterStyle: TextStyle(
+              color: Color(0xFF9CA3AF),
+              fontSize: 11,
+              fontWeight: FontWeight.w800),
+        ),
       ),
     );
   }
@@ -372,7 +365,7 @@ class _SosScreenState extends ConsumerState<SosScreen> {
           width: 285,
           height: 47,
           decoration: BoxDecoration(
-            color: _isSending ? _red.withValues(alpha: 0.6) : _red,
+            color: _isSending ? _red.withOpacity(0.6) : _red,
             borderRadius: BorderRadius.circular(24),
             boxShadow: const [
               BoxShadow(

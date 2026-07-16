@@ -1,235 +1,84 @@
 import 'package:flutter/material.dart';
-import '../constants/aegis_colors.dart';
 
 class VoiceMessageScreen extends StatelessWidget {
   const VoiceMessageScreen({super.key});
 
+  static const _ink = Color(0xFF111827);
+  static const _muted = Color(0xFF6B7280);
+  static const _line = Color(0xFFE5E7EB);
+  static const _blue = Color(0xFF2563EB);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AegisColors.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: _ink),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          'Voice Message',
-          style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+        title: const Text('Voice Message',
+            style: TextStyle(
+                color: _ink, fontSize: 20, fontWeight: FontWeight.w900)),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: _line),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 22.0),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20.0),
-              // 1. Voice soundwave visualization graphic
-              Center(
-                child: SizedBox(
-                  height: 64.0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _buildWaveBar(14.0),
-                      _buildWaveBar(24.0),
-                      _buildWaveBar(38.0),
-                      _buildWaveBar(20.0),
-                      _buildWaveBar(32.0),
-                      _buildWaveBar(48.0),
-                      _buildWaveBar(64.0),
-                      _buildWaveBar(52.0),
-                      _buildWaveBar(30.0),
-                      _buildWaveBar(42.0),
-                      _buildWaveBar(22.0),
-                      _buildWaveBar(16.0),
-                      _buildWaveBar(26.0),
-                      _buildWaveBar(38.0),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12.0),
-              // Time counter details
-              const Center(
-                child: Text(
-                  '00:12',
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 18.0),
-
-              // 2. Microphone record trigger button
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Microphone circle
-                    Container(
-                      width: 64.0,
-                      height: 64.0,
-                      decoration: BoxDecoration(
-                        color: AegisColors.violet,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AegisColors.violet.withOpacity(0.4),
-                            blurRadius: 12,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.mic_none_rounded,
-                          color: Colors.white,
-                          size: 28.0,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    // Swipe up instruction
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.keyboard_arrow_up_rounded, color: AegisColors.textSecondary, size: 14.0),
-                        SizedBox(width: 4.0),
-                        Text(
-                          'Slide up to cancel',
-                          style: TextStyle(
-                            color: AegisColors.textSecondary,
-                            fontSize: 11.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 28.0),
-
-              // 3. Nearby Devices list Section
-              Text(
-                'Nearby Devices',
-                style: TextStyle(
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.bold,
-                  color: AegisColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 10.0),
-              Expanded(
-                child: ListView(
-                  children: [
-                    _buildVoiceShareDeviceRow('SIG-8AF3', '2 hops'),
-                    _buildInnerDivider(),
-                    _buildVoiceShareDeviceRow('SIG-C4E1', '1 hop'),
-                    _buildInnerDivider(),
-                    _buildVoiceShareDeviceRow('SIG-B2C1', '2 hops'),
-                  ],
-                ),
-              ),
-            ],
-          ),
+        bottom: false,
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 40),
+          children: [
+            _hero(),
+            const SizedBox(height: 16),
+            _waveCard(),
+            const SizedBox(height: 14),
+            _recordButton(),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildWaveBar(double height) {
+  Widget _hero() {
     return Container(
-      width: 3.5,
-      height: height,
-      margin: const EdgeInsets.symmetric(horizontal: 2.0),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AegisColors.violet,
-        borderRadius: BorderRadius.circular(10.0),
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _line),
       ),
-    );
-  }
-
-  Widget _buildVoiceShareDeviceRow(String nodeId, String hops) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              // Avatar circle
-              Container(
-                width: 36.0,
-                height: 36.0,
-                decoration: BoxDecoration(
-                  color: AegisColors.neonGreen.withOpacity(0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.sensors_rounded,
-                  color: AegisColors.neonGreen,
-                  size: 16.0,
-                ),
-              ),
-              const SizedBox(width: 14.0),
-              // Info Details
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    nodeId,
-                    style: const TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 2.0),
-                  Text(
-                    hops,
-                    style: TextStyle(
-                      fontSize: 11.0,
-                      color: AegisColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          // Purple circular send icon button
           Container(
-            width: 32.0,
-            height: 32.0,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: AegisColors.violet.withOpacity(0.1).withOpacity(0.3),
-              shape: BoxShape.circle,
-              border: Border.all(color: AegisColors.violet.withOpacity(0.4), width: 1.0),
+              color: const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: const Center(
-              child: Icon(
-                Icons.send_rounded,
-                color: AegisColors.violet,
-                size: 14.0,
-              ),
+            child: const Icon(Icons.mic_rounded, color: _blue, size: 24),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Record a message',
+                    style: TextStyle(
+                        color: _ink,
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w900)),
+                SizedBox(height: 4),
+                Text('Share your voice when typing is not practical.',
+                    style:
+                        TextStyle(color: _muted, fontSize: 12, height: 1.35)),
+              ],
             ),
           ),
         ],
@@ -237,11 +86,60 @@ class VoiceMessageScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInnerDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
-      height: 1.0,
-      thickness: 0.5,
+  Widget _waveCard() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _line),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 4))
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFFF8FAFC),
+              border: Border.all(color: _line),
+            ),
+            child: const Center(
+              child: Icon(Icons.graphic_eq_rounded, color: _blue, size: 44),
+            ),
+          ),
+          const SizedBox(height: 18),
+          const Text('Tap the mic to start recording',
+              style: TextStyle(
+                  color: _ink, fontSize: 13.5, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 6),
+          const Text('The message will be sent through nearby nodes.',
+              style: TextStyle(color: _muted, fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
+  Widget _recordButton() {
+    return SizedBox(
+      height: 52,
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _blue,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+        onPressed: () {},
+        icon: const Icon(Icons.mic_rounded, size: 18),
+        label: const Text('Record Voice Message',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+      ),
     );
   }
 }

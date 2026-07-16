@@ -24,6 +24,7 @@ import '../transport/nearby_service.dart';
 import '../transport/bluetooth_service.dart' as bt;
 import '../core/mdns_discovery.dart';
 import 'identity_provider.dart';
+import 'chat_provider.dart';
 
 // ──────────────────────────────────────────────
 // State
@@ -128,6 +129,9 @@ class MeshNotifier extends StateNotifier<MeshState> {
       messageQueue: _messageQueue,
     );
 
+    // Set localSigId so relayPacket() can append self to path (L9)
+    _router.localSigId = myId;
+
     // SOSHandler uses constructor injection (meshRouter + selfId)
     _sosHandler = SOSHandler(
       meshRouter: _router,
@@ -172,6 +176,9 @@ class MeshNotifier extends StateNotifier<MeshState> {
       }
       ..onChatReceived = (p) async {
         onChatReceived?.call(p);
+        // Dispatch to the per-peer ChatNotifier so UI updates reactively.
+        final chatNotifier = _ref.read(chatProvider(p.from).notifier);
+        chatNotifier.receiveIncoming(p);
         _addActivity('💬 Message from ${p.from}');
       }
       ..onAckReceived = (p) async {

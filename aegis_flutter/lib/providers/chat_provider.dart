@@ -4,26 +4,16 @@
 // ChatNotifier instance keyed by the remote peer's SIG-ID.
 //
 // Wiring:
-//   - MeshProvider sets myIdentityProvider override after identity is ready.
+//   - Uses sigIdProvider from identity_provider.dart for the local identity.
+//   - Uses meshSendProvider from mesh_provider.dart for packet transmission.
 //   - MeshProvider wires meshProvider.notifier.onChatReceived to
-//     forward incoming SignalPackets here.
+//     forward incoming SignalPackets to the correct chatProvider(peerId).
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/signal_packet.dart';
 import '../models/chat_message.dart';
-
-// ──────────────────────────────────────────────
-// Identity + send stubs (overridden by MeshProvider)
-// ──────────────────────────────────────────────
-
-/// Local device SIG-ID. Overridden with a real value by MeshProvider.
-final myIdentityProvider = Provider<String>((ref) => 'SIG-????');
-
-/// Raw send function. Overridden by MeshProvider.
-final sendPacketProvider =
-    Provider<Future<void> Function(String peerId, SignalPacket packet)>(
-  (ref) => (_, __) async {},
-);
+import 'identity_provider.dart';
+import 'mesh_send_provider.dart';
 
 // ──────────────────────────────────────────────
 // Message delivery status
@@ -169,8 +159,8 @@ final chatProvider =
     StateNotifierProvider.family<ChatNotifier, List<ChatEntry>, String>(
   (ref, peerId) => ChatNotifier(
     peerId: peerId,
-    myId: ref.watch(myIdentityProvider),
-    sendFn: ref.watch(sendPacketProvider),
+    myId: ref.watch(sigIdProvider),
+    sendFn: ref.watch(meshSendProvider),
   ),
 );
 

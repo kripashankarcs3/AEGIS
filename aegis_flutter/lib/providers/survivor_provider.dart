@@ -2,18 +2,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/survivor_node_model.dart';
 import '../core/status_beacon.dart';
 import '../services/storage_service.dart';
-import 'chat_provider.dart' show myIdentityProvider, sendPacketProvider;
+import 'identity_provider.dart';
+import 'mesh_send_provider.dart';
 
 final statusBeaconProvider = Provider<StatusBeacon>((ref) {
   final beacon = StatusBeacon();
-  beacon.myIdentity = ref.watch(myIdentityProvider);
-  beacon.broadcastToMesh = (packet) => ref.watch(sendPacketProvider)('broadcast', packet);
+  beacon.myIdentity = ref.watch(sigIdProvider);
+  beacon.broadcastToMesh =
+      (packet) => ref.watch(meshSendProvider)('broadcast', packet);
   beacon.start();
   ref.onDispose(beacon.stop);
   return beacon;
 });
 
-class SurvivorMapNotifier extends StateNotifier<Map<String, SurvivorNodeModel>> {
+class SurvivorMapNotifier
+    extends StateNotifier<Map<String, SurvivorNodeModel>> {
   SurvivorMapNotifier() : super({}) {
     _load();
   }
@@ -32,6 +35,7 @@ class SurvivorMapNotifier extends StateNotifier<Map<String, SurvivorNodeModel>> 
   void refresh() => _load();
 }
 
-final survivorProvider = StateNotifierProvider<SurvivorMapNotifier, Map<String, SurvivorNodeModel>>(
+final survivorProvider =
+    StateNotifierProvider<SurvivorMapNotifier, Map<String, SurvivorNodeModel>>(
   (ref) => SurvivorMapNotifier(),
 );

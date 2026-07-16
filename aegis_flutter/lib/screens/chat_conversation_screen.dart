@@ -321,12 +321,12 @@ class _OutgoingBubble extends StatelessWidget {
               children: [
                 Text(time,
                     style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.78),
+                        color: Colors.white.withOpacity(0.78),
                         fontSize: 11,
                         fontWeight: FontWeight.w500)),
                 const SizedBox(width: 4),
                 Icon(Icons.done_all_rounded,
-                    color: Colors.white.withValues(alpha: 0.9), size: 13),
+                    color: Colors.white.withOpacity(0.9), size: 13),
               ],
             ),
           ],

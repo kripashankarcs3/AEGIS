@@ -1,6 +1,6 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import '../constants/aegis_colors.dart';
 
 class BatterySaverScreen extends StatefulWidget {
   const BatterySaverScreen({super.key});
@@ -10,327 +10,264 @@ class BatterySaverScreen extends StatefulWidget {
 }
 
 class _BatterySaverScreenState extends State<BatterySaverScreen> {
-  bool _batterySaverMode = true;
+  bool _enabled = true;
   bool _reduceActivity = true;
   bool _lowerBrightness = true;
   bool _disableVibration = false;
 
+  static const _ink = Color(0xFF111827);
+  static const _muted = Color(0xFF6B7280);
+  static const _line = Color(0xFFE5E7EB);
+  static const _green = Color(0xFF22C55E);
+  static const _bg = Color(0xFFF8FAFC);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AegisColors.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        titleSpacing: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: _ink),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(
+        title: const Text(
           'Battery Saver',
           style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: _ink,
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline_rounded, color: Colors.white),
+            icon: const Icon(Icons.info_outline_rounded, color: _ink),
             onPressed: () {},
           ),
+          const SizedBox(width: 8),
         ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: _line),
+        ),
       ),
       body: SafeArea(
+        bottom: false,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 102),
           children: [
-            // 1. Semi-circular battery progress gauge
-            Center(
-              child: SizedBox(
-                width: 220.0,
-                height: 220.0,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Custom Painter Gauge
-                    Positioned.fill(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: CustomPaint(
-                          painter: BatterySaverGaugePainter(percentage: 0.78),
-                        ),
-                      ),
-                    ),
-                    // Centered battery stats column
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Battery icon with lightning green bolt
-                        Icon(
-                          Icons.battery_charging_full_rounded,
-                          color: AegisColors.neonGreen,
-                          size: 40.0,
-                        ),
-                        SizedBox(height: 10.0),
-                        Text(
-                          '78%',
-                          style: TextStyle(
-                            fontSize: 32.0,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 4.0),
-                        Text(
-                          'Estimated time left',
-                          style: TextStyle(
-                            fontSize: 11.0,
-                            color: AegisColors.textSecondary,
-                          ),
-                        ),
-                        SizedBox(height: 3.0),
-                        Text(
-                          '22h 45m',
-                          style: TextStyle(
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.bold,
-                            color: AegisColors.neonGreen,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 20.0),
-
-            // 2. Battery Saver Mode Toggle Card
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: AegisColors.cardBg,
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: AegisColors.border1, width: 1.0),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40.0,
-                    height: 40.0,
-                    decoration: BoxDecoration(
-                      color: AegisColors.neonGreen.withOpacity(0.08),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AegisColors.neonGreen.withOpacity(0.3),
-                        width: 1.0,
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.eco_rounded,
-                        color: AegisColors.neonGreen,
-                        size: 20.0,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 14.0),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Battery Saver Mode',
-                          style: TextStyle(
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 3.0),
-                        Text(
-                          'Optimize settings to extend battery life.',
-                          style: TextStyle(
-                            fontSize: 11.0,
-                            color: AegisColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 24.0,
-                    child: Switch(
-                      value: _batterySaverMode,
-                      onChanged: (val) {
-                        setState(() {
-                          _batterySaverMode = val;
-                        });
-                      },
-                      activeColor: Colors.white,
-                      activeTrackColor: AegisColors.neonGreen,
-                      inactiveThumbColor: Colors.grey,
-                      inactiveTrackColor: const Color(0xFF1E293B),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 24.0),
-
-            // 3. Optimizations section
-            Text(
-              'Optimizations',
-              style: TextStyle(
-                fontSize: 10.5,
-                fontWeight: FontWeight.bold,
-                color: AegisColors.textMuted,
-                letterSpacing: 0.5,
-              ),
-            ),
-            SizedBox(height: 10.0),
-            Container(
-              decoration: BoxDecoration(
-                color: AegisColors.cardBg,
-                borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AegisColors.border1, width: 1.0),
-              ),
-              child: Column(
-                children: [
-                  // Reduce Background Activity
-                  _buildToggleOptimizationTile(
-                    icon: Icons.settings_suggest_outlined,
-                    title: 'Reduce Background Activity',
-                    description: 'Limit non-essential processes',
-                    value: _reduceActivity,
-                    onChanged: (val) {
-                      setState(() {
-                        _reduceActivity = val;
-                      });
-                    },
-                  ),
-                  _buildDivider(),
-
-                  // Lower Screen Brightness
-                  _buildToggleOptimizationTile(
-                    icon: Icons.light_mode_outlined,
-                    title: 'Lower Screen Brightness',
-                    description: 'Set brightness to 30%',
-                    value: _lowerBrightness,
-                    onChanged: (val) {
-                      setState(() {
-                        _lowerBrightness = val;
-                      });
-                    },
-                  ),
-                  _buildDivider(),
-
-                  // Disable Vibrations
-                  _buildToggleOptimizationTile(
-                    icon: Icons.vibration_rounded,
-                    title: 'Disable Vibrations',
-                    description: 'Turn off haptic feedback',
-                    value: _disableVibration,
-                    onChanged: (val) {
-                      setState(() {
-                        _disableVibration = val;
-                      });
-                    },
-                  ),
-                  _buildDivider(),
-
-                  // Sync Less Frequently
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.sync_alt_rounded, color: AegisColors.textSecondary, size: 18.0),
-                            SizedBox(width: 12.0),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Sync Less Frequently',
-                                  style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(height: 3.0),
-                                Text(
-                                  'Increase sync interval',
-                                  style: TextStyle(color: AegisColors.textSecondary, fontSize: 10.5),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              '30 min',
-                              style: TextStyle(
-                                color: AegisColors.neonGreen,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12.0,
-                              ),
-                            ),
-                            SizedBox(width: 6.0),
-                            Icon(Icons.chevron_right, size: 14.0, color: AegisColors.textMuted),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _batteryHero(),
+            const SizedBox(height: 16),
+            _toggleCard(),
+            const SizedBox(height: 12),
+            _sectionTitle('OPTIMIZATIONS'),
+            const SizedBox(height: 10),
+            _optionsCard(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildToggleOptimizationTile({
-    required IconData icon,
-    required String title,
-    required String description,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-      child: Row(
+  Widget _batteryHero() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+      decoration: BoxDecoration(
+        color: _bg,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: _line),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x10000000), blurRadius: 18, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Column(
         children: [
-          Icon(icon, color: AegisColors.textSecondary, size: 18.0),
-          SizedBox(width: 12.0),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          SizedBox(
+            width: 210,
+            height: 210,
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-                Text(
-                  title,
-                  style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: _GaugePainter(percentage: 0.78),
+                  ),
                 ),
-                SizedBox(height: 3.0),
-                Text(
-                  description,
-                  style: TextStyle(color: AegisColors.textSecondary, fontSize: 10.5),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.battery_charging_full_rounded,
+                        color: _green, size: 38),
+                    SizedBox(height: 10),
+                    Text(
+                      '78%',
+                      style: TextStyle(
+                        color: _ink,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Estimated time left',
+                      style: TextStyle(color: _muted, fontSize: 11),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      '22h 45m',
+                      style: TextStyle(
+                          color: _green,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          SizedBox(
-            height: 24.0,
-            child: Switch(
-              value: value,
-              onChanged: onChanged,
-              activeColor: Colors.white,
-              activeTrackColor: AegisColors.neonGreen,
-              inactiveThumbColor: Colors.grey,
-              inactiveTrackColor: const Color(0xFF1E293B),
+          const SizedBox(height: 4),
+          const Text(
+            'Battery Saver Mode keeps the mesh alive longer by lowering background usage.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: _muted, fontSize: 12.5, height: 1.45),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _toggleCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _line),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAFBF0),
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFBBF7D0)),
+            ),
+            child: const Icon(Icons.eco_rounded, color: _green, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text('Battery Saver Mode',
+                    style: TextStyle(
+                        color: _ink,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800)),
+                SizedBox(height: 4),
+                Text('Optimize settings to extend battery life.',
+                    style:
+                        TextStyle(color: _muted, fontSize: 11.5, height: 1.35)),
+              ],
+            ),
+          ),
+          Switch(
+            value: _enabled,
+            onChanged: (value) => setState(() => _enabled = value),
+            activeColor: Colors.white,
+            activeTrackColor: _green,
+            inactiveThumbColor: const Color(0xFFCBD5E1),
+            inactiveTrackColor: const Color(0xFFE2E8F0),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String text) {
+    return Row(
+      children: [
+        Container(
+            width: 3,
+            height: 18,
+            decoration: BoxDecoration(
+                color: _green, borderRadius: BorderRadius.circular(3))),
+        const SizedBox(width: 10),
+        Text(text,
+            style: const TextStyle(
+                color: Color(0xFF6B7280),
+                fontSize: 11,
+                fontWeight: FontWeight.w900)),
+      ],
+    );
+  }
+
+  Widget _optionsCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _line),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        children: [
+          _switchRow(
+              Icons.settings_suggest_outlined,
+              'Reduce Background Activity',
+              'Limit non-essential processes',
+              _reduceActivity,
+              (v) => setState(() => _reduceActivity = v)),
+          const Divider(height: 1, thickness: 1, color: _line),
+          _switchRow(
+              Icons.light_mode_outlined,
+              'Lower Screen Brightness',
+              'Set brightness to 30%',
+              _lowerBrightness,
+              (v) => setState(() => _lowerBrightness = v)),
+          const Divider(height: 1, thickness: 1, color: _line),
+          _switchRow(
+              Icons.vibration_rounded,
+              'Disable Vibrations',
+              'Turn off haptic feedback',
+              _disableVibration,
+              (v) => setState(() => _disableVibration = v)),
+          const Divider(height: 1, thickness: 1, color: _line),
+          ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            leading:
+                const Icon(Icons.sync_alt_rounded, color: _muted, size: 18),
+            title: const Text('Sync Less Frequently',
+                style: TextStyle(
+                    color: _ink, fontSize: 13.5, fontWeight: FontWeight.w800)),
+            subtitle: const Text('Increase sync interval',
+                style: TextStyle(color: _muted, fontSize: 11.5)),
+            trailing: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('30 min',
+                    style: TextStyle(
+                        color: _green,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12)),
+                SizedBox(width: 4),
+                Icon(Icons.chevron_right_rounded, size: 18, color: _muted),
+              ],
             ),
           ),
         ],
@@ -338,61 +275,83 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
     );
   }
 
-  Widget _buildDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
-      height: 1.0,
-      thickness: 0.5,
+  Widget _switchRow(IconData icon, String title, String subtitle, bool value,
+      ValueChanged<bool> onChanged) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: _line),
+            ),
+            child: Icon(icon, color: _muted, size: 17),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: const TextStyle(
+                        color: _ink,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800)),
+                const SizedBox(height: 3),
+                Text(subtitle,
+                    style: const TextStyle(
+                        color: _muted, fontSize: 11.5, height: 1.3)),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Colors.white,
+            activeTrackColor: _green,
+            inactiveThumbColor: const Color(0xFFCBD5E1),
+            inactiveTrackColor: const Color(0xFFE2E8F0),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class BatterySaverGaugePainter extends CustomPainter {
+class _GaugePainter extends CustomPainter {
   final double percentage;
-
-  BatterySaverGaugePainter({required this.percentage});
+  _GaugePainter({required this.percentage});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Offset center = Offset(size.width / 2, size.height / 2);
-    final double radius = size.width / 2;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 10;
 
-    // Draw background track ring
-    final Paint trackPaint = Paint()
-      ..color = const Color(0xFF1E293B)
+    final track = Paint()
+      ..color = const Color(0xFFE5E7EB)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 6.0
+      ..strokeWidth = 7
       ..strokeCap = StrokeCap.round;
 
-    // Draw active progress ring
-    final Paint activePaint = Paint()
-      ..color = AegisColors.neonGreen
+    final active = Paint()
+      ..color = const Color(0xFF22C55E)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 6.0
+      ..strokeWidth = 7
       ..strokeCap = StrokeCap.round;
 
-    const double startAngle = 3 * pi / 4;
-    const double sweepAngle = 3 * pi / 2;
-
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      startAngle,
-      sweepAngle,
-      false,
-      trackPaint,
-    );
-
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      startAngle,
-      sweepAngle * percentage,
-      false,
-      activePaint,
-    );
+    const startAngle = 3 * pi / 4;
+    const sweepAngle = 3 * pi / 2;
+    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), startAngle,
+        sweepAngle, false, track);
+    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), startAngle,
+        sweepAngle * percentage, false, active);
   }
 
   @override
-  bool shouldRepaint(covariant BatterySaverGaugePainter oldDelegate) {
-    return oldDelegate.percentage != percentage;
-  }
+  bool shouldRepaint(covariant _GaugePainter oldDelegate) =>
+      oldDelegate.percentage != percentage;
 }

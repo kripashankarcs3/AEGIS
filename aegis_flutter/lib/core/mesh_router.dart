@@ -16,6 +16,10 @@ class MeshRouter {
   final TransportManager _transportManager;
   final MessageQueue _messageQueue;
 
+  /// The local node's SIG-ID, set by MeshProvider after identity is ready.
+  /// Used to append self to path during relay so the full route is tracked.
+  String localSigId = 'SIG-????';
+
   /// Packet IDs already processed (deduplication cache).
   final Set<String> _processedPackets = {};
 
@@ -74,7 +78,7 @@ class MeshRouter {
     final forwarded = packet.copyWith(
       ttl: packet.ttl - 1,
       hopCount: packet.hopCount + 1,
-      path: [...packet.path],
+      path: [...packet.path, localSigId],
     );
 
     await _transportManager.sendPacket(forwarded);

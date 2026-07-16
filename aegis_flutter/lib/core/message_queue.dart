@@ -1,58 +1,57 @@
-import 'dart:async';
 import '../models/signal_packet.dart';
-import '../services/storage_service.dart';
 
-// Store-and-forward. If peer_manager.dart (Part 1) says a peer isn't
-// reachable right now, the message sits here and we retry on a timer until
-// it goes through.
-//
-// depends on Part 1's peer reachability check — swap the function below
-// once mesh_provider.dart / peer_manager.dart exposes something real.
 class MessageQueue {
-  Timer? _retryTimer;
+  final List<SignalPacket> _queue = [];
+  bool _running = false;
 
-  // Part 1 wires this up — return true if 'peerId' currently has a route.
-  // left as a settable function instead of a hard interface dependency so
-  // this file compiles standalone before peer_manager.dart is finished.
+  // ── Wired by MeshProvider after transport layer is ready ───────────────
+  /// Returns true if [peerId] is currently reachable via transport.
   bool Function(String peerId) isPeerReachable = (_) => false;
 
-  // Part 1 wires this up too — actually push the packet onto the mesh.
-  Future<void> Function(String peerId, Map<String, dynamic> packet) sendToPeer =
+  /// Sends a packet directly to [peerId] via the transport layer.
+  Future<void> Function(String peerId, SignalPacket packet) sendToPeer =
       (_, __) async {};
 
   void start() {
-    _retryTimer?.cancel();
-    _retryTimer = Timer.periodic(const Duration(seconds: 5), (_) => _retryAll());
+    _running = true;
   }
 
-  void stop() => _retryTimer?.cancel();
-
-  Future<void> enqueue(SignalPacket packet) async {
-    final list = await StorageService.getQueuedPackets();
-    if (list.any((p) => p['id'] == packet.id)) return;
-    list.add(packet.toJson());
-    await StorageService.saveQueuedPackets(list);
+  void stop() {
+    _running = false;
   }
 
-  Future<List<Map<String, dynamic>>> get pending => StorageService.getQueuedPackets();
+  bool get isRunning => _running;
 
-  Future<void> _retryAll() async {
-    final list = await StorageService.getQueuedPackets();
-    if (list.isEmpty) return;
+  /// Add a packet to the queue.
+  void enqueue(SignalPacket packet) {
+    _queue.add(packet);
+  }
 
-    final stillPending = <Map<String, dynamic>>[];
-    for (final raw in list) {
-      final peer = raw['to'] as String;
-      if (isPeerReachable(peer)) {
-        try {
-          await sendToPeer(peer, raw);
-        } catch (_) {
-          stillPending.add(raw);
-        }
-      } else {
-        stillPending.add(raw);
-      }
-    }
-    await StorageService.saveQueuedPackets(stillPending);
+  /// Remove and return the oldest packet.
+  SignalPacket? dequeue() {
+    if (_queue.isEmpty) return null;
+    return _queue.removeAt(0);
+  }
+
+  /// View the next packet without removing it.
+  SignalPacket? peek() {
+    if (_queue.isEmpty) return null;
+    return _queue.first;
+  }
+
+  /// Check if queue is empty.
+  bool get isEmpty => _queue.isEmpty;
+
+  /// Number of queued packets.
+  int get length => _queue.length;
+
+  /// Get all queued packets.
+  List<SignalPacket> getAll() {
+    return List.unmodifiable(_queue);
+  }
+
+  /// Clear queue.
+  void clear() {
+    _queue.clear();
   }
 }

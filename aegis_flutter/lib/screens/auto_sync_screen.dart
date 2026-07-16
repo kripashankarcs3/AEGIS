@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../constants/aegis_colors.dart';
 
 class AutoSyncScreen extends StatefulWidget {
   const AutoSyncScreen({super.key});
@@ -12,368 +11,284 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
   bool _autoSync = true;
   bool _syncWhenConnected = true;
 
+  static const _ink = Color(0xFF111827);
+  static const _muted = Color(0xFF6B7280);
+  static const _line = Color(0xFFE5E7EB);
+  static const _blue = Color(0xFF2563EB);
+  static const _bg = Color(0xFFF8FAFC);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AegisColors.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        titleSpacing: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: _ink),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(
+        title: const Text(
           'Auto Sync',
-          style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style:
+              TextStyle(color: _ink, fontSize: 20, fontWeight: FontWeight.w900),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline_rounded, color: Colors.white),
+            icon: const Icon(Icons.info_outline_rounded, color: _ink),
             onPressed: () {},
           ),
+          const SizedBox(width: 8),
         ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: _line),
+        ),
       ),
       body: SafeArea(
+        bottom: false,
         child: ListView(
-          padding: const EdgeInsets.all(16.0),
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 102),
           children: [
-            // 1. Auto Sync Core Toggle Card
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: AegisColors.cardBg,
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: AegisColors.border1, width: 1.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Glowing green cloud icon container
-                      Container(
-                        width: 44.0,
-                        height: 44.0,
-                        decoration: BoxDecoration(
-                          color: AegisColors.neonGreen.withOpacity(0.08),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AegisColors.neonGreen.withOpacity(0.3),
-                            width: 1.0,
-                          ),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.cloud_queue_rounded,
-                            color: AegisColors.neonGreen,
-                            size: 22.0,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16.0),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Auto Sync',
-                                  style: TextStyle(
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 24.0,
-                                  child: Switch(
-                                    value: _autoSync,
-                                    onChanged: (val) {
-                                      setState(() {
-                                        _autoSync = val;
-                                      });
-                                    },
-                                    activeColor: Colors.white,
-                                    activeTrackColor: AegisColors.neonGreen,
-                                    inactiveThumbColor: Colors.grey,
-                                    inactiveTrackColor: const Color(0xFF1E293B),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 6.0),
-                            Text(
-                              'Automatically sync data when a stable mesh connection becomes available.',
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                color: AegisColors.textSecondary,
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 24.0),
-
-            // 2. Sync Settings Section
-            Text(
-              'Sync Settings',
-              style: TextStyle(
-                fontSize: 10.5,
-                fontWeight: FontWeight.bold,
-                color: AegisColors.textMuted,
-                letterSpacing: 0.5,
-              ),
-            ),
-            SizedBox(height: 10.0),
-            Container(
-              decoration: BoxDecoration(
-                color: AegisColors.cardBg,
-                borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AegisColors.border1, width: 1.0),
-              ),
-              child: Column(
-                children: [
-                  // Sync When Connected toggle tile
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-                    child: Row(
-                      children: [
-                        Icon(Icons.settings_input_antenna_rounded, color: AegisColors.neonGreen, size: 18.0),
-                        SizedBox(width: 12.0),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Sync When Connected',
-                                style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 3.0),
-                              Text(
-                                'Automatically sync all data',
-                                style: TextStyle(color: AegisColors.textSecondary, fontSize: 10.5),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 24.0,
-                          child: Switch(
-                            value: _syncWhenConnected,
-                            onChanged: (val) {
-                              setState(() {
-                                _syncWhenConnected = val;
-                              });
-                            },
-                            activeColor: Colors.white,
-                            activeTrackColor: AegisColors.neonGreen,
-                            inactiveThumbColor: Colors.grey,
-                            inactiveTrackColor: const Color(0xFF1E293B),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  _buildDivider(),
-
-                  // Preferred Network nav tile
-                  _buildNavTile(
-                    icon: Icons.settings_outlined,
-                    title: 'Preferred Network',
-                    subtitle: 'Any available mesh network',
-                  ),
-                  _buildDivider(),
-
-                  // Sync Interval nav tile
-                  _buildNavTile(
-                    icon: Icons.access_time,
-                    title: 'Sync Interval',
-                    trailingWidget: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '15 minutes',
-                          style: TextStyle(
-                            color: AegisColors.neonGreen,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12.0,
-                          ),
-                        ),
-                        SizedBox(width: 6.0),
-                        Icon(Icons.chevron_right, size: 14.0, color: AegisColors.textMuted),
-                      ],
-                    ),
-                  ),
-                  _buildDivider(),
-
-                  // Data to Sync nav tile
-                  _buildNavTile(
-                    icon: Icons.phone_android_rounded,
-                    title: 'Data to Sync',
-                    subtitle: 'Messages, Resources, Identity, Settings',
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 24.0),
-
-            // 3. Sync Status Section
-            Text(
-              'Sync Status',
-              style: TextStyle(
-                fontSize: 10.5,
-                fontWeight: FontWeight.bold,
-                color: AegisColors.textMuted,
-                letterSpacing: 0.5,
-              ),
-            ),
-            SizedBox(height: 10.0),
-            Container(
-              decoration: BoxDecoration(
-                color: AegisColors.cardBg,
-                borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AegisColors.border1, width: 1.0),
-              ),
-              child: Column(
-                children: [
-                  // Last sync tile
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Last Sync',
-                          style: TextStyle(color: AegisColors.textSecondary, fontSize: 13.0),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              '2 min ago',
-                              style: TextStyle(
-                                color: AegisColors.neonGreen,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12.5,
-                              ),
-                            ),
-                            SizedBox(width: 6.0),
-                            Icon(
-                              Icons.check_circle_outline_rounded,
-                              color: AegisColors.neonGreen,
-                              size: 14.0,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  _buildDivider(),
-
-                  // Next sync tile
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Next Sync',
-                          style: TextStyle(color: AegisColors.textSecondary, fontSize: 13.0),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              'In 13 min',
-                              style: TextStyle(
-                                color: AegisColors.textSecondary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12.5,
-                              ),
-                            ),
-                            SizedBox(width: 6.0),
-                            Icon(
-                              Icons.access_time_rounded,
-                              color: AegisColors.textMuted,
-                              size: 14.0,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _heroCard(),
+            const SizedBox(height: 16),
+            _sectionTitle('SYNC SETTINGS'),
+            const SizedBox(height: 10),
+            _settingsCard(),
+            const SizedBox(height: 16),
+            _sectionTitle('SYNC STATUS'),
+            const SizedBox(height: 10),
+            _statusCard(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNavTile({
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    Widget? trailingWidget,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+  Widget _heroCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _bg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _line),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 4)),
+        ],
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Icon(icon, color: AegisColors.textSecondary, size: 18.0),
-              SizedBox(width: 12.0),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if (subtitle != null) ...[
-                    SizedBox(height: 3.0),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: AegisColors.textSecondary,
-                        fontSize: 10.5,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF6FF),
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFBFDBFE)),
+            ),
+            child:
+                const Icon(Icons.cloud_queue_rounded, color: _blue, size: 24),
           ),
-          trailingWidget ?? Icon(Icons.chevron_right, size: 14.0, color: AegisColors.textMuted),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text('Auto Sync',
+                    style: TextStyle(
+                        color: _ink,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900)),
+                SizedBox(height: 4),
+                Text(
+                  'Automatically sync data when a stable mesh connection is available.',
+                  style: TextStyle(color: _muted, fontSize: 12, height: 1.35),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: _autoSync,
+            onChanged: (value) => setState(() => _autoSync = value),
+            activeColor: Colors.white,
+            activeTrackColor: _blue,
+            inactiveThumbColor: const Color(0xFFCBD5E1),
+            inactiveTrackColor: const Color(0xFFE2E8F0),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
-      height: 1.0,
-      thickness: 0.5,
+  Widget _sectionTitle(String text) {
+    return Row(
+      children: [
+        Container(
+            width: 3,
+            height: 18,
+            decoration: BoxDecoration(
+                color: _blue, borderRadius: BorderRadius.circular(3))),
+        const SizedBox(width: 10),
+        Text(text,
+            style: const TextStyle(
+                color: Color(0xFF6B7280),
+                fontSize: 11,
+                fontWeight: FontWeight.w900)),
+      ],
+    );
+  }
+
+  Widget _settingsCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _line),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        children: [
+          _toggleRow(
+              Icons.settings_input_antenna_rounded,
+              'Sync When Connected',
+              'Automatically sync all data',
+              _syncWhenConnected,
+              (v) => setState(() => _syncWhenConnected = v)),
+          const Divider(height: 1, thickness: 1, color: _line),
+          _navRow(Icons.settings_outlined, 'Preferred Network',
+              'Any available mesh network', 'Auto'),
+          const Divider(height: 1, thickness: 1, color: _line),
+          _navRow(Icons.access_time_rounded, 'Sync Interval',
+              'How often data is synced', '15 minutes'),
+          const Divider(height: 1, thickness: 1, color: _line),
+          _navRow(Icons.phone_android_rounded, 'Data to Sync',
+              'Messages, resources, identity, settings', 'All'),
+        ],
+      ),
+    );
+  }
+
+  Widget _statusCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _line),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        children: [
+          _statusRow('Last Sync', '2 min ago',
+              Icons.check_circle_outline_rounded, const Color(0xFF22C55E)),
+          const Divider(height: 1, thickness: 1, color: _line),
+          _statusRow('Next Sync', 'In 13 min', Icons.schedule_rounded, _muted),
+        ],
+      ),
+    );
+  }
+
+  Widget _toggleRow(IconData icon, String title, String subtitle, bool value,
+      ValueChanged<bool> onChanged) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: _line),
+            ),
+            child: Icon(icon, color: _muted, size: 17),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: const TextStyle(
+                        color: _ink,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800)),
+                const SizedBox(height: 3),
+                Text(subtitle,
+                    style: const TextStyle(
+                        color: _muted, fontSize: 11.5, height: 1.35)),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Colors.white,
+            activeTrackColor: _blue,
+            inactiveThumbColor: const Color(0xFFCBD5E1),
+            inactiveTrackColor: const Color(0xFFE2E8F0),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _navRow(
+      IconData icon, String title, String subtitle, String trailing) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      leading: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: _line),
+        ),
+        child: Icon(icon, color: _muted, size: 17),
+      ),
+      title: Text(title,
+          style: const TextStyle(
+              color: _ink, fontSize: 13.5, fontWeight: FontWeight.w800)),
+      subtitle:
+          Text(subtitle, style: const TextStyle(color: _muted, fontSize: 11.5)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(trailing,
+              style: const TextStyle(
+                  color: _blue, fontWeight: FontWeight.w800, fontSize: 12)),
+          const SizedBox(width: 4),
+          const Icon(Icons.chevron_right_rounded, size: 18, color: _muted),
+        ],
+      ),
+    );
+  }
+
+  Widget _statusRow(String label, String value, IconData icon, Color color) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      title: Text(label, style: const TextStyle(color: _muted, fontSize: 12.5)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(value,
+              style: TextStyle(
+                  color: color, fontWeight: FontWeight.w800, fontSize: 12.5)),
+          const SizedBox(width: 6),
+          Icon(icon, color: color, size: 15),
+        ],
+      ),
     );
   }
 }

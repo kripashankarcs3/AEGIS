@@ -1,72 +1,75 @@
 import 'package:flutter/material.dart';
-import '../constants/aegis_colors.dart';
-import '../constants/aegis_styles.dart';
-import '../constants/aegis_animations.dart';
+
 import 'chat_conversation_screen.dart';
 
 class NodeDetailsScreen extends StatelessWidget {
   final String nodeId;
   const NodeDetailsScreen({super.key, required this.nodeId});
 
+  static const _ink = Color(0xFF111827);
+  static const _muted = Color(0xFF6B7280);
+  static const _line = Color(0xFFE5E7EB);
+  static const _blue = Color(0xFF2563EB);
+  static const _green = Color(0xFF22C55E);
+  static const _violet = Color(0xFF7C3AED);
+
   @override
   Widget build(BuildContext context) {
-    final bool isOffline = nodeId == 'SIG-9E10';
+    final isOffline = nodeId == 'SIG-9E10';
 
     return Scaffold(
-      backgroundColor: AegisColors.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: Container(
-          margin: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: AegisColors.surface2,
-            shape: BoxShape.circle,
-            border: Border.all(color: AegisColors.border1, width: 0.5),
-          ),
-          child: IconButton(
-            icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary, size: 18),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: _ink),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(
-          'Node Details',
-          style: TextStyle(
-            color: AegisColors.textPrimary,
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-          ),
+        title: const Text('Node Details',
+            style: TextStyle(
+                color: _ink, fontSize: 20, fontWeight: FontWeight.w900)),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: _line),
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 14),
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AegisColors.surface2,
-              shape: BoxShape.circle,
-              border: Border.all(color: AegisColors.border1, width: 0.5),
-            ),
-            child: Icon(Icons.more_vert, color: AegisColors.textPrimary, size: 18),
-          ),
-        ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              StaggeredFadeIn(index: 0, child: _profileCard(isOffline)),
-              const SizedBox(height: 24),
-              StaggeredFadeIn(index: 1, child: _connectionSection(isOffline)),
-              const SizedBox(height: 24),
-              StaggeredFadeIn(index: 2, child: _deviceSection()),
-              const SizedBox(height: 28),
-              StaggeredFadeIn(index: 3, child: _actionsSection(context)),
-            ],
-          ),
+        bottom: false,
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 40),
+          children: [
+            _profileCard(isOffline),
+            const SizedBox(height: 16),
+            _section('CONNECTION'),
+            const SizedBox(height: 10),
+            _infoCard([
+              _infoRow('Link Quality', isOffline ? 'None' : 'Strong',
+                  valueColor: isOffline ? _muted : _green),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _infoRow('Latency', isOffline ? '--' : '28 ms'),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _infoRow('Packets Relayed', isOffline ? '0' : '245'),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _infoRow('Uptime', isOffline ? '--' : '2h 14m'),
+            ]),
+            const SizedBox(height: 16),
+            _section('DEVICE INFO'),
+            const SizedBox(height: 10),
+            _infoCard([
+              _infoRow('Device Name', 'Pixel 7'),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _infoRow('Platform', 'Android 14'),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _infoRow('App Version', '1.0.0+15'),
+              const Divider(height: 1, thickness: 1, color: _line),
+              _infoRow('Battery', '76%'),
+            ]),
+            const SizedBox(height: 16),
+            _actions(context),
+          ],
         ),
       ),
     );
@@ -74,31 +77,33 @@ class NodeDetailsScreen extends StatelessWidget {
 
   Widget _profileCard(bool isOffline) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AegisColors.cardBg,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AegisColors.border1, width: 0.5),
-        boxShadow: AegisColors.cardShadow,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: _line),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x10000000), blurRadius: 16, offset: Offset(0, 4)),
+        ],
       ),
       child: Column(
         children: [
           Row(
             children: [
               Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: AegisColors.isLight ? const Color(0xFFEDE9FE) : const Color(0xFF1E1B4B),
+                width: 54,
+                height: 54,
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.person_rounded,
-                    color: AegisColors.isLight ? const Color(0xFF6D28D9) : AegisColors.violet,
-                    size: 26,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFFA855F7), Color(0xFF7C3AED)],
                   ),
                 ),
+                child: const Icon(Icons.person_rounded,
+                    color: Colors.white, size: 28),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -108,63 +113,65 @@ class NodeDetailsScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          nodeId,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: AegisColors.textPrimary,
-                            letterSpacing: -0.3,
-                          ),
-                        ),
+                        Text(nodeId,
+                            style: const TextStyle(
+                                color: _ink,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900)),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: (isOffline ? AegisColors.textMuted : AegisColors.neonGreen).withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: (isOffline ? AegisColors.textMuted : AegisColors.neonGreen).withOpacity(0.2), width: 0.5),
+                            color: isOffline
+                                ? const Color(0xFFF1F5F9)
+                                : const Color(0xFFEAFBF0),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                                color: isOffline
+                                    ? _line
+                                    : const Color(0xFFBBF7D0)),
                           ),
                           child: Text(
                             isOffline ? 'Offline' : 'Online',
                             style: TextStyle(
-                              color: isOffline ? AegisColors.textMuted : AegisColors.neonGreen,
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w800,
-                            ),
+                                color: isOffline ? _muted : _green,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w800),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      isOffline ? 'Disconnected' : '2 hops away • via SIG-B2C1',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AegisColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                        isOffline
+                            ? 'Disconnected'
+                            : '2 hops away • via SIG-B2C1',
+                        style: const TextStyle(color: _muted, fontSize: 12)),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Container(height: 0.5, color: AegisColors.border1.withOpacity(0.5)),
-          const SizedBox(height: 16),
-          Row(
+          const SizedBox(height: 18),
+          const Divider(height: 1, thickness: 1, color: _line),
+          const SizedBox(height: 14),
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('First seen', style: TextStyle(fontSize: 12, color: AegisColors.textSecondary, fontWeight: FontWeight.w500)),
-              Text('2 mins ago', style: TextStyle(fontSize: 12, color: AegisColors.textPrimary, fontWeight: FontWeight.w700)),
+              Text('First seen', style: TextStyle(color: _muted, fontSize: 12)),
+              Text('2 mins ago',
+                  style: TextStyle(
+                      color: _ink, fontSize: 12, fontWeight: FontWeight.w800)),
             ],
           ),
-          const SizedBox(height: 12),
-          Row(
+          const SizedBox(height: 10),
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Last seen', style: TextStyle(fontSize: 12, color: AegisColors.textSecondary, fontWeight: FontWeight.w500)),
-              Text('Just now', style: TextStyle(fontSize: 12, color: AegisColors.textPrimary, fontWeight: FontWeight.w700)),
+              Text('Last seen', style: TextStyle(color: _muted, fontSize: 12)),
+              Text('Just now',
+                  style: TextStyle(
+                      color: _ink, fontSize: 12, fontWeight: FontWeight.w800)),
             ],
           ),
         ],
@@ -172,118 +179,103 @@ class NodeDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _connectionSection(bool isOffline) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _section(String title) {
+    return Row(
       children: [
-        Row(
-          children: [
-            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
-            const SizedBox(width: 8),
-            Text(
-              'CONNECTION',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
         Container(
-          decoration: BoxDecoration(
-            color: AegisColors.cardBg,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AegisColors.border1, width: 0.5),
-            boxShadow: AegisColors.cardShadow,
-          ),
-          child: Column(
-            children: [
-              _infoRow('Link Quality', isOffline ? 'None' : 'Strong', isStatus: true, statusColor: isOffline ? AegisColors.textMuted : AegisColors.neonGreen),
-              _divider(),
-              _infoRow('Latency', isOffline ? '--' : '28 ms'),
-              _divider(),
-              _infoRow('Packets Relayed', isOffline ? '0' : '245'),
-              _divider(),
-              _infoRow('Uptime', isOffline ? '--' : '2h 14m'),
-            ],
-          ),
-        ),
+            width: 3,
+            height: 18,
+            decoration: BoxDecoration(
+                color: _violet, borderRadius: BorderRadius.circular(3))),
+        const SizedBox(width: 10),
+        Text(title,
+            style: const TextStyle(
+                color: _muted,
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.6)),
       ],
     );
   }
 
-  Widget _deviceSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
-            const SizedBox(width: 8),
-            Text(
-              'DEVICE INFO',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: AegisColors.cardBg,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AegisColors.border1, width: 0.5),
-            boxShadow: AegisColors.cardShadow,
-          ),
-          child: Column(
-            children: [
-              _infoRow('Device Name', 'Pixel 7'),
-              _divider(),
-              _infoRow('Platform', 'Android 14'),
-              _divider(),
-              _infoRow('App Version', '1.0.0+15'),
-              _divider(),
-              _infoRow('Battery', '76%', showBattery: true),
-            ],
-          ),
-        ),
-      ],
+  Widget _infoCard(List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _line),
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x10000000), blurRadius: 14, offset: Offset(0, 4))
+        ],
+      ),
+      child: Column(children: children),
     );
   }
 
-  Widget _actionsSection(BuildContext context) {
+  Widget _infoRow(String label, String value, {Color? valueColor}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: _muted, fontSize: 12.5)),
+          Text(value,
+              style: TextStyle(
+                  color: valueColor ?? _ink,
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w800)),
+        ],
+      ),
+    );
+  }
+
+  Widget _actions(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
-            const SizedBox(width: 8),
-            Text(
-              'ACTIONS',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
-              child: _actionBtn(
-                icon: Icons.chat_bubble_outline_rounded,
-                label: 'Send Message',
-                color: const Color(0xFF6D28D9),
-                bgColor: AegisColors.isLight ? const Color(0xFFF5F3FF) : const Color(0xFF1E152A),
-                borderColor: AegisColors.isLight ? const Color(0xFFDDD6FE) : const Color(0xFF3B1E63),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ChatConversationScreen(nodeId: nodeId))),
+              child: SizedBox(
+                height: 48,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF5F3FF),
+                    foregroundColor: _violet,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                    side: const BorderSide(color: Color(0xFFEDE9FE)),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) =>
+                            ChatConversationScreen(nodeId: nodeId)));
+                  },
+                  icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                  label: const Text('Send Message',
+                      style: TextStyle(fontWeight: FontWeight.w800)),
+                ),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _actionBtn(
-                icon: Icons.share_rounded,
-                label: 'Share Resource',
-                color: const Color(0xFFD97706),
-                bgColor: AegisColors.isLight ? const Color(0xFFFFFBEB) : const Color(0xFF2D1F10),
-                borderColor: AegisColors.isLight ? const Color(0xFFFDE68A) : const Color(0xFF6B4B1B),
-                onTap: () {},
+              child: SizedBox(
+                height: 48,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFFBEB),
+                    foregroundColor: const Color(0xFFD97706),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                    side: const BorderSide(color: Color(0xFFFDE68A)),
+                  ),
+                  onPressed: () {},
+                  icon: const Icon(Icons.share_rounded, size: 18),
+                  label: const Text('Share Resource',
+                      style: TextStyle(fontWeight: FontWeight.w800)),
+                ),
               ),
             ),
           ],
@@ -291,89 +283,23 @@ class NodeDetailsScreen extends StatelessWidget {
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
-          child: _actionBtn(
-            icon: Icons.map_outlined,
-            label: 'View on Map',
-            color: AegisColors.electricBlue,
-            bgColor: AegisColors.isLight ? const Color(0xFFEFF6FF) : const Color(0xFF0F172A),
-            borderColor: AegisColors.isLight ? const Color(0xFFBFDBFE) : const Color(0xFF1E3A8A),
-            onTap: () => Navigator.of(context).pop(),
+          height: 48,
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEFF6FF),
+              foregroundColor: _blue,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14)),
+              side: const BorderSide(color: Color(0xFFBFDBFE)),
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(Icons.map_outlined, size: 18),
+            label: const Text('View on Map',
+                style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _actionBtn({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required Color bgColor,
-    required Color borderColor,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 48,
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: borderColor, width: 0.5),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 16),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _infoRow(String label, String value, {bool isStatus = false, Color? statusColor, bool showBattery = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(color: AegisColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (showBattery) ...[
-                Icon(Icons.battery_charging_full_rounded, color: AegisColors.neonGreen, size: 14),
-                const SizedBox(width: 4),
-              ],
-              Text(
-                value,
-                style: TextStyle(
-                  color: isStatus ? statusColor : AegisColors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _divider() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 18),
-      height: 0.5,
-      color: AegisColors.border1.withOpacity(0.5),
     );
   }
 }
