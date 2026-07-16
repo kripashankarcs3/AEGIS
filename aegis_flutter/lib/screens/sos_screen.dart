@@ -57,7 +57,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     double lat = 0.0, lon = 0.0;
     try {
       final pos = await Geolocator.getCurrentPosition(
-        timeLimit: const Duration(seconds: 5),
+        timeLimit: const Duration(seconds: 3),
       );
       lat = pos.latitude;
       lon = pos.longitude;

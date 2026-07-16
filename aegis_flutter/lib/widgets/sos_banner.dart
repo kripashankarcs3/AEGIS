@@ -67,7 +67,7 @@ class _SosBroadcastCardState extends State<SosBroadcastCard>
   }
 
   String get _countdownText {
-    final remaining = ((1.0 - _holdProgress) * 5).ceil();
+    final remaining = ((1.0 - _holdProgress) * 3).ceil();
     return '0$remaining:00';
   }
 
@@ -215,7 +215,7 @@ class _SosBroadcastCardState extends State<SosBroadcastCard>
                 Icon(Icons.lock_outline_rounded,
                     color: AegisColors.textSecondary, size: 13),
                 const SizedBox(width: 8),
-                Text('Hold for 5 seconds to send',
+                Text('Hold for 3 seconds to send',
                     style: TextStyle(
                         color: AegisColors.textSecondary,
                         fontSize: 11,
