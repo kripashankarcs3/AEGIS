@@ -403,22 +403,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       duration: const Duration(seconds: 8),
     )..repeat();
 
-    // Transition to onboarding after 3.0 seconds
-    Timer(const Duration(milliseconds: 3000), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const OnboardingScreen(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 700),
-          ),
-        );
-      }
-    });
+
   }
 
   @override
@@ -443,6 +428,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     ].request();
 
     ref.read(meshProvider.notifier).start();
+
+    await Future.delayed(const Duration(milliseconds: 3000));
+
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const OnboardingScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 700),
+      ),
+    );
   }
 
   @override

@@ -118,6 +118,15 @@ class NearbyService {
 
   void setMyDeviceId(String id) => _myDeviceId = id;
 
+  Future<void> restart() async {
+    debugPrint('🔄 [Nearby] Restarting...');
+    _nearby.stopAdvertising();
+    _nearby.stopDiscovery();
+    await Future.delayed(const Duration(milliseconds: 500));
+    await startAdvertising();
+    await startDiscovery();
+  }
+
   void dispose() {
     _nearby.stopAdvertising();
     _nearby.stopDiscovery();
