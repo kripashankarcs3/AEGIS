@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../constants/aegis_colors.dart';
-import '../constants/aegis_styles.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import '../services/storage_service.dart';
 import 'identity_screen.dart';
 import 'settings_screen.dart';
 import 'help_support_screen.dart';
@@ -14,6 +16,157 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String? _profileImagePath;
+  final ImagePicker _imagePicker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileImage();
+  }
+
+  void _loadProfileImage() {
+    setState(() {
+      _profileImagePath = StorageService.getProfileImagePath();
+    });
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    Navigator.of(context).pop();
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 85,
+      );
+      if (pickedFile == null) return;
+
+      final Directory appDir = await getApplicationDocumentsDirectory();
+      final String fileName = 'profile_image_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final String savedPath = '${appDir.path}/$fileName';
+
+      final File sourceFile = File(pickedFile.path);
+      await sourceFile.copy(savedPath);
+
+      await StorageService.setProfileImagePath(savedPath);
+
+      // Clean up previous profile image if it exists
+      if (_profileImagePath != null && _profileImagePath != savedPath) {
+        try {
+          final File oldFile = File(_profileImagePath!);
+          if (await oldFile.exists()) {
+            await oldFile.delete();
+          }
+        } catch (_) {
+          // Ignore cleanup errors
+        }
+      }
+
+      setState(() {
+        _profileImagePath = savedPath;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile image: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _removeImage() async {
+    Navigator.of(context).pop();
+    if (_profileImagePath != null) {
+      try {
+        final File oldFile = File(_profileImagePath!);
+        if (await oldFile.exists()) {
+          await oldFile.delete();
+        }
+      } catch (_) {
+        // Ignore cleanup errors
+      }
+    }
+    await StorageService.setProfileImagePath(null);
+    setState(() {
+      _profileImagePath = null;
+    });
+  }
+
+  void _showImagePickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF09111F),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                SizedBox(height: 16),
+                _buildPickerOption(
+                  icon: Icons.photo_library_rounded,
+                  label: 'Choose from Gallery',
+                  onTap: () => _pickImage(ImageSource.gallery),
+                ),
+                _buildPickerOption(
+                  icon: Icons.camera_alt_rounded,
+                  label: 'Take a Photo',
+                  onTap: () => _pickImage(ImageSource.camera),
+                ),
+                if (_profileImagePath != null)
+                  _buildPickerOption(
+                    icon: Icons.delete_outline_rounded,
+                    label: 'Remove Photo',
+                    iconColor: const Color(0xFFFF0030),
+                    textColor: const Color(0xFFFF0030),
+                    onTap: _removeImage,
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPickerOption({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color? iconColor,
+    Color? textColor,
+  }) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: iconColor ?? Colors.white.withOpacity(0.8),
+      ),
+      title: Text(
+        label,
+        style: TextStyle(
+          color: textColor ?? Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'SF Pro Display',
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           child: IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 20,
@@ -41,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
-        title: const Text(
+        title: Text(
           'Profile',
           style: TextStyle(
             fontSize: 24.0,
@@ -66,7 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             child: IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.more_vert_rounded,
                 color: Colors.white,
                 size: 20,
@@ -100,13 +253,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-                  // Inner Purple Avatar Circle
+                  // Inner Purple Avatar Circle / Profile Image
                   Container(
                     width: 104,
                     height: 104,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
@@ -118,26 +271,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: Colors.white.withOpacity(0.15),
                         width: 1.5,
                       ),
+                      image: _profileImagePath != null
+                          ? DecorationImage(
+                              image: FileImage(File(_profileImagePath!)),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
                     ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.person_rounded,
-                        color: Colors.white,
-                        size: 52,
+                    child: _profileImagePath == null
+                        ? Center(
+                            child: Icon(
+                              Icons.person_rounded,
+                              color: Colors.white,
+                              size: 52,
+                            ),
+                          )
+                        : null,
+                  ),
+                  // Edit profile image button
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: _showImagePickerOptions,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFA855F7),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF040814),
+                            width: 3,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFA855F7).withOpacity(0.4),
+                              blurRadius: 10,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.camera_alt_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 18.0),
+            SizedBox(height: 18.0),
 
             // 2. Name & Details Section
             Center(
               child: Column(
                 children: [
-                  const Text(
-                    'Deepali Kumari',
+                  Text(
+                    'Kripashankar Yadav',
                     style: TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.w700,
@@ -146,7 +339,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       letterSpacing: -0.3,
                     ),
                   ),
-                  const SizedBox(height: 4.0),
+                  SizedBox(height: 4.0),
                   Text(
                     'ID: NEXUS_7FA2B3',
                     style: TextStyle(
@@ -156,7 +349,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       fontFamily: 'SF Pro Display',
                     ),
                   ),
-                  const SizedBox(height: 10.0),
+                  SizedBox(height: 10.0),
                   // Active Status Badge
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -170,8 +363,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           shape: BoxShape.circle,
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      const Text(
+                      SizedBox(width: 6),
+                      Text(
                         'Active',
                         style: TextStyle(
                           fontSize: 13.0,
@@ -185,7 +378,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 28.0),
+            SizedBox(height: 28.0),
 
             // 3. Stats Row (Contributions, Tasks, People Helped)
             Container(
@@ -208,7 +401,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24.0),
+            SizedBox(height: 24.0),
 
             // 4. Menu Card list (My Information, Emergency Contacts, Devices, Settings, Help)
             Container(
@@ -260,7 +453,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 20.0),
+            SizedBox(height: 20.0),
 
             // 5. Log Out Button (Red outlined card)
             InkWell(
@@ -276,7 +469,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: 1.0,
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
@@ -284,7 +477,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Color(0xFFFF0030),
                       size: 20,
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Text(
                       'Log Out',
                       style: TextStyle(
@@ -298,7 +491,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 120.0), // leave space for bottom bar
+            SizedBox(height: 120.0), // leave space for bottom bar
           ],
         ),
       ),
@@ -319,10 +512,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               fontFamily: 'SF Pro Display',
             ),
           ),
-          const SizedBox(height: 6.0),
+          SizedBox(height: 6.0),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22.0,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -375,10 +568,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     size: 16,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -476,7 +669,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: Colors.white.withOpacity(0.4),
               size: 22,
             ),
-            const SizedBox(height: 3),
+            SizedBox(height: 3),
             Text(
               label,
               style: TextStyle(
@@ -504,7 +697,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             height: 52,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
@@ -524,7 +717,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 1,
               ),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'SOS',
                 style: TextStyle(

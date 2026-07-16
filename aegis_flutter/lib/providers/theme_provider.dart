@@ -26,7 +26,7 @@ class ThemeProvider extends ChangeNotifier {
 
   void setMode(AppThemeMode mode) {
     _mode = mode;
-    AegisColors.setLight(isLightActive);
+    AegisColors.setLight(mode == AppThemeMode.light || (mode == AppThemeMode.system && WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.light));
     notifyListeners();
   }
 }

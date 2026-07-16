@@ -51,7 +51,7 @@ class LogoShieldPainter extends CustomPainter {
 
     // 3. Gradient Outline (Purple #7B3EFF -> Blue #256DFF -> Cyan #27D8FF)
     final outlinePaint = Paint()
-      ..shader = const LinearGradient(
+      ..shader = LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
@@ -446,7 +446,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 10.0),
+                    SizedBox(height: 10.0),
                     
                     // Premium Asset-based Gold-Green Shield Logo
                     ScaleTransition(
@@ -487,10 +487,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         ),
                       ),
                     ),
-                    const SizedBox(height: 28.0), // Placed approx 28px below logo
+                    SizedBox(height: 28.0), // Placed approx 28px below logo
 
                     // Center-aligned white bold title
-                    const Text(
+                    Text(
                       'AEGIS',
                       style: TextStyle(
                         fontSize: 38.0,
@@ -500,12 +500,12 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         fontFamily: 'SF Pro Display',
                       ),
                     ),
-                    const SizedBox(height: 16.0),
+                    SizedBox(height: 16.0),
 
                     // Subtitle fade staggered entry (starts 250ms after logo/title)
                     FadeTransition(
                       opacity: _subtitleFade,
-                      child: const Text(
+                      child: Text(
                         'The Autonomous\nHuman Communication\nNetwork',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -518,7 +518,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20.0),
+                    SizedBox(height: 20.0),
                   ],
                 ),
               ),
@@ -550,7 +550,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 bottom: 28.0,
                 child: FadeTransition(
                   opacity: _quoteFade,
-                  child: const Text(
+                  child: Text(
                     'When the Internet dies,\nhumanity still speaks.',
                     textAlign: TextAlign.center,
                     style: TextStyle(

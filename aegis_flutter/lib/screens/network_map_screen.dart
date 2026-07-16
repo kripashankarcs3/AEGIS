@@ -96,11 +96,11 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
       body: SafeArea(
         child: SingleChildScrollView(padding: const EdgeInsets.fromLTRB(20, 12, 20, 100), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           StaggeredFadeIn(index: 0, child: _header()),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           StaggeredFadeIn(index: 1, child: _legend()),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           StaggeredFadeIn(index: 2, child: _map()),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           StaggeredFadeIn(index: 3, child: _infoCard()),
         ])),
       ),
@@ -110,12 +110,12 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
   Widget _header() {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Row(children: [
-        Container(width: 40, height: 40, decoration: BoxDecoration(gradient: AegisColors.greenGradient, borderRadius: BorderRadius.circular(12), boxShadow: AegisColors.glowGreen), child: const Icon(Icons.map_outlined, color: Colors.white, size: 22)),
-        const SizedBox(width: 14),
-        const Text('Survivor Map', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5)),
+        Container(width: 40, height: 40, decoration: BoxDecoration(gradient: AegisColors.greenGradient, borderRadius: BorderRadius.circular(12), boxShadow: AegisColors.glowGreen), child: Icon(Icons.map_outlined, color: Colors.white, size: 22)),
+        SizedBox(width: 14),
+        Text('Survivor Map', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5)),
       ]),
       Row(children: [
-        _hdrIcon(Icons.search_rounded), const SizedBox(width: 4), _hdrIcon(Icons.tune_rounded),
+        _hdrIcon(Icons.search_rounded), SizedBox(width: 4), _hdrIcon(Icons.tune_rounded),
       ]),
     ]);
   }
@@ -124,9 +124,9 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
 
   Widget _legend() {
     return SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [
-      _chip(AegisColors.neonGreen, 'Safe Zone'), const SizedBox(width: 8),
-      _chip(AegisColors.sosRed, 'Danger'), const SizedBox(width: 8),
-      _chip(AegisColors.violet, 'Shelter'), const SizedBox(width: 8),
+      _chip(AegisColors.neonGreen, 'Safe Zone'), SizedBox(width: 8),
+      _chip(AegisColors.sosRed, 'Danger'), SizedBox(width: 8),
+      _chip(AegisColors.violet, 'Shelter'), SizedBox(width: 8),
       _chip(AegisColors.electricBlue, 'Medical'),
     ]));
   }
@@ -135,7 +135,7 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
     return Container(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7), decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(10), border: Border.all(color: color.withOpacity(0.2), width: 0.5)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Container(width: 7, height: 7, decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withOpacity(0.4), blurRadius: 6, spreadRadius: 1)])),
-        const SizedBox(width: 7),
+        SizedBox(width: 7),
         Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color.withOpacity(0.9))),
       ]));
   }
@@ -147,7 +147,7 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
         return AspectRatio(
           aspectRatio: 1.05,
           child: Container(
-            decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF111122), Color(0xFF0C0C16)]), borderRadius: BorderRadius.circular(24), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
+            decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF111122), Color(0xFF0C0C16)]), borderRadius: BorderRadius.circular(24), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
             clipBehavior: Clip.antiAlias,
             child: LayoutBuilder(builder: (_, constraints) {
               final c = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
@@ -173,7 +173,7 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
                     child: danger ? _dangerNode(n, s) : n.isUser ? _userNode(n, s) : _mapNode(n, s),
                   ));
                 }),
-                Positioned(right: 14, bottom: 24, child: Container(width: 38, height: 38, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border2, width: 0.5)), child: const Center(child: Icon(Icons.gps_fixed_rounded, size: 18, color: AegisColors.textSecondary)))),
+                Positioned(right: 14, bottom: 24, child: Container(width: 38, height: 38, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border2, width: 0.5)), child: Center(child: Icon(Icons.gps_fixed_rounded, size: 18, color: AegisColors.textSecondary)))),
               ]);
             }),
           ),
@@ -184,9 +184,9 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
 
   Widget _userNode(MapMarkerNode n, double s) {
     return Column(mainAxisSize: MainAxisSize.min, children: [
-      Container(width: s, height: s, decoration: BoxDecoration(gradient: AegisColors.primaryGradient, shape: BoxShape.circle, border: Border.all(color: Colors.white.withOpacity(0.9), width: 2.5), boxShadow: AegisColors.glowBlue), child: const Center(child: Icon(Icons.person_rounded, color: Colors.white, size: 20))),
-      const SizedBox(height: 4),
-      Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.white.withOpacity(0.15), width: 0.5)), child: const Text('YOU', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.0))),
+      Container(width: s, height: s, decoration: BoxDecoration(gradient: AegisColors.primaryGradient, shape: BoxShape.circle, border: Border.all(color: Colors.white.withOpacity(0.9), width: 2.5), boxShadow: AegisColors.glowBlue), child: Center(child: Icon(Icons.person_rounded, color: Colors.white, size: 20))),
+      SizedBox(height: 4),
+      Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.white.withOpacity(0.15), width: 0.5)), child: Text('YOU', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.0))),
     ]);
   }
 
@@ -207,20 +207,20 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
   Widget _infoCard() {
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
+      decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
       child: Row(children: [
-        Container(width: 48, height: 48, decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.12), shape: BoxShape.circle, border: Border.all(color: AegisColors.neonGreen.withOpacity(0.2), width: 1)), child: const Center(child: Icon(Icons.shield_outlined, color: AegisColors.neonGreen, size: 22))),
-        const SizedBox(width: 16),
+        Container(width: 48, height: 48, decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.12), shape: BoxShape.circle, border: Border.all(color: AegisColors.neonGreen.withOpacity(0.2), width: 1)), child: Center(child: Icon(Icons.shield_outlined, color: AegisColors.neonGreen, size: 22))),
+        SizedBox(width: 16),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.1), borderRadius: BorderRadius.circular(4)), child: const Text('SAFE ZONE', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AegisColors.neonGreen, letterSpacing: 0.5))),
+            Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.1), borderRadius: BorderRadius.circular(4)), child: Text('SAFE ZONE', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AegisColors.neonGreen, letterSpacing: 0.5))),
           ]),
-          const SizedBox(height: 6),
-          const Text('Lake View Park', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.2)),
-          const SizedBox(height: 4),
+          SizedBox(height: 6),
+          Text('Lake View Park', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.2)),
+          SizedBox(height: 4),
           Text('12 km away • 15 people', style: TextStyle(fontSize: 12, color: AegisColors.textSecondary.withOpacity(0.8))),
         ])),
-        Container(width: 32, height: 32, decoration: BoxDecoration(color: AegisColors.border1.withOpacity(0.3), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.chevron_right, color: AegisColors.textSecondary, size: 18)),
+        Container(width: 32, height: 32, decoration: BoxDecoration(color: AegisColors.border1.withOpacity(0.3), borderRadius: BorderRadius.circular(8)), child: Icon(Icons.chevron_right, color: AegisColors.textSecondary, size: 18)),
       ]),
     );
   }

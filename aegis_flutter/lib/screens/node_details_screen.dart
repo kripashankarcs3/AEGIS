@@ -14,10 +14,10 @@ class NodeDetailsScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF090D16),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Node Details',
           style: TextStyle(
             fontSize: 18.0,
@@ -27,7 +27,7 @@ class NodeDetailsScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
+            icon: Icon(Icons.more_vert, color: Colors.white),
             onPressed: () {},
           ),
         ],
@@ -61,7 +61,7 @@ class NodeDetailsScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 14.0),
+                    SizedBox(width: 14.0),
                     // ID & status details
                     Expanded(
                       child: Column(
@@ -71,13 +71,13 @@ class NodeDetailsScreen extends StatelessWidget {
                             children: [
                               Text(
                                 nodeId,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(width: 8.0),
+                              SizedBox(width: 8.0),
                               // Online Badge status
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
@@ -96,8 +96,8 @@ class NodeDetailsScreen extends StatelessWidget {
                                         shape: BoxShape.circle,
                                       ),
                                     ),
-                                    const SizedBox(width: 4.0),
-                                    const Text(
+                                    SizedBox(width: 4.0),
+                                    Text(
                                       'Online',
                                       style: TextStyle(
                                         color: AegisColors.neonGreen,
@@ -110,17 +110,17 @@ class NodeDetailsScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4.0),
+                          SizedBox(height: 4.0),
                           Row(
                             children: [
-                              const Text(
+                              Text(
                                 '2 hops away',
                                 style: TextStyle(
                                   color: AegisColors.textSecondary,
                                   fontSize: 11.5,
                                 ),
                               ),
-                              const SizedBox(width: 8.0),
+                              SizedBox(width: 8.0),
                               // Trusted badge
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
@@ -128,7 +128,7 @@ class NodeDetailsScreen extends StatelessWidget {
                                   color: AegisColors.violet.withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(4.0),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'Trusted',
                                   style: TextStyle(
                                     color: AegisColors.violet,
@@ -145,7 +145,7 @@ class NodeDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 16.0),
+              SizedBox(height: 16.0),
 
               // 2. Metrics Statistics Card List
               Container(
@@ -161,7 +161,7 @@ class NodeDetailsScreen extends StatelessWidget {
                       label: 'Signal Strength',
                       valueWidget: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
+                        children: [
                           Text(
                             'Strong',
                             style: TextStyle(color: AegisColors.neonGreen, fontWeight: FontWeight.bold, fontSize: 13.0),
@@ -189,7 +189,7 @@ class NodeDetailsScreen extends StatelessWidget {
                       label: 'Battery',
                       valueWidget: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
+                        children: [
                           Text(
                             '78%',
                             style: TextStyle(color: Colors.white, fontSize: 13.0),
@@ -205,7 +205,7 @@ class NodeDetailsScreen extends StatelessWidget {
                       label: 'Trust Score',
                       valueWidget: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
+                        children: [
                           Text(
                             '92%',
                             style: TextStyle(color: Colors.white, fontSize: 13.0),
@@ -248,7 +248,7 @@ class NodeDetailsScreen extends StatelessWidget {
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             Icon(Icons.chat_bubble_outline_rounded, color: Colors.white, size: 16.0),
                             SizedBox(width: 8.0),
                             Text(
@@ -260,7 +260,7 @@ class NodeDetailsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12.0),
+                  SizedBox(width: 12.0),
                   // Share Location
                   Expanded(
                     child: Container(
@@ -272,7 +272,7 @@ class NodeDetailsScreen extends StatelessWidget {
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(Icons.share_location_rounded, color: AegisColors.neonGreen, size: 16.0),
                           SizedBox(width: 8.0),
                           Text(
@@ -285,7 +285,7 @@ class NodeDetailsScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12.0),
+              SizedBox(height: 12.0),
               // View on Map
               GestureDetector(
                 onTap: () {
@@ -302,7 +302,7 @@ class NodeDetailsScreen extends StatelessWidget {
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Icon(Icons.map_outlined, color: Colors.white, size: 16.0),
                       SizedBox(width: 8.0),
                       Text(
@@ -334,10 +334,10 @@ class NodeDetailsScreen extends StatelessWidget {
           Row(
             children: [
               Icon(icon, color: AegisColors.textSecondary, size: 18.0),
-              const SizedBox(width: 10.0),
+              SizedBox(width: 10.0),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AegisColors.textSecondary,
                   fontSize: 13.0,
                 ),
@@ -348,7 +348,7 @@ class NodeDetailsScreen extends StatelessWidget {
           if (valueText != null)
             Text(
               valueText,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 13.0,

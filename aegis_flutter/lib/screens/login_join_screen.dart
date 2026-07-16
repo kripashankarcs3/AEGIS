@@ -198,7 +198,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // A. Header Text Block (around 100px from top)
-                    const SizedBox(height: 40.0),
+                    SizedBox(height: 40.0),
                     FadeTransition(
                       opacity: _titleFade,
                       child: AnimatedBuilder(
@@ -206,7 +206,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         builder: (context, child) {
                           return Transform.translate(
                             offset: Offset(0, _titleSlide.value),
-                            child: const Text(
+                            child: Text(
                               'Join the Network',
                               style: TextStyle(
                                 fontSize: 40.0,
@@ -219,7 +219,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         },
                       ),
                     ),
-                    const SizedBox(height: 14.0), // Spacing 14px below title
+                    SizedBox(height: 14.0), // Spacing 14px below title
                     FadeTransition(
                       opacity: _subtitleFade,
                       child: AnimatedBuilder(
@@ -227,7 +227,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         builder: (context, child) {
                           return Transform.translate(
                             offset: Offset(0, _subtitleSlide.value),
-                            child: const Text(
+                            child: Text(
                               'Choose a way to continue',
                               style: TextStyle(
                                 fontSize: 18.0,
@@ -240,7 +240,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         },
                       ),
                     ),
-                    const SizedBox(height: 52.0),
+                    SizedBox(height: 52.0),
 
                     // B. Reusable Buttons Block
                     // Primary Hero Button (Continue with Phone)
@@ -262,7 +262,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24.0), // Spacing 24px between Phone & QR buttons
+                    SizedBox(height: 24.0), // Spacing 24px between Phone & QR buttons
 
                     // Secondary Glass Button (Scan QR Code)
                     FadeTransition(
@@ -283,7 +283,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20.0), // Spacing 20px between QR & Guest buttons
+                    SizedBox(height: 20.0), // Spacing 20px between QR & Guest buttons
 
                     // Tertiary Glass Button (Join as Guest)
                     FadeTransition(
@@ -304,7 +304,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         ),
                       ),
                     ),
-                    const SizedBox(height: 48.0),
+                    SizedBox(height: 48.0),
 
                     // C. Offline Warning Notice (placed near lower third)
                     FadeTransition(
@@ -318,16 +318,16 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                               children: [
                                 Opacity(
                                   opacity: 0.70,
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.portable_wifi_off_rounded,
                                     color: Color(0xFFA8B3C7),
                                     size: 26.0,
                                   ),
                                 ),
-                                const SizedBox(height: 12.0),
+                                SizedBox(height: 12.0),
                                 Opacity(
                                   opacity: 0.78,
-                                  child: const Text(
+                                  child: Text(
                                     'No Internet? No problem.\nAEGIS works offline.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
@@ -431,7 +431,7 @@ class _FuturisticGradientButtonState extends State<FuturisticGradientButton> wit
               height: 60.0,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(18.0),
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   colors: [
                     Color(0xFF7B3EFF), // Left Purple
                     Color(0xFF256DFF), // Right Blue
@@ -479,7 +479,7 @@ class _FuturisticGradientButtonState extends State<FuturisticGradientButton> wit
                   Center(
                     child: Text(
                       widget.label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 18.0,
                         fontWeight: FontWeight.w600,
@@ -596,7 +596,7 @@ class _FuturisticGlassButtonState extends State<FuturisticGlassButton> with Sing
                     Center(
                       child: Text(
                         widget.label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 18.0,
                           fontWeight: FontWeight.w600,

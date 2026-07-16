@@ -13,7 +13,7 @@ class ResourceCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]),
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5),
         boxShadow: AegisColors.cardShadow,
@@ -22,27 +22,27 @@ class ResourceCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
           Container(width: 44, height: 44, decoration: BoxDecoration(color: item.color.withOpacity(0.12), shape: BoxShape.circle, border: Border.all(color: item.color.withOpacity(0.2), width: 1)), child: Icon(item.icon, color: item.color, size: 20)),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(item.title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.2)),
-            const SizedBox(height: 2),
-            Text(item.detail, style: const TextStyle(fontSize: 12, color: AegisColors.textSecondary)),
-            const SizedBox(height: 6),
+            Text(item.title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.2)),
+            SizedBox(height: 2),
+            Text(item.detail, style: TextStyle(fontSize: 12, color: AegisColors.textSecondary)),
+            SizedBox(height: 6),
             Row(children: [
-              const Icon(Icons.sensors_rounded, size: 10, color: AegisColors.textMuted),
-              const SizedBox(width: 4),
-              Text('${item.nodeId}', style: const TextStyle(fontSize: 10, color: AegisColors.textMuted, fontWeight: FontWeight.w500)),
-              const SizedBox(width: 8),
-              Text('${item.hops} hop${item.hops > 1 ? 's' : ''}', style: const TextStyle(fontSize: 10, color: AegisColors.textMuted)),
+              Icon(Icons.sensors_rounded, size: 10, color: AegisColors.textMuted),
+              SizedBox(width: 4),
+              Text('${item.nodeId}', style: TextStyle(fontSize: 10, color: AegisColors.textMuted, fontWeight: FontWeight.w500)),
+              SizedBox(width: 8),
+              Text('${item.hops} hop${item.hops > 1 ? 's' : ''}', style: TextStyle(fontSize: 10, color: AegisColors.textMuted)),
             ]),
           ])),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           GestureDetector(
             onTap: onReplyTap,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.1), borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.neonGreen.withOpacity(0.25), width: 0.5)),
-              child: Text(actionLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AegisColors.neonGreen)),
+              child: Text(actionLabel, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AegisColors.neonGreen)),
             ),
           ),
         ]),

@@ -13,6 +13,7 @@ class AegisApp extends StatelessWidget {
         builder: (context) {
           final provider = ThemeProviderWidget.of(context);
           return MaterialApp(
+            key: ValueKey(provider.mode),
             title: 'AEGIS Mesh',
             debugShowCheckedModeBanner: false,
             theme: AegisTheme.lightTheme,

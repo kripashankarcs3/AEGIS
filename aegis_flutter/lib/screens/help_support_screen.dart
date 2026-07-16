@@ -12,10 +12,10 @@ class HelpSupportScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF090D16),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Help & Support',
           style: TextStyle(
             fontSize: 18.0,
@@ -49,7 +49,7 @@ class HelpSupportScreen extends StatelessWidget {
                         width: 1.0,
                       ),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Icon(
                         Icons.headset_mic_rounded,
                         color: AegisColors.neonGreen,
@@ -57,11 +57,11 @@ class HelpSupportScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16.0),
+                  SizedBox(width: 16.0),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           "We're here to help!",
                           style: TextStyle(
@@ -85,10 +85,10 @@ class HelpSupportScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24.0),
+            SizedBox(height: 24.0),
 
             // 2. Help Center Section
-            const Text(
+            Text(
               'Help Center',
               style: TextStyle(
                 fontSize: 10.5,
@@ -97,7 +97,7 @@ class HelpSupportScreen extends StatelessWidget {
                 letterSpacing: 0.5,
               ),
             ),
-            const SizedBox(height: 10.0),
+            SizedBox(height: 10.0),
             Container(
               decoration: BoxDecoration(
                 color: AegisColors.cardBg,
@@ -126,10 +126,10 @@ class HelpSupportScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24.0),
+            SizedBox(height: 24.0),
 
             // 3. Contact Support Section
-            const Text(
+            Text(
               'Contact Support',
               style: TextStyle(
                 fontSize: 10.5,
@@ -138,7 +138,7 @@ class HelpSupportScreen extends StatelessWidget {
                 letterSpacing: 0.5,
               ),
             ),
-            const SizedBox(height: 10.0),
+            SizedBox(height: 10.0),
             Container(
               decoration: BoxDecoration(
                 color: AegisColors.cardBg,
@@ -186,22 +186,22 @@ class HelpSupportScreen extends StatelessWidget {
           Row(
             children: [
               Icon(icon, color: AegisColors.textSecondary, size: 18.0),
-              const SizedBox(width: 14.0),
+              SizedBox(width: 14.0),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 13.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 3.0),
+                  SizedBox(height: 3.0),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AegisColors.textSecondary,
                       fontSize: 11.0,
                     ),
@@ -210,7 +210,7 @@ class HelpSupportScreen extends StatelessWidget {
               ),
             ],
           ),
-          const Icon(Icons.chevron_right, size: 14.0, color: AegisColors.textMuted),
+          Icon(Icons.chevron_right, size: 14.0, color: AegisColors.textMuted),
         ],
       ),
     );

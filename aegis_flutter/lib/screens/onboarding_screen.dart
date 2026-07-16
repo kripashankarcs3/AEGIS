@@ -200,7 +200,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                             builder: (context, child) {
                               return Transform.translate(
                                 offset: Offset(0, _line1Slide.value),
-                                  child: const Text(
+                                  child: Text(
                                     'Welcome to',
                                     style: TextStyle(
                                       fontSize: 30.0,
@@ -213,7 +213,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                             },
                           ),
                         ),
-                        const SizedBox(height: 4.0),
+                        SizedBox(height: 4.0),
                         FadeTransition(
                           opacity: _line2Fade,
                           child: AnimatedBuilder(
@@ -226,7 +226,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                   children: [
                                     // Slight glow layer behind title
                                     ShaderMask(
-                                      shaderCallback: (bounds) => const LinearGradient(
+                                      shaderCallback: (bounds) => LinearGradient(
                                         colors: [
                                           Color(0xFF7B3EFF), // Purple
                                           Color(0xFF256DFF), // Blue
@@ -246,14 +246,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                     ),
                                     // Sharp front text
                                     ShaderMask(
-                                      shaderCallback: (bounds) => const LinearGradient(
+                                      shaderCallback: (bounds) => LinearGradient(
                                         colors: [
                                           Color(0xFF7B3EFF),
                                           Color(0xFF256DFF),
                                           Color(0xFF27D8FF),
                                         ],
                                       ).createShader(bounds),
-                                      child: const Text(
+                                      child: Text(
                                         'AEGIS',
                                         style: TextStyle(
                                           fontSize: 42.0,
@@ -272,7 +272,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6.0),
+                    SizedBox(height: 6.0),
 
                     // B. Subtitle Block
                     FadeTransition(
@@ -283,7 +283,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                           return Transform.translate(
                             offset: Offset(0, _subtitleSlide.value),
                             child: Column(
-                              children: const [
+                              children: [
                                 Text(
                                   'Stay connected.',
                                   style: TextStyle(
@@ -322,7 +322,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         },
                       ),
                     ),
-                    const SizedBox(height: 16.0),
+                    SizedBox(height: 16.0),
 
                     // C. HERO Center Orbital Graphic (occupies ~72% of width)
                     FadeTransition(
@@ -353,7 +353,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20.0),
+                    SizedBox(height: 20.0),
 
                     // D. Premium Feature List Card
                     FadeTransition(
@@ -369,7 +369,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         child: _buildFeatureCard(featureRotateAngle),
                       ),
                     ),
-                    const SizedBox(height: 16.0),
+                    SizedBox(height: 16.0),
 
                     // E. Action Navigation Button
                     FuturisticButton(
@@ -487,24 +487,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
             ),
           ),
         ),
-            const SizedBox(width: 14.0),
+            SizedBox(width: 14.0),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15.0,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                   fontFamily: 'SF Pro Display',
                 ),
               ),
-              const SizedBox(height: 2.0),
+              SizedBox(height: 2.0),
               Text(
                 subtitle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13.0,
                   fontWeight: FontWeight.w400,
                   color: Color(0xFFA8B3C7),
@@ -733,7 +733,7 @@ class OrbitalBackdropPainter extends CustomPainter {
         height: ry * 2 * f,
       );
       final ringPaint = Paint()
-        ..shader = const LinearGradient(
+        ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
@@ -891,7 +891,7 @@ class _FuturisticButtonState extends State<FuturisticButton> with TickerProvider
                   height: 52.0,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(18.0),
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
@@ -930,7 +930,7 @@ class _FuturisticButtonState extends State<FuturisticButton> with TickerProvider
                       Center(
                         child: Text(
                           widget.text,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 15.0,
                             fontWeight: FontWeight.bold,

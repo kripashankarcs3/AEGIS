@@ -19,10 +19,10 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
         backgroundColor: const Color(0xFF090D16),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Status & History',
           style: TextStyle(
             fontSize: 18.0,
@@ -32,7 +32,7 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.sort_rounded, color: Colors.white, size: 22.0),
+            icon: Icon(Icons.sort_rounded, color: Colors.white, size: 22.0),
             onPressed: () {},
           ),
         ],
@@ -61,7 +61,7 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                         color: Color(0xFF064E3B),
                         shape: BoxShape.circle,
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Icon(
                           Icons.verified_user_rounded,
                           color: AegisColors.neonGreen,
@@ -69,12 +69,12 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 14.0),
+                    SizedBox(width: 14.0),
                     // Status texts
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             'My Status',
                             style: TextStyle(
@@ -104,13 +104,13 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                     ),
                     // Edit pencil icon
                     IconButton(
-                      icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 18.0),
+                      icon: Icon(Icons.edit_outlined, color: Colors.white, size: 18.0),
                       onPressed: () {},
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20.0),
+              SizedBox(height: 20.0),
 
               // 2. Tabs Row
               Row(
@@ -120,10 +120,10 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                   _buildTabItem(2, 'History'),
                 ],
               ),
-              const SizedBox(height: 16.0),
+              SizedBox(height: 16.0),
 
               // 3. Recent Activity list
-              const Text(
+              Text(
                 'RECENT ACTIVITY',
                 style: TextStyle(
                   fontSize: 9.5,
@@ -132,7 +132,7 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                   letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 10.0),
+              SizedBox(height: 10.0),
               Expanded(
                 child: ListView(
                   children: [
@@ -196,7 +196,7 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                 child: InkWell(
                   onTap: () {},
                   borderRadius: BorderRadius.circular(6.0),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       'View Full History',
                       style: TextStyle(
@@ -274,7 +274,7 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
               size: 16.0,
             ),
           ),
-          const SizedBox(width: 14.0),
+          SizedBox(width: 14.0),
 
           // Node ID & Status Text
           Expanded(
@@ -282,13 +282,13 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
               children: [
                 Text(
                   nodeId,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(width: 14.0),
+                SizedBox(width: 14.0),
                 Text(
                   status,
                   style: TextStyle(
@@ -307,15 +307,15 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
             children: [
               Text(
                 time,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10.0,
                   color: AegisColors.textMuted,
                 ),
               ),
-              const SizedBox(height: 2.0),
+              SizedBox(height: 2.0),
               Text(
                 hops,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10.0,
                   color: AegisColors.textSecondary,
                 ),

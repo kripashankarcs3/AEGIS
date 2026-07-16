@@ -1,7 +1,5 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../constants/aegis_colors.dart';
-import '../constants/aegis_styles.dart';
 import '../providers/theme_provider.dart';
 import 'auto_sync_screen.dart';
 import 'language_screen.dart';
@@ -41,7 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           child: IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back_rounded,
               color: Colors.white,
               size: 20,
@@ -49,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
-        title: const Text(
+        title: Text(
           'Settings',
           style: TextStyle(
             fontSize: 24.0,
@@ -66,7 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           children: [
             // 0. APPEARANCE SECTION
-            const Text(
+            Text(
               'APPEARANCE',
               style: TextStyle(
                 fontSize: 12.0,
@@ -76,7 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fontFamily: 'SF Pro Display',
               ),
             ),
-            const SizedBox(height: 12.0),
+            SizedBox(height: 12.0),
             _buildCardSection([
               _buildThemeOption(
                 icon: Icons.brightness_auto_rounded,
@@ -99,10 +97,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () => themeProvider.setMode(AppThemeMode.dark),
               ),
             ]),
-            const SizedBox(height: 28.0),
+            SizedBox(height: 28.0),
 
             // 1. GENERAL SECTION
-            const Text(
+            Text(
               'GENERAL',
               style: TextStyle(
                 fontSize: 12.0,
@@ -112,7 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fontFamily: 'SF Pro Display',
               ),
             ),
-            const SizedBox(height: 12.0),
+            SizedBox(height: 12.0),
             _buildCardSection([
               _buildNavRow(
                 icon: Icons.sensors_outlined,
@@ -170,10 +168,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ]),
-            const SizedBox(height: 28.0),
+            SizedBox(height: 28.0),
 
             // 2. NETWORK SECTION
-            const Text(
+            Text(
               'NETWORK',
               style: TextStyle(
                 fontSize: 12.0,
@@ -183,7 +181,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fontFamily: 'SF Pro Display',
               ),
             ),
-            const SizedBox(height: 12.0),
+            SizedBox(height: 12.0),
             _buildCardSection([
               _buildToggleRow(
                 icon: Icons.wifi_protected_setup_rounded,
@@ -207,10 +205,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 sublabel: 'Allow other nodes to relay via this device',
               ),
             ]),
-            const SizedBox(height: 28.0),
+            SizedBox(height: 28.0),
 
             // 3. SECURITY SECTION
-            const Text(
+            Text(
               'SECURITY',
               style: TextStyle(
                 fontSize: 12.0,
@@ -220,7 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fontFamily: 'SF Pro Display',
               ),
             ),
-            const SizedBox(height: 12.0),
+            SizedBox(height: 12.0),
             _buildCardSection([
               _buildToggleRow(
                 icon: Icons.lock_outline_rounded,
@@ -229,7 +227,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (v) => setState(() => _lockApp = v),
               ),
             ]),
-            const SizedBox(height: 120.0),
+            SizedBox(height: 120.0),
           ],
         ),
       ),
@@ -287,7 +285,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     size: 16,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Text(
                   label,
                   style: TextStyle(
@@ -315,7 +313,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     : Colors.transparent,
               ),
               child: selected
-                  ? const Icon(Icons.check, size: 12, color: Colors.white)
+                  ? Icon(Icons.check, size: 12, color: Colors.white)
                   : null,
             ),
           ],
@@ -359,10 +357,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     size: 16,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -383,7 +381,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     fontFamily: 'SF Pro Display',
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Icon(
                   Icons.chevron_right_rounded,
                   size: 18,
@@ -432,10 +430,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       size: 16,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
@@ -455,7 +453,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
           if (sublabel != null) ...[
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Padding(
               padding: const EdgeInsets.only(left: 44.0),
               child: Text(
@@ -551,7 +549,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: Colors.white.withOpacity(0.4),
               size: 22,
             ),
-            const SizedBox(height: 3),
+            SizedBox(height: 3),
             Text(
               label,
               style: TextStyle(
@@ -579,7 +577,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             height: 52,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
@@ -599,7 +597,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 width: 1,
               ),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'SOS',
                 style: TextStyle(

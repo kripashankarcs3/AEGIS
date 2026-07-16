@@ -23,7 +23,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
   late Animation<double> _sosScale;
   late Animation<double> _glowAnim;
 
-  final List<Widget> _screens = const [
+  final List<Widget> _screens = [
     RadarScreen(),
     ChatScreen(),
     SosScreen(),
@@ -131,7 +131,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
                       )
                     : Icon(icon, color: AegisColors.textMuted, size: 22),
               ),
-              const SizedBox(height: 3),
+              SizedBox(height: 3),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 250),
                 style: TextStyle(

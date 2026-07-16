@@ -12,7 +12,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   int _selectedAudience = 1; // Default to Nearby Devices
   int _selectedPriority = 2; // Default to High
 
-  final List<Map<String, String>> _audiences = const [
+  final List<Map<String, String>> _audiences = [
     {'title': 'Everyone', 'sub': 'All nodes in range'},
     {'title': 'Nearby Devices', 'sub': 'Within 3 hops'},
     {'title': 'Medical Volunteers', 'sub': 'Only verified'},
@@ -28,10 +28,10 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
         backgroundColor: const Color(0xFF090D16),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Broadcast',
           style: TextStyle(
             fontSize: 18.0,
@@ -41,7 +41,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 22.0),
+            icon: Icon(Icons.info_outline_rounded, color: Colors.white, size: 22.0),
             onPressed: () {},
           ),
         ],
@@ -66,7 +66,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'Broadcast Message',
                               style: TextStyle(
@@ -87,7 +87,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 12.0),
+                      SizedBox(width: 12.0),
                       Container(
                         width: 38.0,
                         height: 38.0,
@@ -95,7 +95,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                           color: AegisColors.violet.withOpacity(0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.podcasts_rounded,
                           color: AegisColors.violet,
                           size: 20.0,
@@ -104,10 +104,10 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20.0),
+                SizedBox(height: 20.0),
 
                 // 2. Who should receive? Section
-                const Text(
+                Text(
                   'Who should receive?',
                   style: TextStyle(
                     fontSize: 12.0,
@@ -115,7 +115,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     color: AegisColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 10.0),
+                SizedBox(height: 10.0),
                 Container(
                   decoration: BoxDecoration(
                     color: AegisColors.cardBg,
@@ -134,10 +134,10 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     }),
                   ),
                 ),
-                const SizedBox(height: 20.0),
+                SizedBox(height: 20.0),
 
                 // 3. Message Section
-                const Text(
+                Text(
                   'Message',
                   style: TextStyle(
                     fontSize: 12.0,
@@ -145,7 +145,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     color: AegisColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 10.0),
+                SizedBox(height: 10.0),
                 Container(
                   padding: const EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
@@ -155,7 +155,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    children: const [
+                    children: [
                       TextField(
                         maxLines: 3,
                         maxLength: 200,
@@ -176,10 +176,10 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20.0),
+                SizedBox(height: 20.0),
 
                 // 4. Priority Section
-                const Text(
+                Text(
                   'Priority',
                   style: TextStyle(
                     fontSize: 12.0,
@@ -187,7 +187,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     color: AegisColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 10.0),
+                SizedBox(height: 10.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -196,7 +196,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     _buildPriorityButton(2, 'High'),
                   ],
                 ),
-                const SizedBox(height: 32.0),
+                SizedBox(height: 32.0),
 
                 // 5. Send Broadcast Action Button
                 Container(
@@ -216,7 +216,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                   child: InkWell(
                     onTap: () {},
                     borderRadius: BorderRadius.circular(6.0),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         'SEND BROADCAST',
                         style: TextStyle(
@@ -267,7 +267,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                       child: Container(
                         width: 10.0,
                         height: 10.0,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: AegisColors.violet,
                           shape: BoxShape.circle,
                         ),
@@ -275,7 +275,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     )
                   : null,
             ),
-            const SizedBox(width: 12.0),
+            SizedBox(width: 12.0),
             // Title and Subtitle details
             Expanded(
               child: Column(
@@ -283,7 +283,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                 children: [
                   Text(
                     audience['title']!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13.0,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -291,7 +291,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                   ),
                   Text(
                     audience['sub']!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10.5,
                       color: AegisColors.textMuted,
                     ),
@@ -308,7 +308,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                   color: AegisColors.neonGreen,
                   shape: BoxShape.circle,
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.check_rounded,
                     color: Colors.white,
@@ -369,7 +369,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                       )
                     : null,
               ),
-              const SizedBox(width: 8.0),
+              SizedBox(width: 8.0),
               Text(
                 label,
                 style: TextStyle(

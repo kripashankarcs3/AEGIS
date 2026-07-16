@@ -13,9 +13,9 @@ class IdentityScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AegisColors.surface0.withOpacity(0.95),
         elevation: 0,
-        leading: Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)), child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20), onPressed: () => Navigator.of(context).pop())),
-        title: const Text('My Identity'),
-        actions: [Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)), child: IconButton(icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 20), onPressed: () {}))],
+        leading: Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)), child: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white, size: 20), onPressed: () => Navigator.of(context).pop())),
+        title: Text('My Identity'),
+        actions: [Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)), child: IconButton(icon: Icon(Icons.edit_outlined, color: Colors.white, size: 20), onPressed: () {}))],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -23,7 +23,7 @@ class IdentityScreen extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             StaggeredFadeIn(index: 0, child: Container(
               padding: AegisStyles.padCardLg,
-              decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
+decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   Container(
@@ -38,70 +38,70 @@ class IdentityScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    const Text('SIG-8AF3', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3)),
+                    Text('SIG-8AF3', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3)),
                     Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5), decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.1), borderRadius: BorderRadius.circular(8), border: Border.all(color: AegisColors.neonGreen.withOpacity(0.3), width: 0.5)),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         PulseDot(color: AegisColors.neonGreen, size: 6),
-                        const SizedBox(width: 6),
-                        const Text('Active', style: TextStyle(color: AegisColors.neonGreen, fontSize: 11, fontWeight: FontWeight.w700)),
+                        SizedBox(width: 6),
+                        Text('Active', style: TextStyle(color: AegisColors.neonGreen, fontSize: 11, fontWeight: FontWeight.w700)),
                       ])),
                   ])),
                 ]),
-                const SizedBox(height: 24),
-                const Text('PUBLIC KEY', style: AegisStyles.overline),
-                const SizedBox(height: 8),
+                SizedBox(height: 24),
+                Text('PUBLIC KEY', style: AegisStyles.overline),
+                SizedBox(height: 8),
                 Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
                   Expanded(child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(12), border: Border.all(color: AegisColors.border1, width: 0.5)),
-                    child: const Text('7f3a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a', style: TextStyle(fontFamily: 'monospace', fontSize: 11, color: AegisColors.textSecondary, height: 1.5)))),
-                  const SizedBox(width: 10),
-                  Container(width: 40, height: 40, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: const Icon(Icons.copy_rounded, color: AegisColors.textSecondary, size: 18)),
+                    child: Text('7f3a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a', style: TextStyle(fontFamily: 'monospace', fontSize: 11, color: AegisColors.textSecondary, height: 1.5)))),
+                  SizedBox(width: 10),
+                  Container(width: 40, height: 40, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: Icon(Icons.copy_rounded, color: AegisColors.textSecondary, size: 18)),
                 ]),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.08), borderRadius: BorderRadius.circular(12), border: Border.all(color: AegisColors.neonGreen.withOpacity(0.15), width: 0.5)),
                   child: Row(children: [
                     Icon(Icons.check_circle_outline_rounded, color: AegisColors.neonGreen.withOpacity(0.8), size: 18),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Text('Generated locally — never sent to any server.', style: TextStyle(color: AegisColors.neonGreen.withOpacity(0.9), fontSize: 12, fontWeight: FontWeight.w500)),
                   ]),
                 ),
               ]),
             )),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             StaggeredFadeIn(index: 1, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Container(width: 3, height: 16, decoration: BoxDecoration(gradient: AegisColors.primaryGradient, borderRadius: BorderRadius.circular(2))),
-                const SizedBox(width: 10),
-                const Text('SHARE IDENTITY', style: AegisStyles.overline),
+                SizedBox(width: 10),
+                Text('SHARE IDENTITY', style: AegisStyles.overline),
               ]),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Container(
-                padding: AegisStyles.padCardLg, decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
+                padding: AegisStyles.padCardLg, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  Container(width: 110, height: 110, padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.white.withOpacity(0.95), borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 12, offset: const Offset(0, 4))]), child: const Icon(Icons.qr_code_2_rounded, color: Colors.black, size: 94)),
-                  const SizedBox(width: 20),
+                  Container(width: 110, height: 110, padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.white.withOpacity(0.95), borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 12, offset: const Offset(0, 4))]), child: Icon(Icons.qr_code_2_rounded, color: Colors.black, size: 94)),
+                  SizedBox(width: 20),
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Text('Scan to connect', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: -0.2)),
-                    const SizedBox(height: 12),
+                    Text('Scan to connect', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: -0.2)),
+                    SizedBox(height: 12),
                     _detail('LAN IP', '192.168.1.105'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _detail('SIG-ID', 'SIG-8AF3'),
                   ])),
                 ]),
               ),
             ])),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             StaggeredFadeIn(index: 2, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Container(width: 3, height: 16, decoration: BoxDecoration(gradient: AegisColors.cyanGradient, borderRadius: BorderRadius.circular(2))),
-                const SizedBox(width: 10),
-                const Text('MESH STATISTICS (THIS SESSION)', style: AegisStyles.overline),
+                SizedBox(width: 10),
+                Text('MESH STATISTICS (THIS SESSION)', style: AegisStyles.overline),
               ]),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Container(
-                decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(18), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
+                decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(18), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
                 child: Column(children: [
                   _stat(Icons.access_time_rounded, 'Session Uptime', '2h 45m'),
                   _divider(),
@@ -122,8 +122,8 @@ class IdentityScreen extends StatelessWidget {
   Widget _detail(String label, String value) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label, style: TextStyle(color: AegisColors.textSecondary.withOpacity(0.7), fontSize: 10, fontWeight: FontWeight.w600)),
-      const SizedBox(height: 2),
-      Text(value, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
+      SizedBox(height: 2),
+      Text(value, style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
     ]);
   }
 
@@ -131,10 +131,10 @@ class IdentityScreen extends StatelessWidget {
     return Padding(padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Row(mainAxisSize: MainAxisSize.min, children: [
         Container(width: 32, height: 32, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(8)), child: Icon(icon, color: AegisColors.textSecondary, size: 16)),
-        const SizedBox(width: 12),
-        Text(label, style: const TextStyle(color: AegisColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
+        SizedBox(width: 12),
+        Text(label, style: TextStyle(color: AegisColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
       ]),
-      Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
+      Text(value, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
     ]));
   }
 
