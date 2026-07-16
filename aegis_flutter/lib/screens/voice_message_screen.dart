@@ -110,7 +110,7 @@ class VoiceMessageScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
+                      children: [
                         Icon(Icons.keyboard_arrow_up_rounded, color: AegisColors.textSecondary, size: 14.0),
                         SizedBox(width: 4.0),
                         Text(
@@ -126,10 +126,10 @@ class VoiceMessageScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 28.0),
+              SizedBox(height: 28.0),
 
               // 3. Nearby Devices list Section
-              const Text(
+              Text(
                 'Nearby Devices',
                 style: TextStyle(
                   fontSize: 12.0,
@@ -206,7 +206,7 @@ class VoiceMessageScreen extends StatelessWidget {
                   const SizedBox(height: 2.0),
                   Text(
                     hops,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11.0,
                       color: AegisColors.textSecondary,
                     ),

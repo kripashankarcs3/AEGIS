@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
@@ -8,126 +9,370 @@ class IdentityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const String publicKey = 'a1b2c3d4e5f678901234567890abcdef1234567890abcdef12';
+
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: AegisColors.surface0.withOpacity(0.95),
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)), child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20), onPressed: () => Navigator.of(context).pop())),
-        title: const Text('My Identity'),
-        actions: [Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)), child: IconButton(icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 20), onPressed: () {}))],
+        scrolledUnderElevation: 0,
+        leading: Container(
+          margin: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: AegisColors.surface2,
+            shape: BoxShape.circle,
+            border: Border.all(color: AegisColors.border1, width: 0.5),
+          ),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary, size: 18),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
+        title: Text(
+          'My Identity',
+          style: TextStyle(
+            color: AegisColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 14),
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AegisColors.surface2,
+              shape: BoxShape.circle,
+              border: Border.all(color: AegisColors.border1, width: 0.5),
+            ),
+            child: Icon(
+              Icons.verified_user_rounded,
+              color: AegisColors.isLight ? const Color(0xFF5B21B6) : AegisColors.violet,
+              size: 18,
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: AegisStyles.padAll,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            StaggeredFadeIn(index: 0, child: Container(
-              padding: AegisStyles.padCardLg,
-              decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  Container(width: 56, height: 56, decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.violet.withOpacity(0.2), AegisColors.violet.withOpacity(0.05)]), shape: BoxShape.circle, border: Border.all(color: AegisColors.violet.withOpacity(0.2), width: 1.5)), child: const Center(child: Icon(Icons.shield_outlined, color: AegisColors.violet, size: 28))),
-                  const SizedBox(width: 16),
-                  Expanded(child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    const Text('SIG-8AF3', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3)),
-                    Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5), decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.1), borderRadius: BorderRadius.circular(8), border: Border.all(color: AegisColors.neonGreen.withOpacity(0.3), width: 0.5)),
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        PulseDot(color: AegisColors.neonGreen, size: 6),
-                        const SizedBox(width: 6),
-                        const Text('Active', style: TextStyle(color: AegisColors.neonGreen, fontSize: 11, fontWeight: FontWeight.w700)),
-                      ])),
-                  ])),
-                ]),
-                const SizedBox(height: 24),
-                const Text('PUBLIC KEY', style: AegisStyles.overline),
-                const SizedBox(height: 8),
-                Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  Expanded(child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(12), border: Border.all(color: AegisColors.border1, width: 0.5)),
-                    child: const Text('7f3a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a9c2d8b6e4f1a', style: TextStyle(fontFamily: 'monospace', fontSize: 11, color: AegisColors.textSecondary, height: 1.5)))),
-                  const SizedBox(width: 10),
-                  Container(width: 40, height: 40, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: const Icon(Icons.copy_rounded, color: AegisColors.textSecondary, size: 18)),
-                ]),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.08), borderRadius: BorderRadius.circular(12), border: Border.all(color: AegisColors.neonGreen.withOpacity(0.15), width: 0.5)),
-                  child: Row(children: [
-                    Icon(Icons.check_circle_outline_rounded, color: AegisColors.neonGreen.withOpacity(0.8), size: 18),
-                    const SizedBox(width: 12),
-                    Text('Generated locally — never sent to any server.', style: TextStyle(color: AegisColors.neonGreen.withOpacity(0.9), fontSize: 12, fontWeight: FontWeight.w500)),
-                  ]),
-                ),
-              ]),
-            )),
-            const SizedBox(height: 32),
-            StaggeredFadeIn(index: 1, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                Container(width: 3, height: 16, decoration: BoxDecoration(gradient: AegisColors.primaryGradient, borderRadius: BorderRadius.circular(2))),
-                const SizedBox(width: 10),
-                const Text('SHARE IDENTITY', style: AegisStyles.overline),
-              ]),
-              const SizedBox(height: 16),
-              Container(
-                padding: AegisStyles.padCardLg, decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
-                child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  Container(width: 110, height: 110, padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.white.withOpacity(0.95), borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 12, offset: const Offset(0, 4))]), child: const Icon(Icons.qr_code_2_rounded, color: Colors.black, size: 94)),
-                  const SizedBox(width: 20),
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Text('Scan to connect', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: -0.2)),
-                    const SizedBox(height: 12),
-                    _detail('LAN IP', '192.168.1.105'),
-                    const SizedBox(height: 8),
-                    _detail('SIG-ID', 'SIG-8AF3'),
-                  ])),
-                ]),
-              ),
-            ])),
-            const SizedBox(height: 32),
-            StaggeredFadeIn(index: 2, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                Container(width: 3, height: 16, decoration: BoxDecoration(gradient: AegisColors.cyanGradient, borderRadius: BorderRadius.circular(2))),
-                const SizedBox(width: 10),
-                const Text('MESH STATISTICS (THIS SESSION)', style: AegisStyles.overline),
-              ]),
-              const SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]), borderRadius: BorderRadius.circular(18), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5), boxShadow: AegisColors.cardShadow),
-                child: Column(children: [
-                  _stat(Icons.access_time_rounded, 'Session Uptime', '2h 45m'),
-                  _divider(),
-                  _stat(Icons.sync_alt_rounded, 'Total Relayed', '1,248 packets'),
-                  _divider(),
-                  _stat(Icons.sensors_rounded, 'Nodes Discovered', '8'),
-                  _divider(),
-                  _stat(Icons.cancel_presentation_rounded, 'Packets Dropped', '23'),
-                ]),
-              ),
-            ])),
-          ]),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              StaggeredFadeIn(index: 0, child: _profileCard(context)),
+              const SizedBox(height: 28),
+              StaggeredFadeIn(index: 1, child: _publicKeySection(context, publicKey)),
+              const SizedBox(height: 28),
+              StaggeredFadeIn(index: 2, child: _securitySection()),
+              const SizedBox(height: 28),
+              StaggeredFadeIn(index: 3, child: _infoBox()),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _detail(String label, String value) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: TextStyle(color: AegisColors.textSecondary.withOpacity(0.7), fontSize: 10, fontWeight: FontWeight.w600)),
-      const SizedBox(height: 2),
-      Text(value, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
-    ]);
+  Widget _profileCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AegisColors.cardBg,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AegisColors.border1, width: 0.5),
+        boxShadow: AegisColors.cardShadow,
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: AegisColors.isLight ? const Color(0xFFEDE9FE) : const Color(0xFF1E1B4B),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.person_rounded,
+                    color: AegisColors.isLight ? const Color(0xFF6D28D9) : AegisColors.violet,
+                    size: 26,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'SIG-7F3A',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: AegisColors.textPrimary,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () {
+                                Clipboard.setData(const ClipboardData(text: 'SIG-7F3A'));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Node ID copied to clipboard')),
+                                );
+                              },
+                              child: Icon(Icons.copy_rounded, color: AegisColors.textMuted, size: 14),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AegisColors.neonGreen.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AegisColors.neonGreen.withOpacity(0.2), width: 0.5),
+                          ),
+                          child: Text(
+                            'Active & Trusted',
+                            style: TextStyle(
+                              color: AegisColors.neonGreen,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '2 hops away • via SIG-B2C1',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AegisColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Container(
+            height: 0.5,
+            color: AegisColors.border1.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Member since',
+                style: TextStyle(fontSize: 12, color: AegisColors.textSecondary, fontWeight: FontWeight.w500),
+              ),
+              Text(
+                '12 May 2024',
+                style: TextStyle(fontSize: 12, color: AegisColors.textPrimary, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget _stat(IconData icon, String label, String value) {
-    return Padding(padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Row(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 32, height: 32, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(8)), child: Icon(icon, color: AegisColors.textSecondary, size: 16)),
-        const SizedBox(width: 12),
-        Text(label, style: const TextStyle(color: AegisColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
-      ]),
-      Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
-    ]));
+  Widget _publicKeySection(BuildContext context, String key) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(width: 8),
+            Text(
+              'IDENTITY KEY',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: key));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Public key copied to clipboard')),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AegisColors.isLight ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AegisColors.border1, width: 0.5),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Public Key (Tap to copy)',
+                      style: TextStyle(fontSize: 11, color: AegisColors.textSecondary, fontWeight: FontWeight.w600),
+                    ),
+                    Icon(Icons.copy_rounded, color: AegisColors.textMuted, size: 14),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  key,
+                  style: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                    color: AegisColors.textPrimary,
+                    height: 1.5,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _securitySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(width: 8),
+            Text(
+              'SECURITY',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: AegisColors.cardBg,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AegisColors.border1, width: 0.5),
+            boxShadow: AegisColors.cardShadow,
+          ),
+          child: Column(
+            children: [
+              _securityRow('Key Type', 'Ed25519', isStatus: false),
+              _divider(),
+              _securityRow('Signature', 'Valid', isStatus: true, statusColor: AegisColors.neonGreen, icon: Icons.check_circle_outline_rounded),
+              _divider(),
+              _securityRow('Key Created', '12 May 2024', isStatus: false),
+              _divider(),
+              _securityRow('Last Rotated', 'Never', isStatus: false),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _securityRow(String label, String value, {bool isStatus = false, Color? statusColor, IconData? icon}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(color: AegisColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, color: statusColor, size: 15),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                value,
+                style: TextStyle(
+                  color: isStatus ? statusColor : AegisColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoBox() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AegisColors.isLight ? const Color(0xFFF5F3FF) : const Color(0xFF1E152A),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AegisColors.isLight ? const Color(0xFFDDD6FE) : AegisColors.violet.withOpacity(0.15),
+          width: 0.5,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.help_outline_rounded,
+            color: AegisColors.isLight ? const Color(0xFF6D28D9) : AegisColors.violet,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'What is SIG-ID?',
+                  style: TextStyle(
+                    color: AegisColors.isLight ? const Color(0xFF5B21B6) : AegisColors.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Your SIG-ID is derived from your public key. It is your unique identity in the mesh network.',
+                  style: TextStyle(
+                    color: AegisColors.isLight ? const Color(0xFF6D28D9).withOpacity(0.85) : AegisColors.textSecondary,
+                    fontSize: 12,
+                    height: 1.4,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _divider() {
-    return Container(margin: const EdgeInsets.symmetric(horizontal: 18), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 18),
+      height: 0.5,
+      color: AegisColors.border1.withOpacity(0.5),
+    );
   }
 }

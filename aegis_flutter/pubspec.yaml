@@ -54,6 +54,10 @@ dependencies:
   # Utilities
   uuid: ^4.1.0
   
+  # Profile Image Picker & File System
+  image_picker: ^1.0.7
+  path_provider: ^2.1.2
+  
   # Cupertino Icons
   cupertino_icons: ^1.0.8
 
@@ -68,6 +72,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   
-  # Assets for audio files (SOS alarm)
+  # Assets for audio files (SOS alarm) and images
   assets:
     - assets/sounds/
+    - assets/images/logo.png

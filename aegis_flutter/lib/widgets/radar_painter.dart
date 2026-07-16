@@ -21,7 +21,7 @@ class RadarBackgroundPainter extends CustomPainter {
   }
 
   void _drawBgGlow(Canvas canvas, Offset c, double maxR) {
-    final g = Paint()..shader = RadialGradient(colors: [AegisColors.electricBlue.withOpacity(0.03 + 0.02 * sin(pulseValue * pi * 2)), Colors.transparent], stops: const [0.3, 1.0]).createShader(Rect.fromCircle(center: c, radius: maxR));
+    final g = Paint()..shader = RadialGradient(colors: [AegisColors.electricBlue.withOpacity(0.03 + 0.02 * sin(pulseValue * pi * 2)), Colors.transparent], stops: [0.3, 1.0]).createShader(Rect.fromCircle(center: c, radius: maxR));
     canvas.drawCircle(c, maxR * 0.7, g);
   }
 
@@ -29,19 +29,19 @@ class RadarBackgroundPainter extends CustomPainter {
     for (int i = 0; i < 4; i++) {
       final r = maxR * (0.25 * (i + 1));
       final p = Paint()
-        ..color = Color.lerp(const Color(0xFF00E5FF), const Color(0xFF0088FF), i / 3)!.withOpacity(0.06 + 0.04 * sin(pulseValue * pi * 2 + i * 1.2))
+        ..color = Color.lerp(const Color(0xFF00E5FF), const Color(0xFF0088FF), i / 3)!.withOpacity(AegisColors.isLight ? (0.16 + 0.04 * sin(pulseValue * pi * 2 + i * 1.2)) : (0.06 + 0.04 * sin(pulseValue * pi * 2 + i * 1.2)))
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.0 - i * 0.15;
       canvas.drawCircle(c, r, p);
       final gp = Paint()
-        ..color = const Color(0xFF00E5FF).withOpacity(0.01 * (i + 1))
+        ..color = (AegisColors.isLight ? const Color(0xFF0088FF) : const Color(0xFF00E5FF)).withOpacity(AegisColors.isLight ? (0.025 * (i + 1)) : (0.01 * (i + 1)))
         ..style = PaintingStyle.fill;
       canvas.drawCircle(c, r, gp);
     }
   }
 
   void _drawCrosshairs(Canvas canvas, Offset c, double maxR) {
-    final p = Paint()..color = const Color(0xFF00E5FF).withOpacity(0.06)..strokeWidth = 0.3;
+    final p = Paint()..color = (AegisColors.isLight ? const Color(0xFF0088FF) : const Color(0xFF00E5FF)).withOpacity(AegisColors.isLight ? 0.15 : 0.06)..strokeWidth = 0.3;
 
     canvas.drawLine(Offset(c.dx - maxR, c.dy), Offset(c.dx + maxR, c.dy), p);
     canvas.drawLine(Offset(c.dx, c.dy - maxR), Offset(c.dx, c.dy + maxR), p);
@@ -49,7 +49,7 @@ class RadarBackgroundPainter extends CustomPainter {
     canvas.drawLine(Offset(c.dx - maxR * 0.707, c.dy - maxR * 0.707), Offset(c.dx + maxR * 0.707, c.dy + maxR * 0.707), p);
     canvas.drawLine(Offset(c.dx - maxR * 0.707, c.dy + maxR * 0.707), Offset(c.dx + maxR * 0.707, c.dy - maxR * 0.707), p);
 
-    final dp = Paint()..color = const Color(0xFF00E5FF).withOpacity(0.03)..style = PaintingStyle.stroke..strokeWidth = 0.3;
+    final dp = Paint()..color = (AegisColors.isLight ? const Color(0xFF0088FF) : const Color(0xFF00E5FF)).withOpacity(AegisColors.isLight ? 0.08 : 0.03)..style = PaintingStyle.stroke..strokeWidth = 0.3;
     for (int i = 1; i <= 3; i++) {
       canvas.drawCircle(c, maxR * 0.25 * i * 1.1, dp);
     }
@@ -187,16 +187,16 @@ class _RadarVisualizationState extends State<RadarVisualization> with TickerProv
                             Container(width: size, height: size, decoration: BoxDecoration(color: node.color, shape: BoxShape.circle, border: Border.all(color: isSos ? AegisColors.sosRed : AegisColors.border2, width: 2), boxShadow: [BoxShadow(color: node.color.withOpacity(isSos ? 0.5 : 0.25), blurRadius: isSos ? 16 : 10, spreadRadius: isSos ? 4 : 2)]), child: Center(child: Icon(isSos ? Icons.warning_amber_rounded : Icons.sensors_rounded, color: Colors.white, size: 16))),
                         ]),
                         if (node.isUser) ...[
-                          const SizedBox(height: 6),
-                          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.white.withOpacity(0.15), width: 0.5)), child: const Text('YOU', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.0))),
+                          SizedBox(height: 6),
+                          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.white.withOpacity(0.15), width: 0.5)), child: Text('YOU', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1.0))),
                         ],
                       ]),
                     ),
                   );
                 }),
-                Positioned(right: 14, bottom: 24, child: GestureDetector(onTap: widget.onLocateTap, child: Container(width: 38, height: 38, decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border2, width: 0.5)), child: const Center(child: Icon(Icons.gps_fixed_rounded, size: 17, color: AegisColors.textSecondary))))),
+                Positioned(right: 14, bottom: 24, child: GestureDetector(onTap: widget.onLocateTap, child: Container(width: 38, height: 38, decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border2, width: 0.5)), child: Center(child: Icon(Icons.gps_fixed_rounded, size: 17, color: AegisColors.textSecondary))))),
                 if (widget.nodes.length == 1)
-                  Positioned(left: c.dx - 100, top: c.dy + maxR * 0.3, child: SizedBox(width: 200, child: Column(mainAxisSize: MainAxisSize.min, children: [Text('Scanning for survivors...', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white.withOpacity(0.6), letterSpacing: 0.5)), const SizedBox(height: 16), SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation<Color>(AegisColors.neonGreen.withOpacity(0.6))))]))),
+                  Positioned(left: c.dx - 100, top: c.dy + maxR * 0.3, child: SizedBox(width: 200, child: Column(mainAxisSize: MainAxisSize.min, children: [Text('Scanning for survivors...', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white.withOpacity(0.6), letterSpacing: 0.5)), SizedBox(height: 16), SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation<Color>(AegisColors.neonGreen.withOpacity(0.6))))]))),
               ],
             );
           }),

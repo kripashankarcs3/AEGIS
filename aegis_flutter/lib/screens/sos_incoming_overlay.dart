@@ -56,7 +56,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 36.0),
+                SizedBox(height: 36.0),
                 
                 // concentric glowing waves and alert icon
                 Center(
@@ -94,7 +94,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                           shape: BoxShape.circle,
                           color: AegisColors.sosRed,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.notifications_active_rounded,
                           color: Colors.white,
                           size: 24.0,
@@ -103,9 +103,9 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                     ],
                   ),
                 ),
-                const SizedBox(height: 24.0),
+                SizedBox(height: 24.0),
 
-                const Text(
+                Text(
                   'SOS ALERT RECEIVED',
                   style: TextStyle(
                     fontSize: 20.0,
@@ -114,8 +114,8 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                     letterSpacing: 1.0,
                   ),
                 ),
-                const SizedBox(height: 6.0),
-                const Text(
+                SizedBox(height: 6.0),
+                Text(
                   'Medical Emergency',
                   style: TextStyle(
                     fontSize: 14.0,
@@ -123,7 +123,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                     color: AegisColors.sosRed,
                   ),
                 ),
-                const SizedBox(height: 36.0),
+                SizedBox(height: 36.0),
 
                 // Details Card layout
                 Container(
@@ -139,7 +139,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                     children: [
                       _buildDetailRow(
                         label: 'From',
-                        valueWidget: const Text(
+                        valueWidget: Text(
                           'SIG-8AF3',
                           style: TextStyle(
                             color: AegisColors.sosRed,
@@ -153,7 +153,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                         label: 'Location',
                         valueWidget: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Text(
                               '28.6139° N, 77.2090° E',
                               style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.w500),
@@ -168,7 +168,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                         label: 'Hop Count',
                         valueWidget: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Text(
                               '3 hops away',
                               style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.w500),
@@ -183,7 +183,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                         label: 'Time',
                         valueWidget: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Text(
                               '10:24 AM  •  12 May 2024',
                               style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w500),
@@ -193,7 +193,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20.0),
+                      SizedBox(height: 20.0),
                       // Emergency text banner description
                       Container(
                         width: double.infinity,
@@ -203,7 +203,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                           borderRadius: BorderRadius.circular(6.0),
                           border: Border.all(color: AegisColors.sosRed.withOpacity(0.24), width: 1.0),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Text(
                             'Emergency assistance needed!',
                             style: TextStyle(
@@ -245,7 +245,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Icon(Icons.chat_bubble_rounded, color: Colors.white, size: 18.0),
                         SizedBox(width: 8.0),
                         Text(
@@ -260,7 +260,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                     ),
                   ),
                 ),
-                const SizedBox(height: 16.0),
+                SizedBox(height: 16.0),
 
                 // DISMISS button
                 GestureDetector(
@@ -273,7 +273,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                       borderRadius: BorderRadius.circular(6.0),
                       border: Border.all(color: const Color(0xFF374151), width: 1.0),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         'DISMISS',
                         style: TextStyle(
@@ -285,10 +285,10 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                     ),
                   ),
                 ),
-                const SizedBox(height: 24.0),
+                SizedBox(height: 24.0),
 
                 // Expiry timer sub-tagline
-                const Text(
+                Text(
                   '3 beeps sent  •  Alert will auto-expire in 60s',
                   style: TextStyle(
                     color: AegisColors.sosRed,
@@ -296,7 +296,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 12.0),
+                SizedBox(height: 12.0),
               ],
             ),
           ),
@@ -313,7 +313,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AegisColors.textSecondary,
               fontSize: 12.5,
             ),
@@ -325,7 +325,7 @@ class _SosIncomingOverlayScreenState extends State<SosIncomingOverlayScreen> wit
   }
 
   Widget _buildDivider() {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
       child: Divider(
         color: Color(0xFF1F2937),

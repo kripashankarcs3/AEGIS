@@ -16,7 +16,7 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
   int _selectedFilterPill = 0;
   late List<ResourceItem> _items;
 
-  final List<String> _filterPills = const ['All', 'Food', 'Medical', 'Water', 'Battery', 'Other'];
+  final List<String> _filterPills = ['All', 'Food', 'Medical', 'Water', 'Battery', 'Other'];
 
   @override
   void initState() {
@@ -41,10 +41,10 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 80),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 StaggeredFadeIn(index: 0, child: _header()),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 StaggeredFadeIn(index: 1, child: _filterPillsWidget()),
-                const SizedBox(height: 20),
-                Expanded(child: ListView.builder(itemCount: _items.length, padding: const EdgeInsets.only(bottom: 20), itemBuilder: (_, i) {
+                SizedBox(height: 20),
+                Expanded(child: ListView.builder(itemCount: _items.length, padding: const EdgeInsets.only(bottom: 160), itemBuilder: (_, i) {
                   final item = _items[i];
                   if (_selectedFilterPill > 0) {
                     if (item.category.name.toLowerCase() != _filterPills[_selectedFilterPill].toLowerCase()) return const SizedBox.shrink();
@@ -53,7 +53,7 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
                 })),
               ]),
             ),
-            Positioned(left: 24, right: 24, bottom: 100, child: StaggeredFadeIn(index: 6, child: _offerBtn())),
+            Positioned(left: 24, right: 24, bottom: 90, child: StaggeredFadeIn(index: 6, child: _offerBtn())),
           ],
         ),
       ),
@@ -64,11 +64,11 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Row(children: [
         Container(width: 3, height: 24, decoration: BoxDecoration(gradient: AegisColors.greenGradient, borderRadius: BorderRadius.circular(2))),
-        const SizedBox(width: 12),
-        const Text('Resources', style: AegisStyles.h2),
+        SizedBox(width: 12),
+        Text('Resources', style: AegisStyles.h2),
       ]),
       Row(children: [
-        _hdrIcon(Icons.search_rounded), const SizedBox(width: 4), _hdrIcon(Icons.tune_rounded),
+        _hdrIcon(Icons.search_rounded), SizedBox(width: 4), _hdrIcon(Icons.tune_rounded),
       ]),
     ]);
   }
@@ -105,11 +105,16 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
         builder: (_) => Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom), child: PostResourceBottomSheet(onPost: (newItem) => setState(() => _items.insert(0, newItem))))),
       child: Container(
         height: 50,
-        decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.neonGreen.withOpacity(0.15), AegisColors.neonGreen.withOpacity(0.05)]), borderRadius: BorderRadius.circular(16), border: Border.all(color: AegisColors.neonGreen.withOpacity(0.3), width: 0.5), boxShadow: [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.08), blurRadius: 16, offset: const Offset(0, 6))]),
+        decoration: BoxDecoration(
+          color: AegisColors.isLight ? AegisColors.neonGreen.withOpacity(0.08) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AegisColors.neonGreen.withOpacity(0.3), width: 0.5),
+          boxShadow: AegisColors.isLight ? null : [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.08), blurRadius: 16, offset: const Offset(0, 6))],
+        ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(Icons.add_rounded, color: AegisColors.neonGreen.withOpacity(0.9), size: 22),
-          const SizedBox(width: 8),
-          Text('OFFER RESOURCE', style: TextStyle(color: AegisColors.neonGreen.withOpacity(0.9), fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+          Icon(Icons.add_rounded, color: AegisColors.neonGreen, size: 22),
+          SizedBox(width: 8),
+          Text('OFFER RESOURCE', style: TextStyle(color: AegisColors.neonGreen, fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
         ]),
       ),
     );
@@ -130,7 +135,7 @@ class _PostResourceBottomSheetState extends State<PostResourceBottomSheet> {
   final TextEditingController _detailsController = TextEditingController();
   int _charCount = 0;
 
-  final List<Map<String, dynamic>> _sheetCategories = const [
+  final List<Map<String, dynamic>> _sheetCategories = [
     {'label': 'Water', 'icon': Icons.local_drink_rounded, 'color': Color(0xFF0088FF), 'cat': ResourceCategory.water},
     {'label': 'Food', 'icon': Icons.restaurant_rounded, 'color': Color(0xFF00FF88), 'cat': ResourceCategory.food},
     {'label': 'Medicine', 'icon': Icons.medical_services_rounded, 'color': Color(0xFFFF0030), 'cat': ResourceCategory.medical},
@@ -153,24 +158,24 @@ class _PostResourceBottomSheetState extends State<PostResourceBottomSheet> {
       decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF141428), Color(0xFF0E0E1E)]), borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28))),
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
         Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Post a Resource', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3)),
-            const SizedBox(height: 4),
+            Text('Post a Resource', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3)),
+            SizedBox(height: 4),
             Text('Share what you have or need', style: TextStyle(fontSize: 12, color: AegisColors.textSecondary.withOpacity(0.8))),
           ]),
-          GestureDetector(onTap: () => Navigator.of(context).pop(), child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AegisColors.border1, shape: BoxShape.circle), child: const Icon(Icons.close_rounded, color: Colors.white, size: 18))),
+          GestureDetector(onTap: () => Navigator.of(context).pop(), child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AegisColors.border1, shape: BoxShape.circle), child: Icon(Icons.close_rounded, color: Colors.white, size: 18))),
         ]),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Row(children: [
           Expanded(child: _typeBtn(ResourceType.offered, 'Offer')),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(child: _typeBtn(ResourceType.requested, 'Request')),
         ]),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Text('CATEGORY', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AegisColors.textMuted.withOpacity(0.8), letterSpacing: 1.0)),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         GridView.builder(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), itemCount: _sheetCategories.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 1.6),
           itemBuilder: (_, i) {
@@ -187,48 +192,48 @@ class _PostResourceBottomSheetState extends State<PostResourceBottomSheet> {
                 ),
                 child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(cat['icon'] as IconData, color: cat['color'] as Color, size: 20),
-                  const SizedBox(height: 6),
-                  Text(cat['label'] as String, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+                  SizedBox(height: 6),
+                  Text(cat['label'] as String, style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
                 ])),
             );
           }),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text('DETAILS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AegisColors.textMuted.withOpacity(0.8), letterSpacing: 1.0)),
           Text('$_charCount/100', style: TextStyle(fontSize: 10, color: AegisColors.textMuted.withOpacity(0.6))),
         ]),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(14), border: Border.all(color: AegisColors.border1, width: 0.5)),
-          child: TextField(controller: _detailsController, maxLength: 100, maxLines: 2, style: const TextStyle(color: Colors.white, fontSize: 14), decoration: const InputDecoration(hintText: 'e.g., 10 bottles, First aid kit, 2 tents', hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 13), border: InputBorder.none, counterText: '', isDense: true))),
-        const SizedBox(height: 24),
+          child: TextField(controller: _detailsController, maxLength: 100, maxLines: 2, style: TextStyle(color: Colors.white, fontSize: 14), decoration: InputDecoration(hintText: 'e.g., 10 bottles, First aid kit, 2 tents', hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 13), border: InputBorder.none, counterText: '', isDense: true))),
+        SizedBox(height: 24),
         Row(children: [
           Container(width: 3, height: 16, decoration: BoxDecoration(gradient: AegisColors.primaryGradient, borderRadius: BorderRadius.circular(2))),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Text('PREVIEW', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AegisColors.textMuted.withOpacity(0.8), letterSpacing: 1.0)),
         ]),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(16), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5)),
           child: Row(children: [
             Container(width: 4, height: 40, decoration: BoxDecoration(color: ac['color'] as Color, borderRadius: BorderRadius.circular(2))),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-              Text(previewTitle, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 4),
-              Text(previewDetail, style: const TextStyle(color: AegisColors.textSecondary, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text(previewTitle, style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+              SizedBox(height: 4),
+              Text(previewDetail, style: TextStyle(color: AegisColors.textSecondary, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
             ])),
             Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
               Row(mainAxisSize: MainAxisSize.min, children: [
                 Text('To: All', style: TextStyle(color: AegisColors.neonGreen.withOpacity(0.8), fontSize: 11, fontWeight: FontWeight.w700)),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Icon(Icons.signal_cellular_alt_rounded, color: AegisColors.neonGreen.withOpacity(0.8), size: 14),
               ]),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text('Broadcast to network', style: TextStyle(color: AegisColors.textMuted.withOpacity(0.6), fontSize: 9)),
             ]),
           ]),
         ),
-        const SizedBox(height: 28),
+        SizedBox(height: 28),
         GestureDetector(
           onTap: () {
             final detailStr = _detailsController.text.isEmpty ? 'e.g., details...' : _detailsController.text;
@@ -236,7 +241,7 @@ class _PostResourceBottomSheetState extends State<PostResourceBottomSheet> {
             Navigator.of(context).pop();
           },
           child: Container(width: double.infinity, height: 52, decoration: BoxDecoration(gradient: AegisColors.purpleGradient, borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: AegisColors.violet.withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6))]),
-            child: const Center(child: Text('BROADCAST RESOURCE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14, letterSpacing: 0.5)))),
+            child: Center(child: Text('BROADCAST RESOURCE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14, letterSpacing: 0.5)))),
         ),
       ]),
     );

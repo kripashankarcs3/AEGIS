@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
+import '../constants/aegis_styles.dart';
+import '../constants/aegis_animations.dart';
 import 'chat_conversation_screen.dart';
 
 class NodeDetailsScreen extends StatelessWidget {
@@ -8,315 +10,61 @@ class NodeDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isOffline = nodeId == 'SIG-9E10';
+
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+        scrolledUnderElevation: 0,
+        leading: Container(
+          margin: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: AegisColors.surface2,
+            shape: BoxShape.circle,
+            border: Border.all(color: AegisColors.border1, width: 0.5),
+          ),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary, size: 18),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
-        title: const Text(
+        title: Text(
           'Node Details',
           style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
-            onPressed: () {},
+          Container(
+            margin: const EdgeInsets.only(right: 14),
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AegisColors.surface2,
+              shape: BoxShape.circle,
+              border: Border.all(color: AegisColors.border1, width: 0.5),
+            ),
+            child: Icon(Icons.more_vert, color: AegisColors.textPrimary, size: 18),
           ),
         ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Profile card header
-              Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: AegisColors.cardBg,
-                  borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: AegisColors.border1, width: 1.0),
-                ),
-                child: Row(
-                  children: [
-                    // Shield avatar
-                    Container(
-                      width: 52.0,
-                      height: 52.0,
-                      decoration: BoxDecoration(
-                        color: AegisColors.violet.withOpacity(0.15),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AegisColors.violet.withOpacity(0.3), width: 1.0),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.shield_outlined,
-                          color: AegisColors.violet,
-                          size: 26.0,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 14.0),
-                    // ID & status details
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                nodeId,
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 8.0),
-                              // Online Badge status
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF042F1A).withOpacity(0.4),
-                                  borderRadius: BorderRadius.circular(4.0),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: 4.0,
-                                      height: 4.0,
-                                      decoration: const BoxDecoration(
-                                        color: AegisColors.neonGreen,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4.0),
-                                    const Text(
-                                      'Online',
-                                      style: TextStyle(
-                                        color: AegisColors.neonGreen,
-                                        fontSize: 9.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4.0),
-                          Row(
-                            children: [
-                              const Text(
-                                '2 hops away',
-                                style: TextStyle(
-                                  color: AegisColors.textSecondary,
-                                  fontSize: 11.5,
-                                ),
-                              ),
-                              const SizedBox(width: 8.0),
-                              // Trusted badge
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-                                decoration: BoxDecoration(
-                                  color: AegisColors.violet.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(4.0),
-                                ),
-                                child: const Text(
-                                  'Trusted',
-                                  style: TextStyle(
-                                    color: AegisColors.violet,
-                                    fontSize: 9.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16.0),
-
-              // 2. Metrics Statistics Card List
-              Container(
-                decoration: BoxDecoration(
-                  color: AegisColors.cardBg,
-                  borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: AegisColors.border1, width: 1.0),
-                ),
-                child: Column(
-                  children: [
-                    _buildStatRow(
-                      icon: Icons.wifi_tethering_rounded,
-                      label: 'Signal Strength',
-                      valueWidget: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Text(
-                            'Strong',
-                            style: TextStyle(color: AegisColors.neonGreen, fontWeight: FontWeight.bold, fontSize: 13.0),
-                          ),
-                          SizedBox(width: 6.0),
-                          Icon(Icons.signal_cellular_alt_rounded, color: AegisColors.neonGreen, size: 16.0),
-                        ],
-                      ),
-                    ),
-                    _buildInnerDivider(),
-                    _buildStatRow(
-                      icon: Icons.av_timer_rounded,
-                      label: 'Latency',
-                      valueText: '42 ms',
-                    ),
-                    _buildInnerDivider(),
-                    _buildStatRow(
-                      icon: Icons.history_rounded,
-                      label: 'Last Seen',
-                      valueText: 'Just now',
-                    ),
-                    _buildInnerDivider(),
-                    _buildStatRow(
-                      icon: Icons.battery_charging_full_rounded,
-                      label: 'Battery',
-                      valueWidget: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Text(
-                            '78%',
-                            style: TextStyle(color: Colors.white, fontSize: 13.0),
-                          ),
-                          SizedBox(width: 6.0),
-                          Icon(Icons.battery_std_rounded, color: AegisColors.neonGreen, size: 16.0),
-                        ],
-                      ),
-                    ),
-                    _buildInnerDivider(),
-                    _buildStatRow(
-                      icon: Icons.verified_user_outlined,
-                      label: 'Trust Score',
-                      valueWidget: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Text(
-                            '92%',
-                            style: TextStyle(color: Colors.white, fontSize: 13.0),
-                          ),
-                          SizedBox(width: 6.0),
-                          Icon(Icons.verified_rounded, color: AegisColors.neonGreen, size: 16.0),
-                        ],
-                      ),
-                    ),
-                    _buildInnerDivider(),
-                    _buildStatRow(
-                      icon: Icons.calendar_today_rounded,
-                      label: 'First Seen',
-                      valueText: '12 May 2024',
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-
-              // 3. Actions Button Container
-              Row(
-                children: [
-                  // Start Chat
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ChatConversationScreen(nodeId: nodeId),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 42.0,
-                        decoration: BoxDecoration(
-                          color: AegisColors.violet.withOpacity(0.1).withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(6.0),
-                          border: Border.all(color: AegisColors.violet, width: 1.0),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.chat_bubble_outline_rounded, color: Colors.white, size: 16.0),
-                            SizedBox(width: 8.0),
-                            Text(
-                              'Start Chat',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.0),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12.0),
-                  // Share Location
-                  Expanded(
-                    child: Container(
-                      height: 42.0,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF042F1A).withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(6.0),
-                        border: Border.all(color: AegisColors.neonGreen.withOpacity(0.5), width: 1.0),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.share_location_rounded, color: AegisColors.neonGreen, size: 16.0),
-                          SizedBox(width: 8.0),
-                          Text(
-                            'Share Location',
-                            style: TextStyle(color: AegisColors.neonGreen, fontWeight: FontWeight.bold, fontSize: 13.0),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12.0),
-              // View on Map
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                  // Switches tab to map in MainShell
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 42.0,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A),
-                    borderRadius: BorderRadius.circular(6.0),
-                    border: Border.all(color: AegisColors.border1, width: 1.0),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.map_outlined, color: Colors.white, size: 16.0),
-                      SizedBox(width: 8.0),
-                      Text(
-                        'View on Map',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.0),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              StaggeredFadeIn(index: 0, child: _profileCard(isOffline)),
+              const SizedBox(height: 24),
+              StaggeredFadeIn(index: 1, child: _connectionSection(isOffline)),
+              const SizedBox(height: 24),
+              StaggeredFadeIn(index: 2, child: _deviceSection()),
+              const SizedBox(height: 28),
+              StaggeredFadeIn(index: 3, child: _actionsSection(context)),
             ],
           ),
         ),
@@ -324,50 +72,308 @@ class NodeDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatRow({
-    required IconData icon,
-    required String label,
-    String? valueText,
-    Widget? valueWidget,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 11.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _profileCard(bool isOffline) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AegisColors.cardBg,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AegisColors.border1, width: 0.5),
+        boxShadow: AegisColors.cardShadow,
+      ),
+      child: Column(
         children: [
           Row(
             children: [
-              Icon(icon, color: AegisColors.textSecondary, size: 18.0),
-              const SizedBox(width: 10.0),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: AegisColors.textSecondary,
-                  fontSize: 13.0,
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: AegisColors.isLight ? const Color(0xFFEDE9FE) : const Color(0xFF1E1B4B),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.person_rounded,
+                    color: AegisColors.isLight ? const Color(0xFF6D28D9) : AegisColors.violet,
+                    size: 26,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          nodeId,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: AegisColors.textPrimary,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: (isOffline ? AegisColors.textMuted : AegisColors.neonGreen).withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: (isOffline ? AegisColors.textMuted : AegisColors.neonGreen).withOpacity(0.2), width: 0.5),
+                          ),
+                          child: Text(
+                            isOffline ? 'Offline' : 'Online',
+                            style: TextStyle(
+                              color: isOffline ? AegisColors.textMuted : AegisColors.neonGreen,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      isOffline ? 'Disconnected' : '2 hops away • via SIG-B2C1',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AegisColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          if (valueWidget != null) valueWidget,
-          if (valueText != null)
-            Text(
-              valueText,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 13.0,
-              ),
-            ),
+          const SizedBox(height: 20),
+          Container(height: 0.5, color: AegisColors.border1.withOpacity(0.5)),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('First seen', style: TextStyle(fontSize: 12, color: AegisColors.textSecondary, fontWeight: FontWeight.w500)),
+              Text('2 mins ago', style: TextStyle(fontSize: 12, color: AegisColors.textPrimary, fontWeight: FontWeight.w700)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Last seen', style: TextStyle(fontSize: 12, color: AegisColors.textSecondary, fontWeight: FontWeight.w500)),
+              Text('Just now', style: TextStyle(fontSize: 12, color: AegisColors.textPrimary, fontWeight: FontWeight.w700)),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildInnerDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
-      height: 1.0,
-      thickness: 0.5,
+  Widget _connectionSection(bool isOffline) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(width: 8),
+            Text(
+              'CONNECTION',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: AegisColors.cardBg,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AegisColors.border1, width: 0.5),
+            boxShadow: AegisColors.cardShadow,
+          ),
+          child: Column(
+            children: [
+              _infoRow('Link Quality', isOffline ? 'None' : 'Strong', isStatus: true, statusColor: isOffline ? AegisColors.textMuted : AegisColors.neonGreen),
+              _divider(),
+              _infoRow('Latency', isOffline ? '--' : '28 ms'),
+              _divider(),
+              _infoRow('Packets Relayed', isOffline ? '0' : '245'),
+              _divider(),
+              _infoRow('Uptime', isOffline ? '--' : '2h 14m'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _deviceSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(width: 8),
+            Text(
+              'DEVICE INFO',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: AegisColors.cardBg,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AegisColors.border1, width: 0.5),
+            boxShadow: AegisColors.cardShadow,
+          ),
+          child: Column(
+            children: [
+              _infoRow('Device Name', 'Pixel 7'),
+              _divider(),
+              _infoRow('Platform', 'Android 14'),
+              _divider(),
+              _infoRow('App Version', '1.0.0+15'),
+              _divider(),
+              _infoRow('Battery', '76%', showBattery: true),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _actionsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(width: 8),
+            Text(
+              'ACTIONS',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _actionBtn(
+                icon: Icons.chat_bubble_outline_rounded,
+                label: 'Send Message',
+                color: const Color(0xFF6D28D9),
+                bgColor: AegisColors.isLight ? const Color(0xFFF5F3FF) : const Color(0xFF1E152A),
+                borderColor: AegisColors.isLight ? const Color(0xFFDDD6FE) : const Color(0xFF3B1E63),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ChatConversationScreen(nodeId: nodeId))),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _actionBtn(
+                icon: Icons.share_rounded,
+                label: 'Share Resource',
+                color: const Color(0xFFD97706),
+                bgColor: AegisColors.isLight ? const Color(0xFFFFFBEB) : const Color(0xFF2D1F10),
+                borderColor: AegisColors.isLight ? const Color(0xFFFDE68A) : const Color(0xFF6B4B1B),
+                onTap: () {},
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: _actionBtn(
+            icon: Icons.map_outlined,
+            label: 'View on Map',
+            color: AegisColors.electricBlue,
+            bgColor: AegisColors.isLight ? const Color(0xFFEFF6FF) : const Color(0xFF0F172A),
+            borderColor: AegisColors.isLight ? const Color(0xFFBFDBFE) : const Color(0xFF1E3A8A),
+            onTap: () => Navigator.of(context).pop(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _actionBtn({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required Color bgColor,
+    required Color borderColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: borderColor, width: 0.5),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value, {bool isStatus = false, Color? statusColor, bool showBattery = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(color: AegisColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (showBattery) ...[
+                Icon(Icons.battery_charging_full_rounded, color: AegisColors.neonGreen, size: 14),
+                const SizedBox(width: 4),
+              ],
+              Text(
+                value,
+                style: TextStyle(
+                  color: isStatus ? statusColor : AegisColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _divider() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 18),
+      height: 0.5,
+      color: AegisColors.border1.withOpacity(0.5),
     );
   }
 }

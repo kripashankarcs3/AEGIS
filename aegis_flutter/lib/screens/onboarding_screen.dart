@@ -157,13 +157,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF02040A), // Almost black top
-              Color(0xFF040814), // Deep navy blue
+              AegisColors.background,
+              AegisColors.surface0,
             ],
           ),
         ),
@@ -187,7 +187,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
               // 2. Scrollable Body containing layout
               SingleChildScrollView(
                 physics: const ClampingScrollPhysics(),
-                padding: const EdgeInsets.only(top: 58.0, left: 28.0, right: 28.0, bottom: 34.0),
+                 padding: const EdgeInsets.only(top: 48.0, left: 28.0, right: 28.0, bottom: 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -201,20 +201,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                             builder: (context, child) {
                               return Transform.translate(
                                 offset: Offset(0, _line1Slide.value),
-                                child: const Text(
-                                  'Welcome to',
-                                  style: TextStyle(
-                                    fontSize: 38.0,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                    fontFamily: 'SF Pro Display',
+                                  child: Text(
+                                    'Welcome to',
+                                    style: TextStyle(
+                                      fontSize: 30.0,
+                                      fontWeight: FontWeight.w600,
+                                      color: AegisColors.textPrimary,
+                                      fontFamily: 'SF Pro Display',
+                                    ),
                                   ),
-                                ),
                               );
                             },
                           ),
                         ),
-                        const SizedBox(height: 4.0),
+                        SizedBox(height: 4.0),
                         FadeTransition(
                           opacity: _line2Fade,
                           child: AnimatedBuilder(
@@ -227,7 +227,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                   children: [
                                     // Slight glow layer behind title
                                     ShaderMask(
-                                      shaderCallback: (bounds) => const LinearGradient(
+                                      shaderCallback: (bounds) => LinearGradient(
                                         colors: [
                                           Color(0xFF7B3EFF), // Purple
                                           Color(0xFF256DFF), // Blue
@@ -237,7 +237,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                       child: Text(
                                         'AEGIS',
                                         style: TextStyle(
-                                          fontSize: 52.0,
+                                          fontSize: 42.0,
                                           fontWeight: FontWeight.w800,
                                           color: Colors.white.withOpacity(0.2),
                                           fontFamily: 'SF Pro Display',
@@ -247,17 +247,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                     ),
                                     // Sharp front text
                                     ShaderMask(
-                                      shaderCallback: (bounds) => const LinearGradient(
+                                      shaderCallback: (bounds) => LinearGradient(
                                         colors: [
                                           Color(0xFF7B3EFF),
                                           Color(0xFF256DFF),
                                           Color(0xFF27D8FF),
                                         ],
                                       ).createShader(bounds),
-                                      child: const Text(
+                                      child: Text(
                                         'AEGIS',
                                         style: TextStyle(
-                                          fontSize: 52.0,
+                                          fontSize: 42.0,
                                           fontWeight: FontWeight.w800,
                                           color: Colors.white,
                                           fontFamily: 'SF Pro Display',
@@ -273,7 +273,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12.0),
+                    SizedBox(height: 6.0),
 
                     // B. Subtitle Block
                     FadeTransition(
@@ -284,37 +284,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                           return Transform.translate(
                             offset: Offset(0, _subtitleSlide.value),
                             child: Column(
-                              children: const [
+                              children: [
                                 Text(
                                   'Stay connected.',
                                   style: TextStyle(
-                                    fontSize: 18.0,
+                                    fontSize: 16.0,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xFFA8B3C7),
+                                    color: AegisColors.textSecondary,
                                     fontFamily: 'SF Pro Display',
-                                    height: 1.44,
+                                    height: 1.3,
                                   ),
                                 ),
-                                SizedBox(height: 4.0),
+                                SizedBox(height: 2.0),
                                 Text(
                                   'Stay informed.',
                                   style: TextStyle(
-                                    fontSize: 18.0,
+                                    fontSize: 16.0,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xFFA8B3C7),
+                                    color: AegisColors.textSecondary,
                                     fontFamily: 'SF Pro Display',
-                                    height: 1.44,
+                                    height: 1.3,
                                   ),
                                 ),
-                                SizedBox(height: 4.0),
+                                SizedBox(height: 2.0),
                                 Text(
                                   'Stay alive.',
                                   style: TextStyle(
-                                    fontSize: 18.0,
+                                    fontSize: 16.0,
                                     fontWeight: FontWeight.w500,
                                     color: Color(0xFF7B3EFF), // Purple text
                                     fontFamily: 'SF Pro Display',
-                                    height: 1.44,
+                                    height: 1.3,
                                   ),
                                 ),
                               ],
@@ -323,7 +323,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         },
                       ),
                     ),
-                    const SizedBox(height: 38.0),
+                    SizedBox(height: 16.0),
 
                     // C. HERO Center Orbital Graphic (occupies ~72% of width)
                     FadeTransition(
@@ -338,10 +338,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         },
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            final double width = constraints.maxWidth * 0.72;
+                            final double width = constraints.maxWidth * 0.85;
                             return SizedBox(
                               width: width,
-                              height: width * 0.72,
+                              height: width * 0.60,
                               child: FuturisticOrbitalGraphic(
                                 width: width,
                                 floatValue: _graphicFloatController.value,
@@ -354,7 +354,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         ),
                       ),
                     ),
-                    const SizedBox(height: 42.0),
+                    SizedBox(height: 20.0),
 
                     // D. Premium Feature List Card
                     FadeTransition(
@@ -370,7 +370,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         child: _buildFeatureCard(featureRotateAngle),
                       ),
                     ),
-                    const SizedBox(height: 36.0),
+                    SizedBox(height: 16.0),
 
                     // E. Action Navigation Button
                     FuturisticButton(
@@ -409,12 +409,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
   Widget _buildFeatureCard(double rotationAngle) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF09111F),
+        color: AegisColors.cardBg,
         borderRadius: BorderRadius.circular(28.0),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: AegisColors.border1,
           width: 1.0,
         ),
         boxShadow: [
@@ -430,21 +430,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
           _buildFeatureItem(
             icon: Icons.hub_rounded,
             title: 'Mesh Communication',
-            subtitle: 'Connect with nearby devices',
+            subtitle: 'Connect nearby devices',
             rotationAngle: rotationAngle,
           ),
           _buildDivider(),
           _buildFeatureItem(
             icon: Icons.psychology_rounded,
             title: 'AI Emergency Assistant',
-            subtitle: 'Get smart help in critical moments',
+            subtitle: 'Smart help in critical moments',
             rotationAngle: rotationAngle,
           ),
           _buildDivider(),
           _buildFeatureItem(
             icon: Icons.groups_rounded,
             title: 'Resources & Community',
-            subtitle: 'Share, help and survive together',
+            subtitle: 'Share & help others survive',
             rotationAngle: rotationAngle,
           ),
         ],
@@ -462,11 +462,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
       children: [
         Transform.rotate(
           angle: rotationAngle,
-          child: Container(
-            width: 46.0,
-            height: 46.0,
+            child: Container(
+            width: 40.0,
+            height: 40.0,
             decoration: BoxDecoration(
-              color: const Color(0xFF09111F),
+              color: AegisColors.surface0,
               shape: BoxShape.circle,
               border: Border.all(
                 color: const Color(0xFF7B3EFF).withOpacity(0.5), // Purple outline
@@ -482,33 +482,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
             child: Center(
               child: Icon(
                 icon,
-                color: Colors.white,
-                size: 20.0,
+                color: AegisColors.textPrimary,
+                  size: 18.0,
               ),
             ),
           ),
         ),
-        const SizedBox(width: 16.0),
+            SizedBox(width: 14.0),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 18.0,
+                style: TextStyle(
+                  fontSize: 15.0,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: AegisColors.textPrimary,
                   fontFamily: 'SF Pro Display',
                 ),
               ),
-              const SizedBox(height: 4.0),
+              SizedBox(height: 2.0),
               Text(
                 subtitle,
-                style: const TextStyle(
-                  fontSize: 15.0,
+                style: TextStyle(
+                  fontSize: 13.0,
                   fontWeight: FontWeight.w400,
-                  color: Color(0xFFA8B3C7),
+                  color: AegisColors.textSecondary,
                   fontFamily: 'SF Pro Display',
                 ),
               ),
@@ -523,7 +523,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14.0),
       child: Divider(
-        color: Colors.white.withOpacity(0.06), // Opacity 6%
+        color: AegisColors.border1,
         height: 1.0,
         thickness: 1.0,
         indent: 62.0, // align with text start
@@ -589,9 +589,9 @@ class _FuturisticOrbitalGraphicState extends State<FuturisticOrbitalGraphic> wit
   @override
   Widget build(BuildContext context) {
     final double centerDx = widget.width / 2;
-    final double centerDy = widget.width * 0.36;
-    final double rx = widget.width * 0.44;
-    final double ry = widget.width * 0.20;
+    final double centerDy = widget.width * 0.30;
+    final double rx = widget.width * 0.46;
+    final double ry = widget.width * 0.22;
 
     // Calculate node base angles around the orbital path
     final List<double> angles = List.generate(totalNodes, (index) => index * pi / 3);
@@ -628,13 +628,13 @@ class _FuturisticOrbitalGraphicState extends State<FuturisticOrbitalGraphic> wit
         // Centered Shield Logo with custom Hero transition
         Positioned(
           left: centerDx - 22.0,
-          top: centerDy - 25.0,
+          top: centerDy - 22.0, // center it cleanly
           child: AnimatedBuilder(
             animation: _shieldFloatController,
             builder: (context, child) {
               // Floating -5px to +5px
               final double dy = sin(_shieldFloatController.value * 2 * pi) * 5.0;
-              // Very subtle rotation (-1 degree to +1 degree => -0.017 to +0.017 rad)
+              // Very subtle rotation (-1 degree to +1 degree)
               final double rotation = sin(_shieldFloatController.value * 2 * pi) * (1.0 * pi / 180.0);
 
               return Transform.translate(
@@ -643,38 +643,22 @@ class _FuturisticOrbitalGraphicState extends State<FuturisticOrbitalGraphic> wit
                   angle: rotation,
                   child: Hero(
                     tag: 'aegis_logo',
-                    child: SizedBox(
+                    child: Container(
                       width: 44.0,
-                      height: 50.0,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned.fill(
-                            child: CustomPaint(
-                              painter: LogoShieldPainter(glowFactor: 1.0),
-                            ),
-                          ),
-                          const Positioned(
-                            top: 8.0,
-                            child: Text(
-                              'A',
-                              style: TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontFamily: 'SF Pro Display',
-                              ),
-                            ),
-                          ),
-                          const Positioned(
-                            bottom: 8.0,
-                            child: Icon(
-                              Icons.wifi,
-                              color: Color(0xFF27D8FF),
-                              size: 9.0,
-                            ),
+                      height: 44.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF256DFF),
+                            blurRadius: 10.0,
+                            spreadRadius: -1.0,
                           ),
                         ],
+                      ),
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
@@ -739,8 +723,8 @@ class OrbitalBackdropPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final double rx = size.width * 0.44;
-    final double ry = size.width * 0.20;
+    final double rx = size.width * 0.46;
+    final double ry = size.width * 0.22;
 
     // 1. Draw 3 concentric elliptical rings (gradient blue -> transparent, 12% opacity)
     for (double f in [1.0, 0.82, 0.64]) {
@@ -750,7 +734,7 @@ class OrbitalBackdropPainter extends CustomPainter {
         height: ry * 2 * f,
       );
       final ringPaint = Paint()
-        ..shader = const LinearGradient(
+        ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
@@ -905,10 +889,10 @@ class _FuturisticButtonState extends State<FuturisticButton> with TickerProvider
                 scale: scale,
                 child: Container(
                   width: double.infinity,
-                  height: 60.0,
+                  height: 52.0,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(18.0),
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
@@ -919,7 +903,7 @@ class _FuturisticButtonState extends State<FuturisticButton> with TickerProvider
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0xFF256DFF).withOpacity(0.25 * glowScale),
-                        blurRadius: 55.0 * glowScale,
+                                        blurRadius: 30.0 * glowScale,
                         spreadRadius: 1.0,
                       ),
                     ],
@@ -947,9 +931,9 @@ class _FuturisticButtonState extends State<FuturisticButton> with TickerProvider
                       Center(
                         child: Text(
                           widget.text,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 16.0,
+                            fontSize: 15.0,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
                             fontFamily: 'SF Pro Display',

@@ -141,13 +141,13 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF02040A),
-              Color(0xFF040814),
+colors: [
+              AegisColors.background,
+              AegisColors.surface0,
             ],
           ),
         ),
@@ -199,7 +199,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // A. Header Text Block (around 100px from top)
-                    const SizedBox(height: 40.0),
+                    SizedBox(height: 40.0),
                     FadeTransition(
                       opacity: _titleFade,
                       child: AnimatedBuilder(
@@ -207,12 +207,12 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         builder: (context, child) {
                           return Transform.translate(
                             offset: Offset(0, _titleSlide.value),
-                            child: const Text(
+                            child: Text(
                               'Join the Network',
                               style: TextStyle(
                                 fontSize: 40.0,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: AegisColors.textPrimary,
                                 fontFamily: 'SF Pro Display',
                               ),
                             ),
@@ -220,7 +220,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         },
                       ),
                     ),
-                    const SizedBox(height: 14.0), // Spacing 14px below title
+                    SizedBox(height: 14.0), // Spacing 14px below title
                     FadeTransition(
                       opacity: _subtitleFade,
                       child: AnimatedBuilder(
@@ -228,12 +228,12 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         builder: (context, child) {
                           return Transform.translate(
                             offset: Offset(0, _subtitleSlide.value),
-                            child: const Text(
+                            child: Text(
                               'Choose a way to continue',
                               style: TextStyle(
                                 fontSize: 18.0,
                                 fontWeight: FontWeight.w500,
-                                color: Color(0xFFA8B3C7),
+                                color: AegisColors.textSecondary,
                                 fontFamily: 'SF Pro Display',
                               ),
                             ),
@@ -241,7 +241,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         },
                       ),
                     ),
-                    const SizedBox(height: 52.0),
+                    SizedBox(height: 52.0),
 
                     // B. Reusable Buttons Block
                     // Primary Hero Button (Continue with Phone)
@@ -263,7 +263,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24.0), // Spacing 24px between Phone & QR buttons
+                    SizedBox(height: 24.0), // Spacing 24px between Phone & QR buttons
 
                     // Secondary Glass Button (Scan QR Code)
                     FadeTransition(
@@ -284,7 +284,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20.0), // Spacing 20px between QR & Guest buttons
+                    SizedBox(height: 20.0), // Spacing 20px between QR & Guest buttons
 
                     // Tertiary Glass Button (Join as Guest)
                     FadeTransition(
@@ -305,7 +305,7 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                         ),
                       ),
                     ),
-                    const SizedBox(height: 48.0),
+                    SizedBox(height: 48.0),
 
                     // C. Offline Warning Notice (placed near lower third)
                     FadeTransition(
@@ -319,20 +319,20 @@ class _LoginJoinScreenState extends State<LoginJoinScreen> with TickerProviderSt
                               children: [
                                 Opacity(
                                   opacity: 0.70,
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.portable_wifi_off_rounded,
-                                    color: Color(0xFFA8B3C7),
+                                    color: AegisColors.textSecondary,
                                     size: 26.0,
                                   ),
                                 ),
-                                const SizedBox(height: 12.0),
+                                SizedBox(height: 12.0),
                                 Opacity(
                                   opacity: 0.78,
-                                  child: const Text(
+                                  child: Text(
                                     'No Internet? No problem.\nAEGIS works offline.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      color: Color(0xFFA8B3C7),
+                                      color: AegisColors.textSecondary,
                                       fontSize: 14.5,
                                       height: 1.45,
                                       fontWeight: FontWeight.w500,
@@ -432,7 +432,7 @@ class _FuturisticGradientButtonState extends State<FuturisticGradientButton> wit
               height: 60.0,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(18.0),
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   colors: [
                     Color(0xFF7B3EFF), // Left Purple
                     Color(0xFF256DFF), // Right Blue
@@ -480,7 +480,7 @@ class _FuturisticGradientButtonState extends State<FuturisticGradientButton> wit
                   Center(
                     child: Text(
                       widget.label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 18.0,
                         fontWeight: FontWeight.w600,
@@ -562,13 +562,11 @@ class _FuturisticGlassButtonState extends State<FuturisticGlassButton> with Sing
                 height: 60.0,
                 decoration: BoxDecoration(
                   color: _pressController.value < 1.0
-                      ? Colors.white.withOpacity(0.06) // slightly lighter on press
-                      : Colors.white.withOpacity(0.02), // default rgba(255,255,255,.02)
+                      ? AegisColors.surface0
+                      : AegisColors.cardBg,
                   borderRadius: BorderRadius.circular(18.0),
                   border: Border.all(
-                    color: _isHovered 
-                        ? Colors.white.withOpacity(0.20) // border brightens on hover
-                        : Colors.white.withOpacity(0.08), // default rgba(255,255,255,.08)
+                    color: AegisColors.border1, // default rgba(255,255,255,.08)
                     width: 1.0,
                   ),
                   boxShadow: widget.hasGlow
@@ -589,7 +587,7 @@ class _FuturisticGlassButtonState extends State<FuturisticGlassButton> with Sing
                       left: 22.0,
                       child: Icon(
                         widget.icon,
-                        color: Colors.white,
+                        color: AegisColors.textPrimary,
                         size: 20.0,
                       ),
                     ),
@@ -597,8 +595,8 @@ class _FuturisticGlassButtonState extends State<FuturisticGlassButton> with Sing
                     Center(
                       child: Text(
                         widget.label,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: AegisColors.textPrimary,
                           fontSize: 18.0,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.2,

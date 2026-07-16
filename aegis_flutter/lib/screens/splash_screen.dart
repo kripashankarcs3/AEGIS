@@ -52,7 +52,7 @@ class LogoShieldPainter extends CustomPainter {
 
     // 3. Gradient Outline (Purple #7B3EFF -> Blue #256DFF -> Cyan #27D8FF)
     final outlinePaint = Paint()
-      ..shader = const LinearGradient(
+      ..shader = LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
@@ -415,13 +415,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF02040A), // Almost black top
-              Color(0xFF040814), // Deep navy blue background
+              AegisColors.background,
+              AegisColors.surface0,
             ],
           ),
         ),
@@ -447,9 +447,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 10.0),
+                    SizedBox(height: 10.0),
                     
-                    // Glossy custom shield logo (occupies ~32% of screen width)
+                    // Premium Asset-based Gold-Green Shield Logo
                     ScaleTransition(
                       scale: _logoScale,
                       child: FadeTransition(
@@ -462,80 +462,64 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                 ? 1.0 + (_breatheController.value * 0.15)
                                 : 1.0;
 
-                            return SizedBox(
+                            return Container(
                               width: screenWidth * 0.32,
-                              height: (screenWidth * 0.32) * 1.16, // proportional height
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  // Shield base custom paint with breathing glow
-                                  Positioned.fill(
-                                    child: CustomPaint(
-                                      painter: LogoShieldPainter(glowFactor: breatheVal),
-                                    ),
-                                  ),
-                                  // Bold white 'A' letter centered inside the shield
-                                  Positioned(
-                                    top: (screenWidth * 0.32) * 0.22,
-                                    child: Text(
-                                      'A',
-                                      style: TextStyle(
-                                        fontSize: (screenWidth * 0.32) * 0.42,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontFamily: 'SF Pro Display',
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                  // WiFi waves icon centered inside bottom of the shield
-                                  Positioned(
-                                    bottom: (screenWidth * 0.32) * 0.16,
-                                    child: Icon(
-                                      Icons.wifi,
-                                      color: const Color(0xFF27D8FF), // Accent Cyan
-                                      size: (screenWidth * 0.32) * 0.18,
-                                    ),
+                              height: screenWidth * 0.32,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  // Outer blue bloom shadow
+                                  BoxShadow(
+                                    color: const Color(0xFF256DFF).withOpacity(0.20 * (breatheVal - 1.0 + 1.0)),
+                                    blurRadius: 24.0 * breatheVal,
+                                    spreadRadius: 1.0,
                                   ),
                                 ],
+                              ),
+                              child: Hero(
+                                tag: 'aegis_logo',
+                                child: Image.asset(
+                                  'assets/images/logo.png',
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             );
                           },
                         ),
                       ),
                     ),
-                    const SizedBox(height: 28.0), // Placed approx 28px below logo
+                    SizedBox(height: 28.0), // Placed approx 28px below logo
 
                     // Center-aligned white bold title
-                    const Text(
+                    Text(
                       'AEGIS',
                       style: TextStyle(
                         fontSize: 38.0,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: AegisColors.textPrimary,
                         letterSpacing: -1.0, // Tighter tracking
                         fontFamily: 'SF Pro Display',
                       ),
                     ),
-                    const SizedBox(height: 16.0),
+                    SizedBox(height: 16.0),
 
                     // Subtitle fade staggered entry (starts 250ms after logo/title)
                     FadeTransition(
                       opacity: _subtitleFade,
-                      child: const Text(
+                      child: Text(
                         'The Autonomous\nHuman Communication\nNetwork',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                          color: AegisColors.textSecondary,
                           height: 1.5,
                           letterSpacing: 0.2,
                           fontFamily: 'SF Pro Display',
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20.0),
+                    SizedBox(height: 20.0),
                   ],
                 ),
               ),
@@ -567,11 +551,11 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 bottom: 28.0,
                 child: FadeTransition(
                   opacity: _quoteFade,
-                  child: const Text(
+                  child: Text(
                     'When the Internet dies,\nhumanity still speaks.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AegisColors.textSecondary,
                       fontSize: 12.0,
                       height: 1.45,
                       fontWeight: FontWeight.w500,

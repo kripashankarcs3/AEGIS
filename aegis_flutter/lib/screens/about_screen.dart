@@ -12,10 +12,10 @@ class AboutScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF090D16),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'About AEGIS',
           style: TextStyle(
             fontSize: 18.0,
@@ -25,7 +25,7 @@ class AboutScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.ios_share_rounded, color: Colors.white),
+            icon: Icon(Icons.ios_share_rounded, color: Colors.white),
             onPressed: () {},
           ),
         ],
@@ -62,7 +62,7 @@ class AboutScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         'A',
                         style: TextStyle(
@@ -74,10 +74,10 @@ class AboutScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20.0),
+                  SizedBox(height: 20.0),
 
                   // Brand name titles
-                  const Text(
+                  Text(
                     'AEGIS',
                     style: TextStyle(
                       fontSize: 22.0,
@@ -86,8 +86,8 @@ class AboutScreen extends StatelessWidget {
                       letterSpacing: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 2.0),
-                  const Text(
+                  SizedBox(height: 2.0),
+                  Text(
                     'Mesh Network',
                     style: TextStyle(
                       fontSize: 13.0,
@@ -96,7 +96,7 @@ class AboutScreen extends StatelessWidget {
                       letterSpacing: 0.5,
                     ),
                   ),
-                  const SizedBox(height: 10.0),
+                  SizedBox(height: 10.0),
 
                   // Version badge tag
                   Container(
@@ -109,7 +109,7 @@ class AboutScreen extends StatelessWidget {
                         width: 1.0,
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'v1.0.0',
                       style: TextStyle(
                         color: AegisColors.neonGreen,
@@ -118,10 +118,10 @@ class AboutScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16.0),
+                  SizedBox(height: 16.0),
 
                   // Platform descriptive pitch
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
                       'AEGIS is an offline-first emergency communication platform that connects devices in a secure mesh network.',
@@ -136,7 +136,7 @@ class AboutScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 32.0),
+            SizedBox(height: 32.0),
 
             // 2. Info Details Cards
             Container(
@@ -179,7 +179,7 @@ class AboutScreen extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AegisColors.textSecondary,
               fontSize: 12.5,
             ),
@@ -205,12 +205,12 @@ class AboutScreen extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: AegisColors.textSecondary,
               fontSize: 12.5,
             ),
           ),
-          const Icon(
+          Icon(
             Icons.chevron_right,
             size: 14.0,
             color: AegisColors.textMuted,

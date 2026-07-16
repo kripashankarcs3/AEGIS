@@ -22,23 +22,23 @@ class NodePopupCard extends StatelessWidget {
       decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF141428), Color(0xFF0E0E1E)]), borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28))),
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
         Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Center(child: Column(children: [
-          Container(width: 64, height: 64, decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.violet.withOpacity(0.2), AegisColors.violet.withOpacity(0.05)]), shape: BoxShape.circle, border: Border.all(color: AegisColors.violet.withOpacity(0.2), width: 1.5)), child: const Center(child: Icon(Icons.person_rounded, color: AegisColors.violet, size: 32))),
-          const SizedBox(height: 14),
-          Text(nodeId, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3)),
-          const SizedBox(height: 6),
+          Container(width: 64, height: 64, decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.violet.withOpacity(0.2), AegisColors.violet.withOpacity(0.05)]), shape: BoxShape.circle, border: Border.all(color: AegisColors.violet.withOpacity(0.2), width: 1.5)), child: Center(child: Icon(Icons.person_rounded, color: AegisColors.violet, size: 32))),
+          SizedBox(height: 14),
+          Text(nodeId, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3)),
+          SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(color: (d['statusColor'] as Color).withOpacity(0.1), borderRadius: BorderRadius.circular(8), border: Border.all(color: (d['statusColor'] as Color).withOpacity(0.2), width: 0.5)),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               Container(width: 6, height: 6, decoration: BoxDecoration(color: d['statusColor'] as Color, shape: BoxShape.circle)),
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Text("${d['status']}  •  ${d['hops']}", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: d['statusColor'] as Color)),
             ]),
           ),
         ])),
-        const SizedBox(height: 28),
+        SizedBox(height: 28),
         Container(
           decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(16), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5)),
           child: Column(children: [
@@ -55,23 +55,23 @@ class NodePopupCard extends StatelessWidget {
             _row(Icons.vpn_key_outlined, 'Public Key', widget: _keyRow(d['publicKey'] as String)),
           ]),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         GestureDetector(
           onTap: onOpenChat,
           child: Container(width: double.infinity, height: 50, decoration: BoxDecoration(gradient: AegisColors.purpleGradient, borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: AegisColors.violet.withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6))]),
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Icon(Icons.chat_bubble_outline_rounded, color: Colors.white.withOpacity(0.9), size: 18),
-              const SizedBox(width: 10),
-              const Text('OPEN CHAT', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14, letterSpacing: 0.3)),
+              SizedBox(width: 10),
+              Text('OPEN CHAT', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14, letterSpacing: 0.3)),
             ])),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         GestureDetector(
           onTap: onSendSos ?? () {},
           child: Container(width: double.infinity, height: 50, decoration: BoxDecoration(color: Colors.transparent, borderRadius: BorderRadius.circular(14), border: Border.all(color: AegisColors.sosRed.withOpacity(0.4), width: 1)),
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Icon(Icons.notifications_active_outlined, color: AegisColors.sosRed.withOpacity(0.9), size: 18),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Text('SEND SOS', style: TextStyle(color: AegisColors.sosRed.withOpacity(0.9), fontWeight: FontWeight.w700, fontSize: 14, letterSpacing: 0.3)),
             ])),
         ),
@@ -83,8 +83,8 @@ class NodePopupCard extends StatelessWidget {
     return Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, color: AegisColors.textSecondary, size: 17),
-        const SizedBox(width: 12),
-        Text(label, style: const TextStyle(color: AegisColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
+        SizedBox(width: 12),
+        Text(label, style: TextStyle(color: AegisColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
       ]),
       widget ?? Text(value ?? '', style: TextStyle(color: valueColor ?? Colors.white, fontSize: small ? 12 : 13, fontWeight: FontWeight.w700)),
     ]));
@@ -97,9 +97,9 @@ class NodePopupCard extends StatelessWidget {
   Widget _keyRow(String key) {
     final t = key.length <= 16 ? key : "${key.substring(0, 6)}...${key.substring(key.length - 8)}";
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      Text(t, style: const TextStyle(color: AegisColors.textSecondary, fontSize: 12, fontFamily: 'monospace')),
-      const SizedBox(width: 8),
-      Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.border1.withOpacity(0.5), borderRadius: BorderRadius.circular(4)), child: const Icon(Icons.copy_rounded, color: AegisColors.textSecondary, size: 12)),
+      Text(t, style: TextStyle(color: AegisColors.textSecondary, fontSize: 12, fontFamily: 'monospace')),
+      SizedBox(width: 8),
+      Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.border1.withOpacity(0.5), borderRadius: BorderRadius.circular(4)), child: Icon(Icons.copy_rounded, color: AegisColors.textSecondary, size: 12)),
     ]);
   }
 

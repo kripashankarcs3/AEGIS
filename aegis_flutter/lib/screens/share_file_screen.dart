@@ -13,10 +13,10 @@ class ShareFileScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF090D16),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Share File',
           style: TextStyle(
             fontSize: 18.0,
@@ -26,7 +26,7 @@ class ShareFileScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 22.0),
+            icon: Icon(Icons.info_outline_rounded, color: Colors.white, size: 22.0),
             onPressed: () {},
           ),
         ],
@@ -46,13 +46,13 @@ class ShareFileScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.add_to_photos_rounded,
                         color: AegisColors.textSecondary,
                         size: 34.0,
                       ),
-                      const SizedBox(height: 12.0),
-                      const Text(
+                      SizedBox(height: 12.0),
+                      Text(
                         'Drag & drop file here',
                         style: TextStyle(
                           color: Colors.white,
@@ -60,23 +60,22 @@ class ShareFileScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 6.0),
-                      const Text(
+                      SizedBox(height: 6.0),
+                      Text(
                         'or',
                         style: TextStyle(
                           color: AegisColors.textMuted,
                           fontSize: 11.0,
                         ),
                       ),
-                      const SizedBox(height: 14.0),
-                      // Choose File Button
+                      SizedBox(height: 14.0),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
                         decoration: BoxDecoration(
                           color: AegisColors.violet.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(6.0),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Choose File',
                           style: TextStyle(
                             color: Colors.white,
@@ -89,10 +88,10 @@ class ShareFileScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 24.0),
+              SizedBox(height: 24.0),
 
               // 2. Nearby Devices Title
-              const Text(
+              Text(
                 'Nearby Devices',
                 style: TextStyle(
                   fontSize: 12.0,
@@ -100,7 +99,7 @@ class ShareFileScreen extends StatelessWidget {
                   color: AegisColors.textSecondary,
                 ),
               ),
-              const SizedBox(height: 12.0),
+              SizedBox(height: 12.0),
 
               // 3. List of Nearby Devices
               Expanded(
@@ -139,29 +138,29 @@ class ShareFileScreen extends StatelessWidget {
                   color: AegisColors.neonGreen.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.sensors_rounded,
                   color: AegisColors.neonGreen,
                   size: 16.0,
                 ),
               ),
-              const SizedBox(width: 14.0),
+              SizedBox(width: 14.0),
               // Device Details info
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     nodeId,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 2.0),
+                  SizedBox(height: 2.0),
                   Text(
                     hops,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11.0,
                       color: AegisColors.textSecondary,
                     ),
@@ -179,7 +178,7 @@ class ShareFileScreen extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: AegisColors.violet.withOpacity(0.4), width: 1.0),
             ),
-            child: const Center(
+            child: Center(
               child: Icon(
                 Icons.send_rounded,
                 color: AegisColors.violet,

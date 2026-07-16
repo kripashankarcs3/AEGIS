@@ -27,62 +27,62 @@ class AegisStyles {
   // ═══════════════════════════════════════════════
   // TYPOGRAPHY
   // ═══════════════════════════════════════════════
-  static const TextStyle hero = TextStyle(
+  static TextStyle get hero => TextStyle(
     fontSize: 34, fontWeight: FontWeight.w800, color: AegisColors.textPrimary,
     letterSpacing: -1.0, height: 1.05,
   );
 
-  static const TextStyle h1 = TextStyle(
+  static TextStyle get h1 => TextStyle(
     fontSize: 26, fontWeight: FontWeight.w800, color: AegisColors.textPrimary,
     letterSpacing: -0.6, height: 1.1,
   );
 
-  static const TextStyle h2 = TextStyle(
+  static TextStyle get h2 => TextStyle(
     fontSize: 22, fontWeight: FontWeight.w800, color: AegisColors.textPrimary,
     letterSpacing: -0.4, height: 1.15,
   );
 
-  static const TextStyle h3 = TextStyle(
+  static TextStyle get h3 => TextStyle(
     fontSize: 18, fontWeight: FontWeight.w700, color: AegisColors.textPrimary,
     letterSpacing: -0.2, height: 1.2,
   );
 
-  static const TextStyle subtitle = TextStyle(
+  static TextStyle get subtitle => TextStyle(
     fontSize: 13, fontWeight: FontWeight.w600, color: AegisColors.textSecondary,
     letterSpacing: 0.2, height: 1.3,
   );
 
-  static const TextStyle body = TextStyle(
+  static TextStyle get body => TextStyle(
     fontSize: 14, fontWeight: FontWeight.w400, color: AegisColors.textPrimary,
     height: 1.5,
   );
 
-  static const TextStyle bodySmall = TextStyle(
+  static TextStyle get bodySmall => TextStyle(
     fontSize: 13, fontWeight: FontWeight.w500, color: AegisColors.textSecondary,
     height: 1.4,
   );
 
-  static const TextStyle caption = TextStyle(
+  static TextStyle get caption => TextStyle(
     fontSize: 11, fontWeight: FontWeight.w500, color: AegisColors.textMuted,
     height: 1.3,
   );
 
-  static const TextStyle overline = TextStyle(
+  static TextStyle get overline => TextStyle(
     fontSize: 10, fontWeight: FontWeight.w700, color: AegisColors.textMuted,
     letterSpacing: 1.2, height: 1.2,
   );
 
-  static const TextStyle label = TextStyle(
+  static TextStyle get label => TextStyle(
     fontSize: 16, fontWeight: FontWeight.w700, color: AegisColors.textPrimary,
     letterSpacing: -0.2,
   );
 
-  static const TextStyle mono = TextStyle(
+  static TextStyle get mono => TextStyle(
     fontFamily: 'monospace', fontSize: 13, fontWeight: FontWeight.w600,
     color: AegisColors.textSecondary, letterSpacing: 0.2,
   );
 
-  static const TextStyle monoSmall = TextStyle(
+  static TextStyle get monoSmall => TextStyle(
     fontFamily: 'monospace', fontSize: 10, fontWeight: FontWeight.w500,
     color: AegisColors.textMuted,
   );
@@ -92,12 +92,12 @@ class AegisStyles {
     letterSpacing: 0.5,
   );
 
-  static const TextStyle message = TextStyle(
+  static TextStyle get message => TextStyle(
     fontSize: 15, fontWeight: FontWeight.w400, color: AegisColors.textPrimary,
     height: 1.4,
   );
 
-  static const TextStyle timestamp = TextStyle(
+  static TextStyle get timestamp => TextStyle(
     fontSize: 10, fontWeight: FontWeight.w500, color: AegisColors.textMuted,
     height: 1.2,
   );
@@ -110,6 +110,6 @@ class AegisStyles {
   // ═══════════════════════════════════════════════
   // COMMON BORDERS
   // ═══════════════════════════════════════════════
-  static final Border border = Border.all(color: AegisColors.border1, width: 0.5);
-  static final Border borderLight = Border.all(color: AegisColors.border2, width: 0.5);
+  static Border get border => Border.all(color: AegisColors.border1, width: 0.5);
+  static Border get borderLight => Border.all(color: AegisColors.border2, width: 0.5);
 }

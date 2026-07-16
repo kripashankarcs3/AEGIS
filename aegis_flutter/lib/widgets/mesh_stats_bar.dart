@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
-import '../constants/aegis_styles.dart';
+
 
 class MeshStatsBar extends StatelessWidget {
   const MeshStatsBar({super.key});
@@ -9,7 +9,7 @@ class MeshStatsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]),
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AegisColors.border1.withOpacity(0.5), width: 0.5),
         boxShadow: AegisColors.cardShadow,
@@ -32,9 +32,9 @@ class MeshStatsBar extends StatelessWidget {
     return Expanded(
       child: Padding(padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5)),
-        const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AegisColors.textMuted, letterSpacing: 0.8)),
-        const SizedBox(height: 2),
+        SizedBox(height: 4),
+        Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AegisColors.textMuted, letterSpacing: 0.8)),
+        SizedBox(height: 2),
         Text(sub, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: subColor, letterSpacing: 0.2)),
       ])),
     );

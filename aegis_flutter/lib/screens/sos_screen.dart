@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
@@ -18,7 +17,7 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
   late AnimationController _bgPulse;
   late Animation<double> _bgAnim;
 
-  final List<Map<String, dynamic>> _categories = const [
+  final List<Map<String, dynamic>> _categories = [
     {'label': 'Medical', 'icon': Icons.medical_services_rounded, 'color': AegisColors.sosRed},
     {'label': 'Fire', 'icon': Icons.local_fire_department_rounded, 'color': AegisColors.orange},
     {'label': 'Water', 'icon': Icons.water_drop_rounded, 'color': AegisColors.electricCyan},
@@ -53,11 +52,11 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   StaggeredFadeIn(index: 0, child: _header()),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   StaggeredFadeIn(index: 1, child: const SosBroadcastCard()),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   StaggeredFadeIn(index: 2, child: _categorySection()),
-                  const SizedBox(height: 28),
+                  SizedBox(height: 28),
                   StaggeredFadeIn(index: 3, child: _prioritySection()),
                 ]),
               ),
@@ -71,11 +70,11 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
   Widget _header() {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Row(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 40, height: 40, decoration: BoxDecoration(gradient: AegisColors.sosGradient, borderRadius: BorderRadius.circular(12), boxShadow: AegisColors.glowRed), child: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 22)),
-        const SizedBox(width: 14),
-        const Text('SOS', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5)),
+        Container(width: 40, height: 40, decoration: BoxDecoration(gradient: AegisColors.sosGradient, borderRadius: BorderRadius.circular(12), boxShadow: AegisColors.glowRed), child: Icon(Icons.warning_amber_rounded, color: Colors.white, size: 22)),
+        SizedBox(width: 14),
+        Text('SOS', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AegisColors.textPrimary, letterSpacing: -0.5)),
       ]),
-      Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 18)),
+      Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: Icon(Icons.info_outline_rounded, color: AegisColors.textPrimary, size: 18)),
     ]);
   }
 
@@ -83,10 +82,10 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
         Container(width: 3, height: 16, decoration: BoxDecoration(gradient: AegisColors.sosGradient, borderRadius: BorderRadius.circular(2))),
-        const SizedBox(width: 10),
-        const Text('SELECT CATEGORY', style: AegisStyles.overline),
+        SizedBox(width: 10),
+        Text('SELECT CATEGORY', style: AegisStyles.overline),
       ]),
-      const SizedBox(height: 20),
+      SizedBox(height: 20),
       Wrap(
         spacing: 12, runSpacing: 16,
         children: List.generate(_categories.length, (i) => _catBtn(i, _categories[i]['icon'], _categories[i]['label'], _categories[i]['color'])),
@@ -104,13 +103,13 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
           width: 58, height: 58,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: sel ? LinearGradient(colors: [catColor.withOpacity(0.25), catColor.withOpacity(0.08)]) : null,
+            color: sel ? catColor : Colors.transparent,
             border: Border.all(color: sel ? catColor : AegisColors.border1, width: sel ? 2 : 1),
             boxShadow: sel ? [BoxShadow(color: catColor.withOpacity(0.3), blurRadius: 16, spreadRadius: 3)] : null,
           ),
-          child: Icon(icon, color: sel ? catColor : AegisColors.textSecondary, size: 24),
+          child: Icon(icon, color: sel ? Colors.white : AegisColors.textSecondary, size: 24),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         AnimatedDefaultTextStyle(duration: const Duration(milliseconds: 200),
           style: TextStyle(fontSize: 11, fontWeight: sel ? FontWeight.w700 : FontWeight.w500, color: sel ? catColor : AegisColors.textSecondary),
           child: Text(label)),
@@ -121,16 +120,16 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
   Widget _prioritySection() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        Container(width: 3, height: 16, decoration: BoxDecoration(gradient: const LinearGradient(colors: [AegisColors.neonGreen, AegisColors.warning, AegisColors.sosRed]), borderRadius: BorderRadius.circular(2))),
-        const SizedBox(width: 10),
-        const Text('PRIORITY LEVEL', style: AegisStyles.overline),
+        Container(width: 3, height: 16, decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.neonGreen, AegisColors.warning, AegisColors.sosRed]), borderRadius: BorderRadius.circular(2))),
+        SizedBox(width: 10),
+        Text('PRIORITY LEVEL', style: AegisStyles.overline),
       ]),
-      const SizedBox(height: 16),
+      SizedBox(height: 16),
       Row(children: [
         Expanded(child: _prioBtn(0, 'Low', AegisColors.neonGreen)),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(child: _prioBtn(1, 'Medium', AegisColors.warning)),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(child: _prioBtn(2, 'High', AegisColors.sosRed)),
       ]),
     ]);
@@ -156,7 +155,7 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
             decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: sel ? color : AegisColors.textMuted, width: 1.5)),
             child: sel ? Center(child: Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle))) : null,
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           AnimatedDefaultTextStyle(duration: const Duration(milliseconds: 200),
             style: TextStyle(color: sel ? color : AegisColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w700),
             child: Text(label)),

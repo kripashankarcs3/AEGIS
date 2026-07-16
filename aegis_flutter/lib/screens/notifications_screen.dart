@@ -20,10 +20,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         backgroundColor: const Color(0xFF090D16),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Notifications',
           style: TextStyle(
             fontSize: 18.0,
@@ -33,7 +33,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 22.0),
+            icon: Icon(Icons.settings_outlined, color: Colors.white, size: 22.0),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -60,7 +60,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   _buildFilterPill(3, 'System'),
                 ],
               ),
-              const SizedBox(height: 20.0),
+              SizedBox(height: 20.0),
 
               // 2. Notifications List
               Expanded(
@@ -89,7 +89,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           color: AegisColors.sosRed,
                           shape: BoxShape.circle,
                         ),
-                        child: const Text(
+                        child: Text(
                           'SOS',
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 8.0),
                         ),
@@ -193,7 +193,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 size: 16.0,
               ),
             ),
-          const SizedBox(width: 14.0),
+          SizedBox(width: 14.0),
 
           // Title & subtitle
           Expanded(
@@ -202,16 +202,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 2.0),
+                SizedBox(height: 2.0),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11.5,
                     color: AegisColors.textSecondary,
                   ),
@@ -223,10 +223,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           // Time ago
           Text(
             time,
-            style: const TextStyle(
-              fontSize: 10.0,
-              color: AegisColors.textMuted,
-            ),
+style: TextStyle(
+                fontSize: 10.0,
+                color: AegisColors.textMuted,
+              ),
           ),
         ],
       ),

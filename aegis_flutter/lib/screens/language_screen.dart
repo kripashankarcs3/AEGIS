@@ -11,7 +11,7 @@ class LanguageScreen extends StatefulWidget {
 class _LanguageScreenState extends State<LanguageScreen> {
   int _selectedLanguageIndex = 0;
 
-  final List<Map<String, String>> _languages = const [
+  final List<Map<String, String>> _languages = [
     {'name': 'English', 'sub': 'Default'},
     {'name': 'हिन्दी (Hindi)', 'sub': ''},
     {'name': 'தமிழ் (Tamil)', 'sub': ''},
@@ -30,10 +30,10 @@ class _LanguageScreenState extends State<LanguageScreen> {
         backgroundColor: const Color(0xFF090D16),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Language',
           style: TextStyle(
             fontSize: 18.0,
@@ -64,7 +64,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                               width: 1.0,
                             ),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Icon(
                               Icons.language_rounded,
                               color: AegisColors.neonGreen,
@@ -72,8 +72,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16.0),
-                        const Text(
+                        SizedBox(height: 16.0),
+                        Text(
                           'Choose App Language',
                           style: TextStyle(
                             fontSize: 16.0,
@@ -81,8 +81,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
                             color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 6.0),
-                        const Text(
+                        SizedBox(height: 6.0),
+                        Text(
                           'Select your preferred language for\nthe AEGIS interface.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -94,7 +94,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 28.0),
+                  SizedBox(height: 28.0),
 
                   // 2. Languages list card
                   Container(
@@ -138,24 +138,24 @@ class _LanguageScreenState extends State<LanguageScreen> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 14.0),
+                                SizedBox(width: 14.0),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         lang['name']!,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 13.0,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                       if (lang['sub']!.isNotEmpty) ...[
-                                        const SizedBox(height: 2.0),
+                                        SizedBox(height: 2.0),
                                         Text(
                                           lang['sub']!,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: AegisColors.textSecondary,
                                             fontSize: 10.0,
                                           ),
@@ -196,7 +196,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                       ),
                     ],
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       'Apply Language',
                       style: TextStyle(
