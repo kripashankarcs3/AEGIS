@@ -4,7 +4,7 @@ import '../constants/aegis_colors.dart';
 enum AppThemeMode { system, light, dark }
 
 class ThemeProvider extends ChangeNotifier {
-  AppThemeMode _mode = AppThemeMode.light;
+  AppThemeMode _mode = AppThemeMode.dark;
 
   AppThemeMode get mode => _mode;
   ThemeMode get themeMode {
@@ -56,7 +56,7 @@ class _ThemeProviderWidgetState extends State<ThemeProviderWidget> {
   @override
   void initState() {
     super.initState();
-    _provider.setMode(AppThemeMode.light);
+    _provider.setMode(AppThemeMode.dark);
   }
 
   @override
