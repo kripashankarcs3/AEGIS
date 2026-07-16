@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import '../constants/aegis_colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import '../services/storage_service.dart';
@@ -96,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showImagePickerOptions() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF09111F),
+      backgroundColor: AegisColors.cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -111,7 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: AegisColors.border2,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -152,12 +153,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return ListTile(
       leading: Icon(
         icon,
-        color: iconColor ?? Colors.white.withOpacity(0.8),
+        color: iconColor ?? AegisColors.textSecondary,
       ),
       title: Text(
         label,
         style: TextStyle(
-          color: textColor ?? Colors.white,
+          color: textColor ?? AegisColors.textPrimary,
           fontSize: 16,
           fontWeight: FontWeight.w500,
           fontFamily: 'SF Pro Display',
@@ -170,7 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF040814), // Deep space black background
+      backgroundColor: AegisColors.background, // Deep space black background
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -178,17 +179,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: Container(
           margin: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFF09111F).withOpacity(0.5),
+            color: AegisColors.cardBg.withOpacity(0.5),
             shape: BoxShape.circle,
             border: Border.all(
-              color: Colors.white.withOpacity(0.08),
+              color: AegisColors.border1,
               width: 1.0,
             ),
           ),
           child: IconButton(
             icon: Icon(
               Icons.arrow_back_rounded,
-              color: Colors.white,
+              color: AegisColors.textPrimary,
               size: 20,
             ),
             onPressed: () => Navigator.of(context).pop(),
@@ -199,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: TextStyle(
             fontSize: 24.0,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
             fontFamily: 'SF Pro Display',
             letterSpacing: -0.5,
           ),
@@ -211,17 +212,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFF09111F).withOpacity(0.5),
+              color: AegisColors.cardBg.withOpacity(0.5),
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white.withOpacity(0.08),
+                color: AegisColors.border1,
                 width: 1.0,
               ),
             ),
             child: IconButton(
               icon: Icon(
                 Icons.more_vert_rounded,
-                color: Colors.white,
+                color: AegisColors.textPrimary,
                 size: 20,
               ),
               onPressed: () {},
@@ -268,7 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.15),
+                        color: AegisColors.border2.withOpacity(0.3),
                         width: 1.5,
                       ),
                       image: _profileImagePath != null
@@ -282,7 +283,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ? Center(
                             child: Icon(
                               Icons.person_rounded,
-                              color: Colors.white,
+                              color: AegisColors.textPrimary,
                               size: 52,
                             ),
                           )
@@ -301,7 +302,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: const Color(0xFFA855F7),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFF040814),
+                            color: AegisColors.background,
                             width: 3,
                           ),
                           boxShadow: [
@@ -314,7 +315,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: Icon(
                           Icons.camera_alt_rounded,
-                          color: Colors.white,
+                          color: AegisColors.textPrimary,
                           size: 16,
                         ),
                       ),
@@ -334,7 +335,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: AegisColors.textPrimary,
                       fontFamily: 'SF Pro Display',
                       letterSpacing: -0.3,
                     ),
@@ -345,7 +346,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(0.4),
+                      color: AegisColors.textSecondary,
                       fontFamily: 'SF Pro Display',
                     ),
                   ),
@@ -384,10 +385,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 18.0),
               decoration: BoxDecoration(
-                color: const Color(0xFF09111F),
+                color: AegisColors.cardBg,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.06),
+                  color: AegisColors.border1,
                   width: 1.0,
                 ),
               ),
@@ -406,10 +407,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // 4. Menu Card list (My Information, Emergency Contacts, Devices, Settings, Help)
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF09111F),
+                color: AegisColors.cardBg,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.06),
+                  color: AegisColors.border1,
                   width: 1.0,
                 ),
               ),
@@ -462,10 +463,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF09111F).withOpacity(0.3),
+                  color: AegisColors.cardBg.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFFFF0030).withOpacity(0.25),
+                    color: AegisColors.sosRed.withOpacity(0.25),
                     width: 1.0,
                   ),
                 ),
@@ -474,7 +475,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Icon(
                       Icons.logout_rounded,
-                      color: Color(0xFFFF0030),
+                      color: AegisColors.sosRed,
                       size: 20,
                     ),
                     SizedBox(width: 10),
@@ -483,7 +484,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: TextStyle(
                         fontSize: 15.0,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFFFF0030),
+                        color: AegisColors.sosRed,
                         fontFamily: 'SF Pro Display',
                       ),
                     ),
@@ -508,7 +509,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(
               fontSize: 12.0,
               fontWeight: FontWeight.w500,
-              color: Colors.white.withOpacity(0.4),
+              color: AegisColors.textSecondary,
               fontFamily: 'SF Pro Display',
             ),
           ),
@@ -518,7 +519,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(
               fontSize: 22.0,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: AegisColors.textPrimary,
               fontFamily: 'SF Pro Display',
             ),
           ),
@@ -531,7 +532,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       width: 1.0,
       height: 36.0,
-      color: Colors.white.withOpacity(0.06),
+      color: AegisColors.border1,
     );
   }
 
@@ -555,10 +556,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF040814),
+                    color: AegisColors.background,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.04),
+                      color: AegisColors.border1,
                       width: 1.0,
                     ),
                   ),
@@ -572,7 +573,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(
                   label,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AegisColors.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'SF Pro Display',
@@ -583,7 +584,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Icon(
               Icons.chevron_right_rounded,
               size: 18,
-              color: Colors.white.withOpacity(0.3),
+              color: AegisColors.textMuted,
             ),
           ],
         ),
@@ -594,7 +595,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildDivider() {
     return Container(
       height: 1.0,
-      color: Colors.white.withOpacity(0.05),
+      color: AegisColors.border1,
     );
   }
 
@@ -633,7 +634,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               border: Border.all(
-                color: Colors.white.withOpacity(0.08),
+                color: AegisColors.border1,
                 width: 0.5,
               ),
             ),
@@ -666,14 +667,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Icon(
               icon,
-              color: Colors.white.withOpacity(0.4),
+              color: AegisColors.textSecondary,
               size: 22,
             ),
             SizedBox(height: 3),
             Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.4),
+                color: AegisColors.textSecondary,
                 fontSize: 9.5,
                 fontWeight: FontWeight.w500,
                 letterSpacing: 0.3,
@@ -713,7 +714,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
               border: Border.all(
-                color: Colors.white.withOpacity(0.15),
+                color: AegisColors.border2.withOpacity(0.3),
                 width: 1,
               ),
             ),
@@ -721,7 +722,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Text(
                 'SOS',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AegisColors.textPrimary,
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
                   letterSpacing: 0.8,

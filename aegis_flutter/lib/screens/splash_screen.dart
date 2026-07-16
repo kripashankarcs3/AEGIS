@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../constants/aegis_colors.dart';
 import 'onboarding_screen.dart';
 
 class LogoShieldPainter extends CustomPainter {
@@ -414,13 +415,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF02040A), // Almost black top
-              Color(0xFF040814), // Deep navy blue background
+              AegisColors.background,
+              AegisColors.surface0,
             ],
           ),
         ),
@@ -495,7 +496,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       style: TextStyle(
                         fontSize: 38.0,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: AegisColors.textPrimary,
                         letterSpacing: -1.0, // Tighter tracking
                         fontFamily: 'SF Pro Display',
                       ),
@@ -511,7 +512,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         style: TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                          color: AegisColors.textSecondary,
                           height: 1.5,
                           letterSpacing: 0.2,
                           fontFamily: 'SF Pro Display',
@@ -554,7 +555,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                     'When the Internet dies,\nhumanity still speaks.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AegisColors.textSecondary,
                       fontSize: 12.0,
                       height: 1.45,
                       fontWeight: FontWeight.w500,

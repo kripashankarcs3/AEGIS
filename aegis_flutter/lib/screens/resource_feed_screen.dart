@@ -44,7 +44,7 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
                 SizedBox(height: 16),
                 StaggeredFadeIn(index: 1, child: _filterPillsWidget()),
                 SizedBox(height: 20),
-                Expanded(child: ListView.builder(itemCount: _items.length, padding: const EdgeInsets.only(bottom: 20), itemBuilder: (_, i) {
+                Expanded(child: ListView.builder(itemCount: _items.length, padding: const EdgeInsets.only(bottom: 160), itemBuilder: (_, i) {
                   final item = _items[i];
                   if (_selectedFilterPill > 0) {
                     if (item.category.name.toLowerCase() != _filterPills[_selectedFilterPill].toLowerCase()) return const SizedBox.shrink();
@@ -53,7 +53,7 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
                 })),
               ]),
             ),
-            Positioned(left: 24, right: 24, bottom: 100, child: StaggeredFadeIn(index: 6, child: _offerBtn())),
+            Positioned(left: 24, right: 24, bottom: 90, child: StaggeredFadeIn(index: 6, child: _offerBtn())),
           ],
         ),
       ),

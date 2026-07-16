@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../constants/aegis_colors.dart';
 import 'login_join_screen.dart';
 import 'splash_screen.dart'; // Import LogoShieldPainter and StarsBackgroundPainter
 
@@ -156,13 +157,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF02040A), // Almost black top
-              Color(0xFF040814), // Deep navy blue
+              AegisColors.background,
+              AegisColors.surface0,
             ],
           ),
         ),
@@ -205,7 +206,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                     style: TextStyle(
                                       fontSize: 30.0,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.white,
+                                      color: AegisColors.textPrimary,
                                       fontFamily: 'SF Pro Display',
                                     ),
                                   ),
@@ -289,7 +290,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                   style: TextStyle(
                                     fontSize: 16.0,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xFFA8B3C7),
+                                    color: AegisColors.textSecondary,
                                     fontFamily: 'SF Pro Display',
                                     height: 1.3,
                                   ),
@@ -300,7 +301,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                   style: TextStyle(
                                     fontSize: 16.0,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xFFA8B3C7),
+                                    color: AegisColors.textSecondary,
                                     fontFamily: 'SF Pro Display',
                                     height: 1.3,
                                   ),
@@ -410,10 +411,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF09111F),
+        color: AegisColors.cardBg,
         borderRadius: BorderRadius.circular(28.0),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: AegisColors.border1,
           width: 1.0,
         ),
         boxShadow: [
@@ -465,7 +466,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
             width: 40.0,
             height: 40.0,
             decoration: BoxDecoration(
-              color: const Color(0xFF09111F),
+              color: AegisColors.surface0,
               shape: BoxShape.circle,
               border: Border.all(
                 color: const Color(0xFF7B3EFF).withOpacity(0.5), // Purple outline
@@ -481,7 +482,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
             child: Center(
               child: Icon(
                 icon,
-                color: Colors.white,
+                color: AegisColors.textPrimary,
                   size: 18.0,
               ),
             ),
@@ -497,7 +498,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                 style: TextStyle(
                   fontSize: 15.0,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: AegisColors.textPrimary,
                   fontFamily: 'SF Pro Display',
                 ),
               ),
@@ -507,7 +508,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                 style: TextStyle(
                   fontSize: 13.0,
                   fontWeight: FontWeight.w400,
-                  color: Color(0xFFA8B3C7),
+                  color: AegisColors.textSecondary,
                   fontFamily: 'SF Pro Display',
                 ),
               ),
@@ -522,7 +523,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14.0),
       child: Divider(
-        color: Colors.white.withOpacity(0.06), // Opacity 6%
+        color: AegisColors.border1,
         height: 1.0,
         thickness: 1.0,
         indent: 62.0, // align with text start
@@ -645,7 +646,7 @@ class _FuturisticOrbitalGraphicState extends State<FuturisticOrbitalGraphic> wit
                     child: Container(
                       width: 44.0,
                       height: 44.0,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(

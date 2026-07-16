@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import '../constants/aegis_colors.dart';
 import '../providers/theme_provider.dart';
 import 'auto_sync_screen.dart';
 import 'language_screen.dart';
@@ -23,7 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final themeProvider = ThemeProviderWidget.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF040814), // Deep space black background
+      backgroundColor: AegisColors.background, // Deep space black background
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -31,17 +32,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         leading: Container(
           margin: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFF09111F).withOpacity(0.5),
+            color: AegisColors.cardBg.withOpacity(0.5),
             shape: BoxShape.circle,
             border: Border.all(
-              color: Colors.white.withOpacity(0.08),
+              color: AegisColors.border1,
               width: 1.0,
             ),
           ),
           child: IconButton(
             icon: Icon(
               Icons.arrow_back_rounded,
-              color: Colors.white,
+              color: AegisColors.textPrimary,
               size: 20,
             ),
             onPressed: () => Navigator.of(context).pop(),
@@ -52,7 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           style: TextStyle(
             fontSize: 24.0,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
             fontFamily: 'SF Pro Display',
             letterSpacing: -0.5,
           ),
@@ -69,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(
                 fontSize: 12.0,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF8888AA),
+                color: AegisColors.textSecondary,
                 letterSpacing: 1.2,
                 fontFamily: 'SF Pro Display',
               ),
@@ -105,7 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(
                 fontSize: 12.0,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF8888AA),
+                color: AegisColors.textSecondary,
                 letterSpacing: 1.2,
                 fontFamily: 'SF Pro Display',
               ),
@@ -176,7 +177,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(
                 fontSize: 12.0,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF8888AA),
+                color: AegisColors.textSecondary,
                 letterSpacing: 1.2,
                 fontFamily: 'SF Pro Display',
               ),
@@ -213,7 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(
                 fontSize: 12.0,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF8888AA),
+                color: AegisColors.textSecondary,
                 letterSpacing: 1.2,
                 fontFamily: 'SF Pro Display',
               ),
@@ -238,10 +239,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildCardSection(List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF09111F),
+        color: AegisColors.cardBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.06),
+          color: AegisColors.border1,
           width: 1.0,
         ),
       ),
@@ -270,10 +271,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF040814),
+                    color: AegisColors.background,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.04),
+                      color: AegisColors.border1,
                       width: 1.0,
                     ),
                   ),
@@ -289,7 +290,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   label,
                   style: TextStyle(
-                    color: selected ? Colors.white : Colors.white.withOpacity(0.6),
+                    color: selected ? AegisColors.textPrimary : AegisColors.textSecondary,
                     fontSize: 15,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                     fontFamily: 'SF Pro Display',
@@ -344,16 +345,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF040814),
+                    color: AegisColors.background,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.04),
+                      color: AegisColors.border1,
                       width: 1.0,
                     ),
                   ),
                   child: Icon(
                     icon,
-                    color: Colors.white.withOpacity(0.7),
+                    color: AegisColors.textSecondary,
                     size: 16,
                   ),
                 ),
@@ -361,7 +362,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   label,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AegisColors.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'SF Pro Display',
@@ -385,7 +386,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Icon(
                   Icons.chevron_right_rounded,
                   size: 18,
-                  color: Colors.white.withOpacity(0.3),
+                  color: AegisColors.textMuted,
                 ),
               ],
             ),
@@ -417,16 +418,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF040814),
+                      color: AegisColors.background,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.04),
+                        color: AegisColors.border1,
                         width: 1.0,
                       ),
                     ),
                     child: Icon(
                       icon,
-                      color: Colors.white.withOpacity(0.7),
+                      color: AegisColors.textSecondary,
                       size: 16,
                     ),
                   ),
@@ -434,7 +435,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Text(
                     label,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AegisColors.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'SF Pro Display',
@@ -445,10 +446,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Switch(
                 value: value,
                 onChanged: onChanged,
-                activeColor: Colors.white,
-                activeTrackColor: const Color(0xFF256DFF),
-                inactiveThumbColor: Colors.white.withOpacity(0.4),
-                inactiveTrackColor: const Color(0xFF151E33),
+                activeColor: AegisColors.cardBg,
+                activeTrackColor: AegisColors.electricBlue,
+                inactiveThumbColor: AegisColors.textMuted,
+                inactiveTrackColor: AegisColors.border2,
               ),
             ],
           ),
@@ -459,7 +460,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Text(
                 sublabel,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.4),
+                  color: AegisColors.textSecondary,
                   fontSize: 11,
                   fontFamily: 'SF Pro Display',
                 ),
@@ -474,7 +475,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildDivider() {
     return Container(
       height: 1.0,
-      color: Colors.white.withOpacity(0.05),
+      color: AegisColors.border1,
     );
   }
 
@@ -513,7 +514,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
               border: Border.all(
-                color: Colors.white.withOpacity(0.08),
+                color: AegisColors.border1,
                 width: 0.5,
               ),
             ),
@@ -546,14 +547,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Icon(
               icon,
-              color: Colors.white.withOpacity(0.4),
+              color: AegisColors.textSecondary,
               size: 22,
             ),
             SizedBox(height: 3),
             Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.4),
+                color: AegisColors.textSecondary,
                 fontSize: 9.5,
                 fontWeight: FontWeight.w500,
                 letterSpacing: 0.3,
@@ -593,7 +594,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ],
               border: Border.all(
-                color: Colors.white.withOpacity(0.15),
+                color: AegisColors.border2.withOpacity(0.3),
                 width: 1,
               ),
             ),
@@ -601,7 +602,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Text(
                 'SOS',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AegisColors.textPrimary,
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
                   letterSpacing: 0.8,
