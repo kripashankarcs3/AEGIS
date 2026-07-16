@@ -139,7 +139,6 @@ class MeshNotifier extends StateNotifier<MeshState> {
     );
 
     _router = MeshRouter(
-      peerManager: _peerManager,
       transportManager: _transport,
       messageQueue: _messageQueue,
     );

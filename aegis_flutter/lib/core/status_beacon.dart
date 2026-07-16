@@ -7,7 +7,7 @@ import 'mesh_router.dart';
 class StatusBeacon {
   StatusBeacon({
     MeshRouter? meshRouter,
-    String selfId = 'SIG-7F3A',
+    String selfId = 'SIG-????',
   })  : _meshRouter = meshRouter,
         _selfId = selfId;
 

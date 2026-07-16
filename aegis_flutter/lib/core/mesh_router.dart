@@ -1,18 +1,14 @@
 import '../models/signal_packet.dart';
 import 'message_queue.dart';
-import 'peer_manager.dart';
 import '../transport/transport_manager.dart';
 
 class MeshRouter {
   MeshRouter({
-    required PeerManager peerManager,
     required TransportManager transportManager,
     required MessageQueue messageQueue,
-  })  : _peerManager = peerManager,
-        _transportManager = transportManager,
+  })  : _transportManager = transportManager,
         _messageQueue = messageQueue;
 
-  final PeerManager _peerManager;
   final TransportManager _transportManager;
   final MessageQueue _messageQueue;
 
@@ -55,14 +51,13 @@ class MeshRouter {
       return;
     }
 
-    // 4. Unicast — check if we are the destination
-    if (!_peerManager.containsPeer(packet.to)) {
-      // Packet is addressed to an ID we don't have as a peer → it's for us
+    // 4. Unicast — check if WE are the destination
+    if (packet.to == localSigId) {
       await _deliverPacket(packet);
       return;
     }
 
-    // 5. Forward to next hop
+    // 5. Forward to next hop (we are a relay)
     await relayPacket(packet);
   }
 

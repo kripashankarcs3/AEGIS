@@ -44,11 +44,14 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
   }
 
   Future<void> _onHoldComplete() async {
-    final handler = ref.read(meshProvider.notifier).sosHandler;
-    if (!handler.canSend) {
+    final sosHandler = ref.read(meshProvider.notifier).sosHandler;
+    if (!sosHandler.canSend) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please wait before sending another SOS')),
+          const SnackBar(
+            content: Text('Please wait 60 seconds before sending another SOS.'),
+            backgroundColor: Colors.orange,
+          ),
         );
       }
       return;
@@ -65,9 +68,9 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
 
     final message = _detailsController.text.trim();
     if (message.isEmpty) {
-      handler.sendSOS(latitude: lat, longitude: lon);
+      sosHandler.sendSOS(latitude: lat, longitude: lon);
     } else {
-      handler.sendSOS(latitude: lat, longitude: lon, message: message);
+      sosHandler.sendSOS(latitude: lat, longitude: lon, message: message);
     }
 
     if (mounted) {
