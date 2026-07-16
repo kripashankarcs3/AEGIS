@@ -1,21 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
+import '../providers/chat_provider.dart';
 import 'share_file_screen.dart';
 import 'voice_message_screen.dart';
 
-class ChatConversationScreen extends StatefulWidget {
+class ChatConversationScreen extends ConsumerStatefulWidget {
   final String nodeId;
   const ChatConversationScreen({super.key, required this.nodeId});
 
   @override
-  State<ChatConversationScreen> createState() => _ChatConversationScreenState();
+  ConsumerState<ChatConversationScreen> createState() => _ChatConversationScreenState();
 }
 
-class _ChatConversationScreenState extends State<ChatConversationScreen> {
+class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen> {
+  final TextEditingController _messageController = TextEditingController();
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  void _sendMessage() {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+    ref.read(chatProvider(widget.nodeId).notifier).send(text);
+    _messageController.clear();
+  }
+
+  String _formatTime(DateTime dt) {
+    final h = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+    final m = dt.minute.toString().padLeft(2, '0');
+    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$h:$m $ampm';
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool offline = widget.nodeId == 'SIG-4D2F';
+    final messages = ref.watch(chatProvider(widget.nodeId));
+    final showMock = messages.isEmpty;
 
     return Scaffold(
       backgroundColor: AegisColors.background,
@@ -49,23 +75,34 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
       body: SafeArea(
         child: Column(children: [
           Expanded(
-            child: ListView(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), children: offline
-              ? [
-                  _incoming('Hello! Are you safe?', '10:18 AM'),
-                  _outgoing("Yes, I'm safe here.", '10:19 AM', green: false),
-                  _incoming('We need medical supplies.', '10:20 AM'),
-                  _queued('I can help. I have some basic medicines.', '10:21 AM'),
-                ]
-              : [
-                  _incoming('Are you safe?', '10:21 AM'),
-                  _outgoing('Yes, we are safe.', '10:22 AM'),
-                  _hopPath('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
-                  _incoming('Do you have any medical supplies?', '10:23 AM'),
-                  _outgoing('Yes, we have some basic medications.', '10:24 AM'),
-                  _hopPath('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
-                  _warning('Can you send bandages?', '10:25 AM'),
-                  _queueInd(),
-                ]),
+            child: ListView(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), children: showMock
+              ? (offline
+                  ? [
+                      _incoming('Hello! Are you safe?', '10:18 AM'),
+                      _outgoing("Yes, I'm safe here.", '10:19 AM', green: false),
+                      _incoming('We need medical supplies.', '10:20 AM'),
+                      _queued('I can help. I have some basic medicines.', '10:21 AM'),
+                    ]
+                  : [
+                      _incoming('Are you safe?', '10:21 AM'),
+                      _outgoing('Yes, we are safe.', '10:22 AM'),
+                      _hopPath('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
+                      _incoming('Do you have any medical supplies?', '10:23 AM'),
+                      _outgoing('Yes, we have some basic medications.', '10:24 AM'),
+                      _hopPath('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
+                      _warning('Can you send bandages?', '10:25 AM'),
+                      _queueInd(),
+                    ])
+              : messages.map((entry) {
+                  final time = _formatTime(entry.timestamp);
+                  if (entry.isMine) {
+                    if (entry.status == MessageStatus.queued) {
+                      return _queued(entry.text, time);
+                    }
+                    return _outgoing(entry.text, time);
+                  }
+                  return _incoming(entry.text, time);
+                }).toList()),
           ),
           if (offline) _offlineBanner(),
           _input(),
@@ -219,28 +256,41 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
 
   Widget _input() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AegisColors.background, const Color(0xFF08080E)]), border: Border(top: BorderSide(color: AegisColors.border1.withOpacity(0.3), width: 0.5))),
-      child: Row(children: [
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF08080E),
+        border: Border(top: BorderSide(color: AegisColors.border1.withOpacity(0.2), width: 0.5)),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
         Expanded(
           child: Container(
-            height: 46,
-            decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(16), border: Border.all(color: AegisColors.border1.withOpacity(0.5), width: 0.5)),
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            constraints: const BoxConstraints(minHeight: 46, maxHeight: 120),
+            decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5)),
+            padding: const EdgeInsets.only(left: 14, right: 4),
             child: Row(children: [
-              Expanded(child: TextField(style: TextStyle(color: Colors.white, fontSize: 14), decoration: InputDecoration(hintText: 'Type a message...', hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 14), border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.symmetric(horizontal: 12)))),
+              Expanded(child: TextField(
+                controller: _messageController,
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                textCapitalization: TextCapitalization.sentences,
+                style: TextStyle(color: Colors.white, fontSize: 15),
+                decoration: InputDecoration(hintText: 'Type a message...', hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 15), border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 0)),
+              )),
               GestureDetector(
                 onTap: () => showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (_) => _attachSheet()),
-                child: Container(width: 36, height: 36, margin: const EdgeInsets.all(2), decoration: BoxDecoration(color: AegisColors.border1.withOpacity(0.3), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.attach_file_rounded, color: AegisColors.textMuted, size: 18)),
+                child: Container(width: 36, height: 36, margin: const EdgeInsets.only(bottom: 6), decoration: BoxDecoration(color: AegisColors.border1.withOpacity(0.3), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.attach_file_rounded, color: AegisColors.textMuted, size: 18)),
               ),
             ]),
           ),
         ),
         SizedBox(width: 10),
-        Container(
-          width: 46, height: 46,
-          decoration: BoxDecoration(gradient: AegisColors.greenGradient, shape: BoxShape.circle, boxShadow: [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.3), blurRadius: 12, spreadRadius: 1)]),
-          child: Icon(Icons.send_rounded, color: AegisColors.textPrimary, size: 20),
+        GestureDetector(
+          onTap: _sendMessage,
+          child: Container(
+            width: 46, height: 46,
+            decoration: BoxDecoration(gradient: AegisColors.greenGradient, shape: BoxShape.circle, boxShadow: [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.3), blurRadius: 12, spreadRadius: 1)]),
+            child: Icon(Icons.send_rounded, color: AegisColors.textPrimary, size: 20),
+          ),
         ),
       ]),
     );

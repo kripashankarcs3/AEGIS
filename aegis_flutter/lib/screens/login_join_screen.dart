@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 import 'splash_screen.dart'; // Reuse MeshGlobePainter and StarsBackgroundPainter
 import 'main_shell.dart';
+import 'qr_scanner_screen.dart';
 
 class LoginJoinScreen extends StatefulWidget {
   const LoginJoinScreen({super.key});
@@ -280,7 +281,9 @@ colors: [
                           label: 'Scan QR Code',
                           icon: Icons.qr_code_scanner_rounded,
                           hasGlow: true,
-                          onTap: () => _navigateToMainShell(context),
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const QrScannerScreen()),
+                          ),
                         ),
                       ),
                     ),

@@ -16,6 +16,7 @@ class RadarBackgroundPainter extends CustomPainter {
 
     _drawBgGlow(canvas, c, maxR);
     _drawRings(canvas, c, maxR);
+    _drawSweep(canvas, c, maxR);
     _drawCrosshairs(canvas, c, maxR);
     _drawConnections(canvas, c, maxR);
   }
@@ -23,6 +24,30 @@ class RadarBackgroundPainter extends CustomPainter {
   void _drawBgGlow(Canvas canvas, Offset c, double maxR) {
     final g = Paint()..shader = RadialGradient(colors: [AegisColors.electricBlue.withOpacity(0.03 + 0.02 * sin(pulseValue * pi * 2)), Colors.transparent], stops: [0.3, 1.0]).createShader(Rect.fromCircle(center: c, radius: maxR));
     canvas.drawCircle(c, maxR * 0.7, g);
+  }
+
+  void _drawSweep(Canvas canvas, Offset c, double maxR) {
+    final angle = pulseValue * 2 * pi;
+    final sweepPaint = Paint()
+      ..shader = SweepGradient(
+        center: Alignment.center,
+        startAngle: angle - 0.3,
+        endAngle: angle + 0.3,
+        colors: [
+          Colors.transparent,
+          AegisColors.electricBlue.withOpacity(0.08),
+          AegisColors.electricBlue.withOpacity(0.15),
+          AegisColors.electricBlue.withOpacity(0.08),
+          Colors.transparent,
+        ],
+      ).createShader(Rect.fromCircle(center: c, radius: maxR));
+    canvas.drawCircle(c, maxR, sweepPaint);
+
+    final linePaint = Paint()
+      ..color = AegisColors.electricBlue.withOpacity(0.12 + 0.06 * sin(pulseValue * pi * 2))
+      ..strokeWidth = 1.5
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2);
+    canvas.drawLine(c, Offset(c.dx + cos(angle) * maxR, c.dy + sin(angle) * maxR), linePaint);
   }
 
   void _drawRings(Canvas canvas, Offset c, double maxR) {

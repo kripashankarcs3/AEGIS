@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../constants/aegis_colors.dart';
 import 'login_join_screen.dart';
 import 'splash_screen.dart'; // Import LogoShieldPainter and StarsBackgroundPainter
@@ -96,6 +97,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
       CurvedAnimation(parent: _entranceController, curve: const Interval(0.50, 0.85, curve: Curves.easeOutCubic)),
     );
 
+    _entranceController.value = 0.3;
     _entranceController.forward();
 
     // 2. Graphic floating and animation controllers
@@ -150,12 +152,47 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
     super.dispose();
   }
 
+  Future<bool> _onWillPop() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AegisColors.surface1,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Exit AEGIS?', style: TextStyle(color: Colors.white)),
+        content: const Text(
+          'Are you sure you want to exit?',
+          style: TextStyle(color: Color(0xFFA8B3C7)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel', style: TextStyle(color: Color(0xFFA8B3C7))),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Exit', style: TextStyle(color: Color(0xFFFF4444))),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     // Rotation angle for feature icons
     final double featureRotateAngle = (_iconRotateController.value * 4 - 2) * pi / 180;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final exit = await _onWillPop();
+        if (exit && context.mounted) {
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -376,7 +413,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                     FuturisticButton(
                       text: 'Get Started',
                       onTap: () {
-                        Navigator.of(context).pushReplacement(
+                        Navigator.of(context).push(
                           PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) => const LoginJoinScreen(),
                             transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -402,6 +439,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
             ],
           ),
         ),
+      ),
       ),
     );
   }

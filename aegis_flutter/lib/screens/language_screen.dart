@@ -27,10 +27,11 @@ class _LanguageScreenState extends State<LanguageScreen> {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -38,7 +39,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
           style: TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
           ),
         ),
       ),
@@ -78,7 +79,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                           style: TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AegisColors.textPrimary,
                           ),
                         ),
                         SizedBox(height: 6.0),
@@ -107,8 +108,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: _languages.length,
-                      separatorBuilder: (context, index) => const Divider(
-                        color: Color(0xFF1E293B),
+                      separatorBuilder: (context, index) => Divider(
+                        color: AegisColors.border1,
                         height: 1.0,
                         thickness: 0.5,
                       ),
@@ -146,7 +147,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                                       Text(
                                         lang['name']!,
                                         style: TextStyle(
-                                          color: Colors.white,
+                                          color: AegisColors.textPrimary,
                                           fontSize: 13.0,
                                           fontWeight: FontWeight.w600,
                                         ),

@@ -27,6 +27,8 @@ class ResourceModel {
     this.isMine = false,
   });
 
+  bool get isExpired => DateTime.now().millisecondsSinceEpoch > expires;
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

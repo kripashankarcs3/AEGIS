@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
+import 'services/storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  await Hive.openBox('settings');
-  runApp(const AegisApp());
+
+  // Initialize storage (opens all Hive boxes)
+  await StorageService.init();
+
+  runApp(
+    const ProviderScope(
+      child: AegisApp(),
+    ),
+  );
 }

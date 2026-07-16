@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
+import '../providers/survivor_provider.dart';
+import '../models/survivor_node_model.dart';
+import '../services/storage_service.dart';
 import 'chat_conversation_screen.dart';
 import 'broadcast_screen.dart';
 
-class ChatScreen extends StatefulWidget {
+final _sigIdRegex = RegExp(r'^SIG-[A-Za-z0-9]{4}$');
+
+class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends ConsumerState<ChatScreen> {
   int _tab = 0;
 
   @override
@@ -33,23 +39,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   SizedBox(height: 20),
                   Expanded(
                     child: ListView(children: [
-                      _tile(AegisColors.violet, 'SIG-8AF3', '10:24 AM', 'All good here. We have supplies.', unread: 2, badgeText: 'SAFE', badgeColor: AegisColors.neonGreen, dot: true),
-                      _divider(),
-                      _tile(AegisColors.sosRed, 'SIG-4D2F', '10:18 AM', 'Need medical assistance.', unread: 1, urgent: true, badgeText: 'NEED HELP', badgeColor: AegisColors.sosRed),
-                      _divider(),
-                      _tile(AegisColors.neonGreen, 'SIG-1A9D', '9:56 AM', 'How many people in your group?', dot: true),
-                      _divider(),
-                      _tile(AegisColors.electricBlue, 'SIG-B2C1', '9:41 AM', 'Water available. 2 bottles left.', dot: true),
-                      _divider(),
-                      _tile(AegisColors.violet, 'SIG-3C7E', '9:32 AM', 'Heading north. Roads blocked.', dot: true),
+                      ..._buildPeerList(ref.watch(survivorProvider)),
                       const SizedBox(height: 16),
-                      _buildTipBanner(),
                     ]),
                   ),
                 ],
               ),
             ),
-            Positioned(right: 20, bottom: 100, child: StaggeredFadeIn(index: 5, child: FloatingActionButton(backgroundColor: AegisColors.violet, elevation: 8, child: Icon(Icons.add_rounded, color: Colors.white, size: 28), onPressed: () => showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (_) => _sheet())))),
+            Positioned(right: 20, bottom: 24, child: StaggeredFadeIn(index: 5, child: FloatingActionButton(backgroundColor: AegisColors.violet, elevation: 8, child: Icon(Icons.add_rounded, color: Colors.white, size: 28), onPressed: () => showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: true, builder: (_) => _sheet())))),
           ],
         ),
       ),
@@ -92,7 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
         curve: Curves.easeOutCubic,
         margin: const EdgeInsets.only(right: 28),
         padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(border: sel ? Border(bottom: BorderSide(color: AegisColors.electricBlue, width: 2.5)) : null),
+        decoration: null,
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 200),
           style: TextStyle(color: sel ? AegisColors.textPrimary : AegisColors.textMuted, fontSize: 14, fontWeight: sel ? FontWeight.w700 : FontWeight.w500, letterSpacing: -0.2),
@@ -102,47 +99,82 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  bool _showTip = true;
+  String _formatTime(int epochMs) {
+    final dt = DateTime.fromMillisecondsSinceEpoch(epochMs);
+    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$hour:$minute $ampm';
+  }
 
-  Widget _buildTipBanner() {
-    if (!_showTip) return const SizedBox.shrink();
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: AegisColors.isLight ? const Color(0xFFE8F5E9) : const Color(0xFF1B2A1E),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AegisColors.isLight ? const Color(0xFFC8E6C9) : AegisColors.neonGreen.withOpacity(0.15),
-          width: 0.5,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.security_outlined, color: AegisColors.isLight ? const Color(0xFF2E7D32) : AegisColors.neonGreen, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Tip: Long press on a chat for more options',
-              style: TextStyle(
-                color: AegisColors.isLight ? const Color(0xFF2E7D32) : AegisColors.textSecondary,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'SF Pro Display',
-              ),
+  List<Widget> _buildPeerList(Map<String, SurvivorNodeModel> survivors) {
+    if (survivors.isEmpty) {
+      return [
+        Padding(
+          padding: const EdgeInsets.only(top: 60),
+          child: Center(
+            child: Column(
+              children: [
+                Icon(Icons.chat_bubble_outline_rounded, size: 48, color: AegisColors.textMuted),
+                SizedBox(height: 16),
+                Text('No conversations yet', style: TextStyle(color: AegisColors.textMuted, fontSize: 15, fontWeight: FontWeight.w500)),
+                SizedBox(height: 8),
+                Text('Tap + to start a new encrypted chat', style: TextStyle(color: AegisColors.textDim, fontSize: 13)),
+              ],
             ),
           ),
-          GestureDetector(
-            onTap: () => setState(() => _showTip = false),
-            child: Icon(Icons.close_rounded, color: AegisColors.isLight ? const Color(0xFF2E7D32).withOpacity(0.6) : AegisColors.textMuted, size: 18),
-          ),
-        ],
-      ),
-    );
+        ),
+      ];
+    }
+
+    final tiles = <Widget>[];
+    final entries = survivors.entries.toList();
+    for (var i = 0; i < entries.length; i++) {
+      final entry = entries[i];
+      final node = entry.value;
+      final isNeedHelp = node.status == 'need_help';
+      final hasResources = node.status == 'have_resources';
+      final color = isNeedHelp
+          ? AegisColors.sosRed
+          : hasResources
+              ? const Color(0xFFF59E0B)
+              : AegisColors.neonGreen;
+      final badgeText = isNeedHelp
+          ? 'NEED HELP'
+          : hasResources
+              ? 'HAS RESOURCES'
+              : 'SAFE';
+      final badgeColor = isNeedHelp
+          ? AegisColors.sosRed
+          : hasResources
+              ? const Color(0xFFF59E0B)
+              : AegisColors.neonGreen;
+      final subtitle = node.message.isNotEmpty
+          ? node.message
+          : 'Status: ${node.status}';
+      final time = _formatTime(node.lastSeen);
+      tiles.add(_tile(
+        color,
+        node.id,
+        time,
+        subtitle,
+        unread: 0,
+        urgent: isNeedHelp,
+        dot: !isNeedHelp,
+        badgeText: badgeText,
+        badgeColor: badgeColor,
+      ));
+      if (i < entries.length - 1) {
+        tiles.add(_divider());
+      }
+    }
+    return tiles;
   }
 
   Widget _tile(Color avatarColor, String nodeId, String time, String subtitle, {int unread = 0, bool urgent = false, bool dot = false, String? badgeText, Color? badgeColor}) {
     return InkWell(
       onTap: () => Navigator.of(context).push(PageRouteBuilder(pageBuilder: (_, a, __) => ChatConversationScreen(nodeId: nodeId), transitionsBuilder: (_, a, __, child) => SlideTransition(position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)), child: child))),
+      onLongPress: () => _showChatOptions(nodeId),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
         child: Row(children: [
@@ -216,7 +248,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
           SizedBox(height: 20),
-          _sheetOpt(Icons.chat_bubble_outline_rounded, 'New Chat', AegisColors.violet, () => Navigator.of(context).pop()),
+          _sheetOpt(Icons.chat_bubble_outline_rounded, 'New Chat', AegisColors.violet, () { Navigator.of(context).pop(); _showNewChatDialog(); }),
           SizedBox(height: 4),
           _sheetDivider(),
           SizedBox(height: 4),
@@ -242,5 +274,92 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _sheetDivider() {
     return Container(margin: const EdgeInsets.symmetric(horizontal: 4), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
+  }
+
+  void _showChatOptions(String nodeId) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+        decoration: BoxDecoration(gradient: AegisColors.cardGradient, borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28))),
+        child: SafeArea(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
+            SizedBox(height: 20),
+            _sheetOpt(Icons.delete_outline_rounded, 'Delete Chat', AegisColors.sosRed, () {
+              Navigator.of(context).pop();
+              ref.read(survivorProvider.notifier).removeSurvivor(nodeId);
+            }),
+            SizedBox(height: 4),
+            _sheetDivider(),
+            SizedBox(height: 4),
+            _sheetOpt(Icons.cleaning_services_outlined, 'Clear Messages', AegisColors.textPrimary, () async {
+              Navigator.of(context).pop();
+              await StorageService.clearChatHistory(nodeId);
+            }),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  void _showNewChatDialog() {
+    final controller = TextEditingController();
+    String? errorText;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: AegisColors.surface1,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text('New Chat', style: TextStyle(color: AegisColors.textPrimary, fontWeight: FontWeight.w700)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Enter the SIG-ID of the peer you want to chat with.', style: TextStyle(color: AegisColors.textSecondary, fontSize: 13)),
+              SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                style: TextStyle(color: AegisColors.textPrimary, fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'SIG-XXXX',
+                  hintStyle: TextStyle(color: AegisColors.textMuted),
+                  errorText: errorText,
+                  filled: true,
+                  fillColor: AegisColors.surface2,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text('Cancel', style: TextStyle(color: AegisColors.textMuted)),
+            ),
+            TextButton(
+              onPressed: () {
+                final sigId = controller.text.trim().toUpperCase();
+                if (!_sigIdRegex.hasMatch(sigId)) {
+                  setDialogState(() => errorText = 'Must be SIG-XXXX format');
+                  return;
+                }
+                Navigator.of(ctx).pop();
+                Navigator.of(context).push(PageRouteBuilder(
+                  pageBuilder: (_, a, __) => ChatConversationScreen(nodeId: sigId),
+                  transitionsBuilder: (_, a, __, child) => SlideTransition(
+                    position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)),
+                    child: child,
+                  ),
+                ));
+              },
+              child: Text('Start Chat', style: TextStyle(color: AegisColors.violet, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

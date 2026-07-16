@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../constants/aegis_colors.dart';
+import '../providers/mesh_provider.dart';
 import 'onboarding_screen.dart';
 
 class LogoShieldPainter extends CustomPainter {
@@ -18,9 +21,12 @@ class LogoShieldPainter extends CustomPainter {
     path.moveTo(w / 2, 0); // Top center
     path.lineTo(w * 0.88, 0); // Top right shoulder
     path.quadraticBezierTo(w, h * 0.25, w * 0.94, h * 0.45); // Right side curve
-    path.quadraticBezierTo(w * 0.88, h * 0.82, w / 2, h); // Bottom right curve to point
-    path.quadraticBezierTo(w * 0.12, h * 0.82, w * 0.06, h * 0.45); // Bottom left curve from point
-    path.quadraticBezierTo(0, h * 0.25, w * 0.12, 0); // Left side curve to shoulder
+    path.quadraticBezierTo(
+        w * 0.88, h * 0.82, w / 2, h); // Bottom right curve to point
+    path.quadraticBezierTo(
+        w * 0.12, h * 0.82, w * 0.06, h * 0.45); // Bottom left curve from point
+    path.quadraticBezierTo(
+        0, h * 0.25, w * 0.12, 0); // Left side curve to shoulder
     path.close();
 
     // 1. Outer blue bloom (glowing shadow) - Opacity 20%, Blue #256DFF
@@ -71,7 +77,7 @@ class LogoShieldPainter extends CustomPainter {
     highlightPath.lineTo(w * 0.5, 2.0);
     highlightPath.moveTo(w * 0.15, 6.0);
     highlightPath.quadraticBezierTo(w * 0.08, h * 0.25, w * 0.11, h * 0.40);
-    
+
     final highlightPaint = Paint()
       ..color = Colors.white.withOpacity(0.25)
       ..style = PaintingStyle.stroke
@@ -120,7 +126,7 @@ class MeshGlobePainter extends CustomPainter {
     final sweepPaint = Paint()
       ..color = const Color(0xFF27D8FF).withOpacity(0.35)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14.0);
-    
+
     final Offset sweepPoint = Offset(
       center.dx + radius * cos(sweepAngle),
       center.dy + radius * sin(sweepAngle),
@@ -143,7 +149,8 @@ class MeshGlobePainter extends CustomPainter {
 
     // 4. Latitude concentric curves
     final gridPaint = Paint()
-      ..color = const Color(0xFF256DFF).withOpacity(0.12 + (pulseValue * 0.05)) // Soft pulsing
+      ..color = const Color(0xFF256DFF)
+          .withOpacity(0.12 + (pulseValue * 0.05)) // Soft pulsing
       ..strokeWidth = 0.9
       ..style = PaintingStyle.stroke;
 
@@ -157,15 +164,16 @@ class MeshGlobePainter extends CustomPainter {
       final double baseFraction = i / lineCount;
       final double fraction = (baseFraction + (rotationAngle / (2 * pi))) % 1.0;
       final double angle = startAngle + (endAngle - startAngle) * fraction;
-      
+
       final Offset topPoint = Offset(
         center.dx + radius * cos(angle),
         center.dy + radius * sin(angle),
       );
-      
+
       canvas.drawLine(
         topPoint,
-        Offset(center.dx + radius * 0.74 * cos(angle), center.dy + radius * 0.74 * sin(angle)),
+        Offset(center.dx + radius * 0.74 * cos(angle),
+            center.dy + radius * 0.74 * sin(angle)),
         gridPaint,
       );
     }
@@ -177,7 +185,8 @@ class MeshGlobePainter extends CustomPainter {
 
     for (int i = 0; i < pointCount; i++) {
       final double baseAngleFraction = rand.nextDouble();
-      final double angleFraction = (baseAngleFraction + (rotationAngle / (2 * pi))) % 1.0;
+      final double angleFraction =
+          (baseAngleFraction + (rotationAngle / (2 * pi))) % 1.0;
       final double angle = startAngle + (endAngle - startAngle) * angleFraction;
       final double radFraction = 0.82 + rand.nextDouble() * 0.17;
       final double r = radius * radFraction;
@@ -204,14 +213,18 @@ class MeshGlobePainter extends CustomPainter {
 
     // Draw shining/blinking nodes
     for (int i = 0; i < points.length; i++) {
-      final double blinkFactor = (sin(pulseValue * 2 * pi + i) + 1.0) / 2.0; // 0 to 1
+      final double blinkFactor =
+          (sin(pulseValue * 2 * pi + i) + 1.0) / 2.0; // 0 to 1
       final double size = i % 5 == 0 ? 3.0 : 1.5;
-      
-      final Color color = i % 4 == 0 
-          ? const Color(0xFFF97316) // Random orange point
-          : (i % 2 == 0 ? const Color(0xFF27D8FF) : Colors.white); // Cyan and White
 
-      final Paint dotPaint = Paint()..color = color.withOpacity(0.4 + (blinkFactor * 0.5));
+      final Color color = i % 4 == 0
+          ? const Color(0xFFF97316) // Random orange point
+          : (i % 2 == 0
+              ? const Color(0xFF27D8FF)
+              : Colors.white); // Cyan and White
+
+      final Paint dotPaint = Paint()
+        ..color = color.withOpacity(0.4 + (blinkFactor * 0.5));
       canvas.drawCircle(points[i], size, dotPaint);
 
       // Add a tiny halo glow around orange and cyan points
@@ -264,24 +277,29 @@ class StarsBackgroundPainter extends CustomPainter {
       // Add float animation offset (parallax movement)
       final double speed = 5.0 + rand.nextDouble() * 15.0;
       final double direction = rand.nextBool() ? 1.0 : -1.0;
-      
+
       // Calculate floating position
       final double x = (rx + (animationValue * speed * direction)) % size.width;
-      final double y = (ry - (animationValue * speed * 2.0)) % size.height; // Float upwards
+      final double y =
+          (ry - (animationValue * speed * 2.0)) % size.height; // Float upwards
 
       final double radius = rand.nextDouble() * 0.95;
       final double baseOpacity = 0.10 + rand.nextDouble() * 0.45;
-      
+
       // Star twinkle animation
-      final double twinkle = (sin(animationValue * 2 * pi * (i % 3 + 1)) + 1.0) / 2.0;
-      final double opacity = (baseOpacity * (0.3 + twinkle * 0.7)).clamp(0.05, 0.70);
+      final double twinkle =
+          (sin(animationValue * 2 * pi * (i % 3 + 1)) + 1.0) / 2.0;
+      final double opacity =
+          (baseOpacity * (0.3 + twinkle * 0.7)).clamp(0.05, 0.70);
 
       // Star Color (white, cyan, blue)
-      final Color color = i % 4 == 0 
+      final Color color = i % 4 == 0
           ? const Color(0xFF27D8FF) // Blue/cyan particles
           : Colors.white;
 
-      final Paint paint = Paint()..color = color.withOpacity(opacity * 0.08); // Ensure overall opacity is under 8%!
+      final Paint paint = Paint()
+        ..color = color
+            .withOpacity(opacity * 0.08); // Ensure overall opacity is under 8%!
       canvas.drawCircle(Offset(x, y), radius, paint);
     }
   }
@@ -292,14 +310,15 @@ class StarsBackgroundPainter extends CustomPainter {
   }
 }
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends ConsumerState<SplashScreen>
+    with TickerProviderStateMixin {
   late AnimationController _globeController;
   late AnimationController _sweepController;
   late AnimationController _logoController;
@@ -314,6 +333,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
+
+    _startMeshAndNavigate();
 
     // 1. Globe rotation controller (infinite rotation)
     _globeController = AnimationController(
@@ -382,20 +403,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       duration: const Duration(seconds: 8),
     )..repeat();
 
-    // Transition to onboarding after 3.0 seconds
-    Timer(const Duration(milliseconds: 3000), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const OnboardingScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 700),
-          ),
-        );
-      }
-    });
+
   }
 
   @override
@@ -406,6 +414,34 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     _breatheController.dispose();
     _backgroundController.dispose();
     super.dispose();
+  }
+
+  Future<void> _startMeshAndNavigate() async {
+    await [
+      Permission.location,
+      Permission.bluetooth,
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+      Permission.bluetoothAdvertise,
+      Permission.nearbyWifiDevices,
+      Permission.notification,
+    ].request();
+
+    ref.read(meshProvider.notifier).start();
+
+    await Future.delayed(const Duration(milliseconds: 3000));
+
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const OnboardingScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 700),
+      ),
+    );
   }
 
   @override
@@ -426,7 +462,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
           ),
         ),
         child: SafeArea(
-          top: false, // Respect status bar but let background gradient cover full height
+          top:
+              false, // Respect status bar but let background gradient cover full height
           bottom: true,
           child: Stack(
             children: [
@@ -436,7 +473,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 builder: (context, child) {
                   return Positioned.fill(
                     child: CustomPaint(
-                      painter: StarsBackgroundPainter(animationValue: _backgroundController.value),
+                      painter: StarsBackgroundPainter(
+                          animationValue: _backgroundController.value),
                     ),
                   );
                 },
@@ -448,7 +486,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: 10.0),
-                    
+
                     // Premium Asset-based Gold-Green Shield Logo
                     ScaleTransition(
                       scale: _logoScale,
@@ -458,9 +496,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           animation: _breatheController,
                           builder: (context, child) {
                             // Calculate breathing glow scale value (1.0 to 1.15)
-                            final double breatheVal = _breatheController.isAnimating
-                                ? 1.0 + (_breatheController.value * 0.15)
-                                : 1.0;
+                            final double breatheVal =
+                                _breatheController.isAnimating
+                                    ? 1.0 + (_breatheController.value * 0.15)
+                                    : 1.0;
 
                             return Container(
                               width: screenWidth * 0.32,
@@ -470,7 +509,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                 boxShadow: [
                                   // Outer blue bloom shadow
                                   BoxShadow(
-                                    color: const Color(0xFF256DFF).withOpacity(0.20 * (breatheVal - 1.0 + 1.0)),
+                                    color: const Color(0xFF256DFF).withOpacity(
+                                        0.20 * (breatheVal - 1.0 + 1.0)),
                                     blurRadius: 24.0 * breatheVal,
                                     spreadRadius: 1.0,
                                   ),
@@ -526,18 +566,21 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
               // 3. Network Globe Horizon at the bottom of the screen (Upper hemisphere)
               AnimatedBuilder(
-                animation: Listenable.merge([_globeController, _sweepController]),
+                animation:
+                    Listenable.merge([_globeController, _sweepController]),
                 builder: (context, child) {
                   return Positioned(
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    height: 240.0, // Height is taller to render hemisphere without clipping
+                    height:
+                        240.0, // Height is taller to render hemisphere without clipping
                     child: CustomPaint(
                       painter: MeshGlobePainter(
                         rotationAngle: _globeController.value * 2 * pi,
                         sweepValue: _sweepController.value,
-                        pulseValue: _sweepController.value, // Merge pulsing cycle with sweep
+                        pulseValue: _sweepController
+                            .value, // Merge pulsing cycle with sweep
                       ),
                     ),
                   );

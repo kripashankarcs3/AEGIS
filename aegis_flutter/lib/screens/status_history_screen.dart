@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
-import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
+import '../models/survivor_node_model.dart';
+import '../providers/survivor_provider.dart';
 
-class StatusHistoryScreen extends StatefulWidget {
+class StatusHistoryScreen extends ConsumerStatefulWidget {
   const StatusHistoryScreen({super.key});
 
   @override
-  State<StatusHistoryScreen> createState() => _StatusHistoryScreenState();
+  ConsumerState<StatusHistoryScreen> createState() => _StatusHistoryScreenState();
 }
 
-class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
+class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +29,8 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
             border: Border.all(color: AegisColors.border1, width: 0.5),
           ),
           child: IconButton(
-            icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary, size: 18),
+            icon: Icon(Icons.arrow_back,
+                color: AegisColors.textPrimary, size: 18),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
@@ -49,7 +52,8 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
               shape: BoxShape.circle,
               border: Border.all(color: AegisColors.border1, width: 0.5),
             ),
-            child: Icon(Icons.calendar_today_rounded, color: AegisColors.textPrimary, size: 16),
+            child: Icon(Icons.calendar_today_rounded,
+                color: AegisColors.textPrimary, size: 16),
           ),
         ],
       ),
@@ -89,10 +93,12 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
             decoration: BoxDecoration(
               color: AegisColors.neonGreen.withOpacity(0.08),
               shape: BoxShape.circle,
-              border: Border.all(color: AegisColors.neonGreen.withOpacity(0.15), width: 1),
+              border: Border.all(
+                  color: AegisColors.neonGreen.withOpacity(0.15), width: 1),
             ),
             child: Center(
-              child: Icon(Icons.shield_outlined, color: AegisColors.neonGreen, size: 20),
+              child: Icon(Icons.shield_outlined,
+                  color: AegisColors.neonGreen, size: 20),
             ),
           ),
           const SizedBox(width: 14),
@@ -112,11 +118,14 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: AegisColors.neonGreen.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AegisColors.neonGreen.withOpacity(0.2), width: 0.5),
+                        border: Border.all(
+                            color: AegisColors.neonGreen.withOpacity(0.2),
+                            width: 0.5),
                       ),
                       child: Text(
                         'Online',
@@ -159,16 +168,26 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
   }
 
   Widget _beaconsSection() {
+    final peers = ref.watch(survivorProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
+            Container(
+                width: 3,
+                height: 14,
+                decoration: BoxDecoration(
+                    color: AegisColors.violet,
+                    borderRadius: BorderRadius.circular(2))),
             const SizedBox(width: 8),
             Text(
               'RECENT STATUS BEACONS',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: AegisColors.textSecondary,
+                  letterSpacing: 0.5),
             ),
           ],
         ),
@@ -180,25 +199,66 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
             border: Border.all(color: AegisColors.border1, width: 0.5),
             boxShadow: AegisColors.cardShadow,
           ),
-          child: Column(
-            children: [
-              _beaconRow('SIG-8AF3', 'Online', AegisColors.neonGreen, 'Just now', '2 hops away'),
-              _divider(),
-              _beaconRow('SIG-C4E1', 'Online', AegisColors.neonGreen, '1 min ago', '1 hop away'),
-              _divider(),
-              _beaconRow('SIG-B2C1', 'Busy', AegisColors.orange, '2 min ago', '2 hops away'),
-              _divider(),
-              _beaconRow('SIG-1D9A', 'Needs Help', AegisColors.sosRed, '5 min ago', '3 hops away'),
-              _divider(),
-              _beaconRow('SIG-9E10', 'Offline', AegisColors.textMuted, '10 min ago', 'Unknown', isOffline: true),
-            ],
-          ),
+          child: peers.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  child: Center(
+                    child: Text(
+                      'No status history yet',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AegisColors.textMuted,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                )
+              : Column(
+                  children: [
+                    for (int i = 0; i < peers.length; i++) ...[
+                      if (i > 0) _divider(),
+                      _buildBeaconFromPeer(peers.values.elementAt(i)),
+                    ],
+                  ],
+                ),
         ),
       ],
     );
   }
 
-  Widget _beaconRow(String nodeId, String status, Color statusColor, String time, String distance, {bool isOffline = false}) {
+  Widget _buildBeaconFromPeer(SurvivorNodeModel peer) {
+    final (status, statusColor, isOffline) = _resolveStatus(peer.status);
+    final time = _formatTime(peer.lastSeen);
+    return _beaconRow(peer.id, status, statusColor, time, '',
+        isOffline: isOffline);
+  }
+
+  (String, Color, bool) _resolveStatus(String status) {
+    switch (status) {
+      case 'safe':
+        return ('Online', AegisColors.neonGreen, false);
+      case 'need_help':
+        return ('Needs Help', AegisColors.sosRed, false);
+      case 'busy':
+        return ('Busy', AegisColors.orange, false);
+      case 'offline':
+        return ('Offline', AegisColors.textMuted, true);
+      default:
+        return (status, AegisColors.textSecondary, false);
+    }
+  }
+
+  String _formatTime(int millis) {
+    final diff = DateTime.now().difference(
+        DateTime.fromMillisecondsSinceEpoch(millis));
+    if (diff.inSeconds < 60) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
+    return '${diff.inHours} hr ago';
+  }
+
+  Widget _beaconRow(String nodeId, String status, Color statusColor,
+      String time, String distance,
+      {bool isOffline = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
       child: Row(
@@ -209,7 +269,8 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
               Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
+                decoration:
+                    BoxDecoration(color: statusColor, shape: BoxShape.circle),
               ),
               const SizedBox(width: 12),
               Text(
@@ -236,12 +297,18 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
             children: [
               Text(
                 time,
-                style: TextStyle(fontSize: 11, color: AegisColors.textPrimary, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                    fontSize: 11,
+                    color: AegisColors.textPrimary,
+                    fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 2),
               Text(
                 distance,
-                style: TextStyle(fontSize: 10, color: AegisColors.textSecondary, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                    fontSize: 10,
+                    color: AegisColors.textSecondary,
+                    fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -259,18 +326,29 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
           children: [
             Row(
               children: [
-                Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
+                Container(
+                    width: 3,
+                    height: 14,
+                    decoration: BoxDecoration(
+                        color: AegisColors.violet,
+                        borderRadius: BorderRadius.circular(2))),
                 const SizedBox(width: 8),
                 Text(
                   'HISTORY LOG',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: AegisColors.textSecondary,
+                      letterSpacing: 0.5),
                 ),
               ],
             ),
             Text(
               'View all',
               style: TextStyle(
-                color: AegisColors.isLight ? const Color(0xFF6D28D9) : AegisColors.violet,
+                color: AegisColors.isLight
+                    ? const Color(0xFF6D28D9)
+                    : AegisColors.violet,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -370,7 +448,9 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
                     subtitle,
                     style: TextStyle(
                       fontSize: 11,
-                      color: isAlert ? AegisColors.sosRed : AegisColors.textSecondary,
+                      color: isAlert
+                          ? AegisColors.sosRed
+                          : AegisColors.textSecondary,
                       fontWeight: isAlert ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),

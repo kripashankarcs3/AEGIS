@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
 import '../widgets/sos_banner.dart';
+import '../providers/mesh_provider.dart';
 
-class SosScreen extends StatefulWidget {
+class SosScreen extends ConsumerStatefulWidget {
   const SosScreen({super.key});
 
   @override
-  State<SosScreen> createState() => _SosScreenState();
+  ConsumerState<SosScreen> createState() => _SosScreenState();
 }
 
-class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
+class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateMixin {
   int _selectedCategory = 0;
   int _selectedPriority = 2;
   late AnimationController _bgPulse;
   late Animation<double> _bgAnim;
+  final TextEditingController _detailsController = TextEditingController();
 
   final List<Map<String, dynamic>> _categories = [
     {'label': 'Medical', 'icon': Icons.medical_services_rounded, 'color': AegisColors.sosRed},
@@ -35,7 +39,79 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     _bgPulse.dispose();
+    _detailsController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onHoldComplete() async {
+    final sosHandler = ref.read(meshProvider.notifier).sosHandler;
+    if (!sosHandler.canSend) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please wait 60 seconds before sending another SOS.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    double lat = 0.0, lon = 0.0;
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        timeLimit: const Duration(seconds: 3),
+      );
+      lat = pos.latitude;
+      lon = pos.longitude;
+    } catch (_) {}
+
+    final message = _detailsController.text.trim();
+    if (message.isEmpty) {
+      sosHandler.sendSOS(latitude: lat, longitude: lon);
+    } else {
+      sosHandler.sendSOS(latitude: lat, longitude: lon, message: message);
+    }
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AegisColors.cardBg,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: AegisColors.border1, width: 0.5)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64, height: 64,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: AegisColors.neonGreen.withOpacity(0.12)),
+                child: Icon(Icons.check_circle_rounded, color: AegisColors.neonGreen, size: 36),
+              ),
+              SizedBox(height: 20),
+              Text('SOS Sent!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AegisColors.textPrimary)),
+              SizedBox(height: 8),
+              Text('Your emergency broadcast has been\nsent to the mesh network.', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: AegisColors.textSecondary, height: 1.4)),
+            ],
+          ),
+          actions: [
+            Center(
+              child: SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  style: TextButton.styleFrom(
+                    backgroundColor: AegisColors.neonGreen.withOpacity(0.12),
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text('OK', style: TextStyle(color: AegisColors.neonGreen, fontWeight: FontWeight.w700, fontSize: 15)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -53,11 +129,13 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   StaggeredFadeIn(index: 0, child: _header()),
                   SizedBox(height: 20),
-                  StaggeredFadeIn(index: 1, child: const SosBroadcastCard()),
+                  StaggeredFadeIn(index: 1, child: SosBroadcastCard(onHoldComplete: _onHoldComplete)),
                   SizedBox(height: 32),
                   StaggeredFadeIn(index: 2, child: _categorySection()),
                   SizedBox(height: 28),
                   StaggeredFadeIn(index: 3, child: _prioritySection()),
+                  SizedBox(height: 20),
+                  StaggeredFadeIn(index: 4, child: _detailsSection()),
                 ]),
               ),
             ),
@@ -75,6 +153,38 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
         Text('SOS', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AegisColors.textPrimary, letterSpacing: -0.5)),
       ]),
       Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: Icon(Icons.info_outline_rounded, color: AegisColors.textPrimary, size: 18)),
+    ]);
+  }
+
+  Widget _detailsSection() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        Container(width: 3, height: 16, decoration: BoxDecoration(gradient: AegisColors.sosGradient, borderRadius: BorderRadius.circular(2))),
+        SizedBox(width: 10),
+        Text('DETAILS (OPTIONAL)', style: AegisStyles.overline),
+      ]),
+      SizedBox(height: 12),
+      Container(
+        decoration: BoxDecoration(
+          color: AegisColors.cardBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AegisColors.border1, width: 0.5),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        child: TextField(
+          controller: _detailsController,
+          maxLines: 3,
+          maxLength: 200,
+          style: TextStyle(color: AegisColors.textPrimary, fontSize: 13),
+          decoration: InputDecoration(
+            hintText: 'Describe your emergency...',
+            hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 13),
+            border: InputBorder.none,
+            counterText: '',
+            isDense: true,
+          ),
+        ),
+      ),
     ]);
   }
 

@@ -9,10 +9,11 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -20,12 +21,12 @@ class AboutScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.ios_share_rounded, color: Colors.white),
+            icon: Icon(Icons.ios_share_rounded, color: AegisColors.textPrimary),
             onPressed: () {},
           ),
         ],
@@ -38,22 +39,13 @@ class AboutScreen extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  // Shield Logo
+                  // Logo
                   Container(
-                    width: 90.0,
-                    height: 104.0,
+                    width: 100.0,
+                    height: 100.0,
                     decoration: BoxDecoration(
                       color: Colors.transparent,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(8.0),
-                        topRight: Radius.circular(8.0),
-                        bottomLeft: Radius.circular(45.0),
-                        bottomRight: Radius.circular(45.0),
-                      ),
-                      border: Border.all(
-                        color: AegisColors.neonGreen,
-                        width: 2.5,
-                      ),
+                      borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
                           color: AegisColors.neonGreen.withOpacity(0.15),
@@ -62,15 +54,11 @@ class AboutScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Center(
-                      child: Text(
-                        'A',
-                        style: TextStyle(
-                          color: AegisColors.neonGreen,
-                          fontSize: 48.0,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -1.0,
-                        ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20.0),
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
@@ -82,7 +70,7 @@ class AboutScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: AegisColors.textPrimary,
                       letterSpacing: 1.5,
                     ),
                   ),
@@ -187,7 +175,7 @@ class AboutScreen extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              color: valueColor ?? Colors.white,
+              color: valueColor ?? AegisColors.textPrimary,
               fontWeight: FontWeight.bold,
               fontSize: 12.5,
             ),
@@ -221,8 +209,8 @@ class AboutScreen extends StatelessWidget {
   }
 
   Widget _buildDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
+    return Divider(
+      color: AegisColors.border1,
       height: 1.0,
       thickness: 0.5,
     );

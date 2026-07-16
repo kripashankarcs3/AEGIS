@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:ui';
 import '../constants/aegis_colors.dart';
+import '../providers/survivor_provider.dart';
 
-class ShareFileScreen extends StatelessWidget {
+class ShareFileScreen extends ConsumerWidget {
   const ShareFileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -21,12 +24,12 @@ class ShareFileScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline_rounded, color: Colors.white, size: 22.0),
+            icon: Icon(Icons.info_outline_rounded, color: AegisColors.textPrimary, size: 22.0),
             onPressed: () {},
           ),
         ],
@@ -55,7 +58,7 @@ class ShareFileScreen extends StatelessWidget {
                       Text(
                         'Drag & drop file here',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AegisColors.textPrimary,
                           fontSize: 13.0,
                           fontWeight: FontWeight.bold,
                         ),
@@ -78,7 +81,7 @@ class ShareFileScreen extends StatelessWidget {
                         child: Text(
                           'Choose File',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AegisColors.violet,
                             fontSize: 12.0,
                             fontWeight: FontWeight.bold,
                           ),
@@ -103,17 +106,7 @@ class ShareFileScreen extends StatelessWidget {
 
               // 3. List of Nearby Devices
               Expanded(
-                child: ListView(
-                  children: [
-                    _buildShareDeviceRow('SIG-8AF3', '2 hops'),
-                    _buildInnerDivider(),
-                    _buildShareDeviceRow('SIG-C4E1', '1 hop'),
-                    _buildInnerDivider(),
-                    _buildShareDeviceRow('SIG-B2C1', '2 hops'),
-                    _buildInnerDivider(),
-                    _buildShareDeviceRow('SIG-1A9D', '3 hops'),
-                  ],
-                ),
+                child: _buildPeerList(ref),
               ),
             ],
           ),
@@ -154,7 +147,7 @@ class ShareFileScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AegisColors.textPrimary,
                     ),
                   ),
                   SizedBox(height: 2.0),
@@ -192,10 +185,40 @@ class ShareFileScreen extends StatelessWidget {
   }
 
   Widget _buildInnerDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
+    return Divider(
+      color: AegisColors.border1,
       height: 1.0,
       thickness: 0.5,
+    );
+  }
+
+  Widget _buildPeerList(WidgetRef ref) {
+    final peers = ref.watch(survivorProvider);
+    if (peers.isEmpty) {
+      return Center(
+        child: Text(
+          'No peers available',
+          style: TextStyle(
+            color: AegisColors.textSecondary,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }
+    final items = peers.values.toList();
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final peer = items[index];
+        final status = peer.isOffline ? 'Offline' : 'Online';
+        return Column(
+          children: [
+            if (index > 0) _buildInnerDivider(),
+            _buildShareDeviceRow(peer.id, status),
+          ],
+        );
+      },
     );
   }
 }
@@ -204,7 +227,7 @@ class DashedBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF1F2937)
+      ..color = AegisColors.border2
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 

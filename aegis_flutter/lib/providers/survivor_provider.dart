@@ -1,2 +1,33 @@
-// Survivor Provider
-// Survivor map state for radar
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/survivor_node_model.dart';
+import '../services/storage_service.dart';
+
+class SurvivorMapNotifier
+    extends StateNotifier<Map<String, SurvivorNodeModel>> {
+  SurvivorMapNotifier() : super({}) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    final nodes = await StorageService.getAllSurvivorNodeModels();
+    state = {for (final n in nodes) n.id: n};
+  }
+
+  // called from mesh_router.dart's incoming handler once wired up
+  void updateFromIncoming(SurvivorNodeModel node) {
+    state = {...state, node.id: node};
+    StorageService.saveSurvivorNodeModel(node);
+  }
+
+  void removeSurvivor(String id) {
+    state = Map.from(state)..remove(id);
+    StorageService.deleteChatHistory(id);
+  }
+
+  void refresh() => _load();
+}
+
+final survivorProvider =
+    StateNotifierProvider<SurvivorMapNotifier, Map<String, SurvivorNodeModel>>(
+  (ref) => SurvivorMapNotifier(),
+);

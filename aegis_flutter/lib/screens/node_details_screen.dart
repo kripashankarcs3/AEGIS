@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
-import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
 import 'chat_conversation_screen.dart';
 
@@ -26,7 +25,8 @@ class NodeDetailsScreen extends StatelessWidget {
             border: Border.all(color: AegisColors.border1, width: 0.5),
           ),
           child: IconButton(
-            icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary, size: 18),
+            icon: Icon(Icons.arrow_back,
+                color: AegisColors.textPrimary, size: 18),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
@@ -48,7 +48,8 @@ class NodeDetailsScreen extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: AegisColors.border1, width: 0.5),
             ),
-            child: Icon(Icons.more_vert, color: AegisColors.textPrimary, size: 18),
+            child:
+                Icon(Icons.more_vert, color: AegisColors.textPrimary, size: 18),
           ),
         ],
       ),
@@ -89,13 +90,17 @@ class NodeDetailsScreen extends StatelessWidget {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: AegisColors.isLight ? const Color(0xFFEDE9FE) : const Color(0xFF1E1B4B),
+                  color: AegisColors.isLight
+                      ? const Color(0xFFEDE9FE)
+                      : const Color(0xFF1E1B4B),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
                   child: Icon(
                     Icons.person_rounded,
-                    color: AegisColors.isLight ? const Color(0xFF6D28D9) : AegisColors.violet,
+                    color: AegisColors.isLight
+                        ? const Color(0xFF6D28D9)
+                        : AegisColors.violet,
                     size: 26,
                   ),
                 ),
@@ -118,16 +123,27 @@ class NodeDetailsScreen extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: (isOffline ? AegisColors.textMuted : AegisColors.neonGreen).withOpacity(0.08),
+                            color: (isOffline
+                                    ? AegisColors.textMuted
+                                    : AegisColors.neonGreen)
+                                .withOpacity(0.08),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: (isOffline ? AegisColors.textMuted : AegisColors.neonGreen).withOpacity(0.2), width: 0.5),
+                            border: Border.all(
+                                color: (isOffline
+                                        ? AegisColors.textMuted
+                                        : AegisColors.neonGreen)
+                                    .withOpacity(0.2),
+                                width: 0.5),
                           ),
                           child: Text(
                             isOffline ? 'Offline' : 'Online',
                             style: TextStyle(
-                              color: isOffline ? AegisColors.textMuted : AegisColors.neonGreen,
+                              color: isOffline
+                                  ? AegisColors.textMuted
+                                  : AegisColors.neonGreen,
                               fontSize: 9.5,
                               fontWeight: FontWeight.w800,
                             ),
@@ -155,16 +171,32 @@ class NodeDetailsScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('First seen', style: TextStyle(fontSize: 12, color: AegisColors.textSecondary, fontWeight: FontWeight.w500)),
-              Text('2 mins ago', style: TextStyle(fontSize: 12, color: AegisColors.textPrimary, fontWeight: FontWeight.w700)),
+              Text('First seen',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: AegisColors.textSecondary,
+                      fontWeight: FontWeight.w500)),
+              Text('2 mins ago',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: AegisColors.textPrimary,
+                      fontWeight: FontWeight.w700)),
             ],
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Last seen', style: TextStyle(fontSize: 12, color: AegisColors.textSecondary, fontWeight: FontWeight.w500)),
-              Text('Just now', style: TextStyle(fontSize: 12, color: AegisColors.textPrimary, fontWeight: FontWeight.w700)),
+              Text('Last seen',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: AegisColors.textSecondary,
+                      fontWeight: FontWeight.w500)),
+              Text('Just now',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: AegisColors.textPrimary,
+                      fontWeight: FontWeight.w700)),
             ],
           ),
         ],
@@ -178,11 +210,20 @@ class NodeDetailsScreen extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
+            Container(
+                width: 3,
+                height: 14,
+                decoration: BoxDecoration(
+                    color: AegisColors.violet,
+                    borderRadius: BorderRadius.circular(2))),
             const SizedBox(width: 8),
             Text(
               'CONNECTION',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: AegisColors.textSecondary,
+                  letterSpacing: 0.5),
             ),
           ],
         ),
@@ -196,7 +237,11 @@ class NodeDetailsScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              _infoRow('Link Quality', isOffline ? 'None' : 'Strong', isStatus: true, statusColor: isOffline ? AegisColors.textMuted : AegisColors.neonGreen),
+              _infoRow('Link Quality', isOffline ? 'None' : 'Strong',
+                  isStatus: true,
+                  statusColor: isOffline
+                      ? AegisColors.textMuted
+                      : AegisColors.neonGreen),
               _divider(),
               _infoRow('Latency', isOffline ? '--' : '28 ms'),
               _divider(),
@@ -216,11 +261,20 @@ class NodeDetailsScreen extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
+            Container(
+                width: 3,
+                height: 14,
+                decoration: BoxDecoration(
+                    color: AegisColors.violet,
+                    borderRadius: BorderRadius.circular(2))),
             const SizedBox(width: 8),
             Text(
               'DEVICE INFO',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: AegisColors.textSecondary,
+                  letterSpacing: 0.5),
             ),
           ],
         ),
@@ -254,11 +308,20 @@ class NodeDetailsScreen extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(width: 3, height: 14, decoration: BoxDecoration(color: AegisColors.violet, borderRadius: BorderRadius.circular(2))),
+            Container(
+                width: 3,
+                height: 14,
+                decoration: BoxDecoration(
+                    color: AegisColors.violet,
+                    borderRadius: BorderRadius.circular(2))),
             const SizedBox(width: 8),
             Text(
               'ACTIONS',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AegisColors.textSecondary, letterSpacing: 0.5),
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: AegisColors.textSecondary,
+                  letterSpacing: 0.5),
             ),
           ],
         ),
@@ -270,9 +333,14 @@ class NodeDetailsScreen extends StatelessWidget {
                 icon: Icons.chat_bubble_outline_rounded,
                 label: 'Send Message',
                 color: const Color(0xFF6D28D9),
-                bgColor: AegisColors.isLight ? const Color(0xFFF5F3FF) : const Color(0xFF1E152A),
-                borderColor: AegisColors.isLight ? const Color(0xFFDDD6FE) : const Color(0xFF3B1E63),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ChatConversationScreen(nodeId: nodeId))),
+                bgColor: AegisColors.isLight
+                    ? const Color(0xFFF5F3FF)
+                    : const Color(0xFF1E152A),
+                borderColor: AegisColors.isLight
+                    ? const Color(0xFFDDD6FE)
+                    : const Color(0xFF3B1E63),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => ChatConversationScreen(nodeId: nodeId))),
               ),
             ),
             const SizedBox(width: 12),
@@ -281,8 +349,12 @@ class NodeDetailsScreen extends StatelessWidget {
                 icon: Icons.share_rounded,
                 label: 'Share Resource',
                 color: const Color(0xFFD97706),
-                bgColor: AegisColors.isLight ? const Color(0xFFFFFBEB) : const Color(0xFF2D1F10),
-                borderColor: AegisColors.isLight ? const Color(0xFFFDE68A) : const Color(0xFF6B4B1B),
+                bgColor: AegisColors.isLight
+                    ? const Color(0xFFFFFBEB)
+                    : const Color(0xFF2D1F10),
+                borderColor: AegisColors.isLight
+                    ? const Color(0xFFFDE68A)
+                    : const Color(0xFF6B4B1B),
                 onTap: () {},
               ),
             ),
@@ -295,8 +367,12 @@ class NodeDetailsScreen extends StatelessWidget {
             icon: Icons.map_outlined,
             label: 'View on Map',
             color: AegisColors.electricBlue,
-            bgColor: AegisColors.isLight ? const Color(0xFFEFF6FF) : const Color(0xFF0F172A),
-            borderColor: AegisColors.isLight ? const Color(0xFFBFDBFE) : const Color(0xFF1E3A8A),
+            bgColor: AegisColors.isLight
+                ? const Color(0xFFEFF6FF)
+                : const Color(0xFF0F172A),
+            borderColor: AegisColors.isLight
+                ? const Color(0xFFBFDBFE)
+                : const Color(0xFF1E3A8A),
             onTap: () => Navigator.of(context).pop(),
           ),
         ),
@@ -340,18 +416,24 @@ class NodeDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _infoRow(String label, String value, {bool isStatus = false, Color? statusColor, bool showBattery = false}) {
+  Widget _infoRow(String label, String value,
+      {bool isStatus = false, Color? statusColor, bool showBattery = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: AegisColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
+          Text(label,
+              style: TextStyle(
+                  color: AegisColors.textSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500)),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (showBattery) ...[
-                Icon(Icons.battery_charging_full_rounded, color: AegisColors.neonGreen, size: 14),
+                Icon(Icons.battery_charging_full_rounded,
+                    color: AegisColors.neonGreen, size: 14),
                 const SizedBox(width: 4),
               ],
               Text(

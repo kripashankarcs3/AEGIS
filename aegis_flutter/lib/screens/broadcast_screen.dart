@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
+import '../providers/mesh_provider.dart';
+import '../providers/identity_provider.dart';
+import '../models/signal_packet.dart';
 
-class BroadcastScreen extends StatefulWidget {
+class BroadcastScreen extends ConsumerStatefulWidget {
   const BroadcastScreen({super.key});
 
   @override
-  State<BroadcastScreen> createState() => _BroadcastScreenState();
+  ConsumerState<BroadcastScreen> createState() => _BroadcastScreenState();
 }
 
-class _BroadcastScreenState extends State<BroadcastScreen> {
-  int _selectedAudience = 1; // Default to Nearby Devices
-  int _selectedPriority = 2; // Default to High
+class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
+  int _selectedAudience = 1;
+  int _selectedPriority = 2;
+  final TextEditingController _messageController = TextEditingController();
 
   final List<Map<String, String>> _audiences = [
     {'title': 'Everyone', 'sub': 'All nodes in range'},
@@ -21,14 +26,54 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   ];
 
   @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  void _sendBroadcast() {
+    final message = _messageController.text.trim();
+    if (message.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a message')),
+      );
+      return;
+    }
+
+    final sigId = ref.read(sigIdProvider);
+    final audience = _audiences[_selectedAudience]['title'] ?? 'Everyone';
+
+    final packet = SignalPacket(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      from: sigId,
+      to: 'broadcast',
+      type: PacketType.status,
+      payload: message,
+      ttl: 8,
+      hopCount: 0,
+      path: [sigId],
+      timestamp: DateTime.now(),
+    );
+
+    ref.read(meshProvider.notifier).sendPacket(packet);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Broadcast sent to $audience nodes')),
+    );
+
+    Navigator.of(context).pop();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -36,12 +81,12 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
           style: TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline_rounded, color: Colors.white, size: 22.0),
+            icon: Icon(Icons.info_outline_rounded, color: AegisColors.textPrimary, size: 22.0),
             onPressed: () {},
           ),
         ],
@@ -53,11 +98,10 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. Broadcast Message Banner Card
                 Container(
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E1B4B), // Dark Indigo/Purple card
+                    color: const Color(0xFF1E1B4B),
                     borderRadius: BorderRadius.circular(10.0),
                     border: Border.all(color: AegisColors.violet.withOpacity(0.3), width: 1.0),
                   ),
@@ -106,7 +150,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                 ),
                 SizedBox(height: 20.0),
 
-                // 2. Who should receive? Section
                 Text(
                   'Who should receive?',
                   style: TextStyle(
@@ -128,7 +171,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                         children: [
                           _buildAudienceRow(index),
                           if (index < _audiences.length - 1)
-                            const Divider(color: Color(0xFF1E293B), height: 1.0, thickness: 0.5),
+                            Divider(color: AegisColors.border1, height: 1.0, thickness: 0.5),
                         ],
                       );
                     }),
@@ -136,7 +179,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                 ),
                 SizedBox(height: 20.0),
 
-                // 3. Message Section
                 Text(
                   'Message',
                   style: TextStyle(
@@ -157,9 +199,10 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       TextField(
+                        controller: _messageController,
                         maxLines: 3,
                         maxLength: 200,
-                        style: TextStyle(color: Colors.white, fontSize: 13.0),
+                        style: TextStyle(color: AegisColors.textPrimary, fontSize: 13.0),
                         decoration: InputDecoration(
                           hintText: 'Type your message...',
                           hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 13.0),
@@ -167,7 +210,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                           counterText: '',
                           isDense: true,
                         ),
-                        controller: null, // Let it be default
                       ),
                       Text(
                         '62/200',
@@ -178,7 +220,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                 ),
                 SizedBox(height: 20.0),
 
-                // 4. Priority Section
                 Text(
                   'Priority',
                   style: TextStyle(
@@ -198,7 +239,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                 ),
                 SizedBox(height: 32.0),
 
-                // 5. Send Broadcast Action Button
                 Container(
                   width: double.infinity,
                   height: 44.0,
@@ -214,7 +254,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     ],
                   ),
                   child: InkWell(
-                    onTap: () {},
+                    onTap: _sendBroadcast,
                     borderRadius: BorderRadius.circular(6.0),
                     child: Center(
                       child: Text(
@@ -251,7 +291,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
         child: Row(
           children: [
-            // Checkbox indicator on the left
             Container(
               width: 18.0,
               height: 18.0,
@@ -276,7 +315,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                   : null,
             ),
             SizedBox(width: 12.0),
-            // Title and Subtitle details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,7 +323,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     audience['title']!,
                     style: TextStyle(
                       fontSize: 13.0,
-                      color: Colors.white,
+                      color: AegisColors.textPrimary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -299,7 +337,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                 ],
               ),
             ),
-            // Selected Green Check Badge on the right
             if (isSelected)
               Container(
                 width: 18.0,
@@ -324,7 +361,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
 
   Widget _buildPriorityButton(int index, String label) {
     final bool isSelected = _selectedPriority == index;
-    final Color strokeColor = isSelected ? AegisColors.sosRed : const Color(0xFF1E293B);
+    final Color strokeColor = isSelected ? AegisColors.sosRed : AegisColors.border1;
     final Color textColor = isSelected ? AegisColors.sosRed : AegisColors.textSecondary;
 
     return Expanded(
@@ -348,7 +385,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Circular radio/dot indicator
               Container(
                 width: 12.0,
                 height: 12.0,

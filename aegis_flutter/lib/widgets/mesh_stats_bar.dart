@@ -1,46 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
+import '../providers/mesh_provider.dart';
 
-
-class MeshStatsBar extends StatelessWidget {
+class MeshStatsBar extends ConsumerWidget {
   const MeshStatsBar({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final peerCount = ref.watch(meshPeerCountProvider);
+    final packetsRelayed = ref.watch(meshPacketsRelayedProvider);
+
     return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AegisColors.cardBg, AegisColors.surface2]),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AegisColors.border1.withOpacity(0.5), width: 0.5),
+        color: AegisColors.cardBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AegisColors.border1, width: 0.5),
         boxShadow: AegisColors.cardShadow,
       ),
-      child: IntrinsicHeight(
-        child: Row(children: [
-          _stat('8', 'NODES', 'Connected', AegisColors.neonGreen),
-          _divider(),
-          _stat('42ms', 'LATENCY', 'Excellent', AegisColors.neonGreen),
-          _divider(),
-          _stat('127', 'PACKETS', 'Relayed', AegisColors.electricBlue),
-          _divider(),
-          _stat('94%', 'COVERAGE', 'Good', AegisColors.neonGreen),
-        ]),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _statCol('$peerCount', 'Nodes'),
+          _dividerCol(),
+          _statCol('$packetsRelayed', 'Packets Relayed'),
+          _dividerCol(),
+          _statCol('--', 'Avg Latency'),
+          _dividerCol(),
+          _statCol('--', 'Coverage'),
+        ],
       ),
     );
   }
 
-  Widget _stat(String value, String label, String sub, Color subColor) {
+  Widget _statCol(String value, String label) {
     return Expanded(
-      child: Padding(padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5)),
-        SizedBox(height: 4),
-        Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AegisColors.textMuted, letterSpacing: 0.8)),
-        SizedBox(height: 2),
-        Text(sub, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: subColor, letterSpacing: 0.2)),
-      ])),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: AegisColors.textPrimary,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 10,
+              color: AegisColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _divider() {
-    return Container(width: 1, margin: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.5), Colors.transparent])));
+  Widget _dividerCol() {
+    return Container(
+      width: 0.5,
+      height: 32,
+      color: AegisColors.border1.withOpacity(0.5),
+    );
   }
 }
