@@ -6,6 +6,9 @@ import '../constants/aegis_animations.dart';
 import '../models/survivor_node.dart';
 import '../widgets/radar_painter.dart';
 import '../widgets/mesh_stats_bar.dart';
+import '../providers/theme_provider.dart';
+import 'notifications_screen.dart';
+import 'profile_screen.dart';
 import 'settings_screen.dart';
 import 'sos_incoming_overlay.dart';
 import '../widgets/node_popup_card.dart';
@@ -65,6 +68,7 @@ class _RadarScreenState extends State<RadarScreen> with TickerProviderStateMixin
   }
 
   Widget _header() {
+    final themeProvider = ThemeProviderWidget.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -93,24 +97,76 @@ class _RadarScreenState extends State<RadarScreen> with TickerProviderStateMixin
             ),
           ],
         ),
-        GestureDetector(
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AegisColors.surface2,
-              shape: BoxShape.circle,
-              border: Border.all(color: AegisColors.border1, width: 0.5),
+        Row(
+          children: [
+            // Wifi/Mesh Connection Button
+            _iconBtn(
+              _isEmptyRadar ? Icons.wifi_off_rounded : Icons.wifi_rounded,
+              _isEmptyRadar ? AegisColors.sosRed : AegisColors.neonGreen,
+              () => setState(() => _isEmptyRadar = !_isEmptyRadar),
             ),
-            child: Icon(
-              Icons.settings_outlined,
-              color: AegisColors.textPrimary,
-              size: 18,
+            const SizedBox(width: 8),
+            // Theme Toggle Button
+            _iconBtn(
+              themeProvider.isLightActive ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+              AegisColors.textPrimary,
+              () {
+                if (themeProvider.isLightActive) {
+                  themeProvider.setMode(AppThemeMode.dark);
+                } else {
+                  themeProvider.setMode(AppThemeMode.light);
+                }
+              },
             ),
-          ),
+            const SizedBox(width: 8),
+            // Notification Bell Button
+            _iconBtn(
+              Icons.notifications_none_outlined,
+              AegisColors.textPrimary,
+              () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationsScreen())),
+              badge: true,
+            ),
+            const SizedBox(width: 8),
+            // Profile Button
+            _avatarBtn(),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _iconBtn(IconData icon, Color color, VoidCallback onTap, {bool badge = false}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36, height: 36,
+        decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)),
+        child: Stack(clipBehavior: Clip.none, children: [
+          Center(child: Icon(icon, color: color, size: 18)),
+          if (badge) Positioned(right: 6, top: 6, child: Container(width: 6, height: 6, decoration: const BoxDecoration(color: AegisColors.sosRed, shape: BoxShape.circle))),
+        ]),
+      ),
+    );
+  }
+
+  Widget _avatarBtn() {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
+      child: Container(
+        width: 36, height: 36,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AegisColors.isLight ? const Color(0xFF8B5CF6) : const Color(0xFF5B21B6),
+          border: Border.all(color: AegisColors.isLight ? const Color(0xFFDDD6FE) : AegisColors.violet.withOpacity(0.15), width: 1.5),
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.person_rounded,
+            size: 18,
+            color: Colors.white,
+          ),
+        ),
+      ),
     );
   }
 
