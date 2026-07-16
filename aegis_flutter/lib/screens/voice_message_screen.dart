@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
+import '../providers/survivor_provider.dart';
 
-class VoiceMessageScreen extends StatelessWidget {
+class VoiceMessageScreen extends ConsumerWidget {
   const VoiceMessageScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
@@ -139,15 +141,7 @@ class VoiceMessageScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10.0),
               Expanded(
-                child: ListView(
-                  children: [
-                    _buildVoiceShareDeviceRow('SIG-8AF3', '2 hops'),
-                    _buildInnerDivider(),
-                    _buildVoiceShareDeviceRow('SIG-C4E1', '1 hop'),
-                    _buildInnerDivider(),
-                    _buildVoiceShareDeviceRow('SIG-B2C1', '2 hops'),
-                  ],
-                ),
+                child: _buildPeerList(ref),
               ),
             ],
           ),
@@ -242,6 +236,36 @@ class VoiceMessageScreen extends StatelessWidget {
       color: Color(0xFF1E293B),
       height: 1.0,
       thickness: 0.5,
+    );
+  }
+
+  Widget _buildPeerList(WidgetRef ref) {
+    final peers = ref.watch(survivorProvider);
+    if (peers.isEmpty) {
+      return Center(
+        child: Text(
+          'No peers available',
+          style: TextStyle(
+            color: AegisColors.textSecondary,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }
+    final items = peers.values.toList();
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final peer = items[index];
+        final status = peer.isOffline ? 'Offline' : 'Online';
+        return Column(
+          children: [
+            if (index > 0) _buildInnerDivider(),
+            _buildVoiceShareDeviceRow(peer.id, status),
+          ],
+        );
+      },
     );
   }
 }

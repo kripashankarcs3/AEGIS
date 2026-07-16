@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_animations.dart';
+import '../models/survivor_node_model.dart';
+import '../providers/survivor_provider.dart';
 
-class StatusHistoryScreen extends StatefulWidget {
+class StatusHistoryScreen extends ConsumerStatefulWidget {
   const StatusHistoryScreen({super.key});
 
   @override
-  State<StatusHistoryScreen> createState() => _StatusHistoryScreenState();
+  ConsumerState<StatusHistoryScreen> createState() => _StatusHistoryScreenState();
 }
 
-class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
+class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,6 +168,7 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
   }
 
   Widget _beaconsSection() {
+    final peers = ref.watch(survivorProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -195,28 +199,61 @@ class _StatusHistoryScreenState extends State<StatusHistoryScreen> {
             border: Border.all(color: AegisColors.border1, width: 0.5),
             boxShadow: AegisColors.cardShadow,
           ),
-          child: Column(
-            children: [
-              _beaconRow('SIG-8AF3', 'Online', AegisColors.neonGreen,
-                  'Just now', '2 hops away'),
-              _divider(),
-              _beaconRow('SIG-C4E1', 'Online', AegisColors.neonGreen,
-                  '1 min ago', '1 hop away'),
-              _divider(),
-              _beaconRow('SIG-B2C1', 'Busy', AegisColors.orange, '2 min ago',
-                  '2 hops away'),
-              _divider(),
-              _beaconRow('SIG-1D9A', 'Needs Help', AegisColors.sosRed,
-                  '5 min ago', '3 hops away'),
-              _divider(),
-              _beaconRow('SIG-9E10', 'Offline', AegisColors.textMuted,
-                  '10 min ago', 'Unknown',
-                  isOffline: true),
-            ],
-          ),
+          child: peers.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  child: Center(
+                    child: Text(
+                      'No status history yet',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AegisColors.textMuted,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                )
+              : Column(
+                  children: [
+                    for (int i = 0; i < peers.length; i++) ...[
+                      if (i > 0) _divider(),
+                      _buildBeaconFromPeer(peers.values.elementAt(i)),
+                    ],
+                  ],
+                ),
         ),
       ],
     );
+  }
+
+  Widget _buildBeaconFromPeer(SurvivorNodeModel peer) {
+    final (status, statusColor, isOffline) = _resolveStatus(peer.status);
+    final time = _formatTime(peer.lastSeen);
+    return _beaconRow(peer.id, status, statusColor, time, '',
+        isOffline: isOffline);
+  }
+
+  (String, Color, bool) _resolveStatus(String status) {
+    switch (status) {
+      case 'safe':
+        return ('Online', AegisColors.neonGreen, false);
+      case 'need_help':
+        return ('Needs Help', AegisColors.sosRed, false);
+      case 'busy':
+        return ('Busy', AegisColors.orange, false);
+      case 'offline':
+        return ('Offline', AegisColors.textMuted, true);
+      default:
+        return (status, AegisColors.textSecondary, false);
+    }
+  }
+
+  String _formatTime(int millis) {
+    final diff = DateTime.now().difference(
+        DateTime.fromMillisecondsSinceEpoch(millis));
+    if (diff.inSeconds < 60) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
+    return '${diff.inHours} hr ago';
   }
 
   Widget _beaconRow(String nodeId, String status, Color statusColor,

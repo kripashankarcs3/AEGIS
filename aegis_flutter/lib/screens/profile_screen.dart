@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../constants/aegis_colors.dart';
+import '../providers/identity_provider.dart';
 import '../services/storage_service.dart';
 import 'help_support_screen.dart';
 import 'identity_screen.dart';
@@ -9,30 +11,25 @@ import 'settings_screen.dart';
 import 'emergency_contacts_screen.dart';
 import 'devices_network_screen.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  String _name = '';
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   String? _imagePath;
 
   @override
   void initState() {
     super.initState();
-    _loadProfile();
+    _loadImage();
   }
 
-  Future<void> _loadProfile() async {
-    final name = StorageService.getSetting('profile_name') as String? ?? 'Kripashankar Yadav';
+  Future<void> _loadImage() async {
     final path = StorageService.getProfileImagePath();
-    setState(() {
-      _name = name;
-      _imagePath = path;
-    });
+    setState(() => _imagePath = path);
   }
 
   Future<void> _pickImage() async {
@@ -41,44 +38,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (picked != null) {
       await StorageService.setProfileImagePath(picked.path);
       setState(() => _imagePath = picked.path);
-    }
-  }
-
-  Future<void> _editName() async {
-    final controller = TextEditingController(text: _name);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AegisColors.surface1,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Edit Name', style: TextStyle(color: AegisColors.textPrimary)),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          style: TextStyle(color: AegisColors.textPrimary),
-          decoration: InputDecoration(
-            hintText: 'Enter your name',
-            hintStyle: TextStyle(color: AegisColors.textMuted),
-            fillColor: AegisColors.background,
-            filled: true,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AegisColors.border1)),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text('Cancel', style: TextStyle(color: AegisColors.textSecondary)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
-            child: Text('Save', style: TextStyle(color: AegisColors.electricBlue, fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
-    if (result != null && result.isNotEmpty) {
-      await StorageService.setSetting('profile_name', result);
-      setState(() => _name = result);
     }
   }
 
@@ -153,6 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _avatarAndName(Color textPrimary, Color textSecondary, Color border, Color shadow, Color cardBg, Color bg) {
+    final sigId = ref.watch(sigIdProvider);
     return GestureDetector(
       onTap: _pickImage,
       child: Stack(
@@ -187,19 +147,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(height: 14),
-              GestureDetector(
-                onTap: _editName,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(_name, textAlign: TextAlign.center, style: TextStyle(color: textPrimary, fontSize: 22, fontWeight: FontWeight.w900, height: 1)),
-                    const SizedBox(width: 8),
-                    Icon(Icons.edit_rounded, color: AegisColors.electricBlue, size: 18),
-                  ],
-                ),
-              ),
+              Text(sigId, textAlign: TextAlign.center, style: TextStyle(color: textPrimary, fontSize: 22, fontWeight: FontWeight.w900, height: 1)),
               const SizedBox(height: 6),
-              Text('ID: NEXUS_7FA2B3', style: TextStyle(color: textSecondary, fontSize: 13, fontWeight: FontWeight.w600, height: 1)),
+              Text('ID: $sigId', style: TextStyle(color: textSecondary, fontSize: 13, fontWeight: FontWeight.w600, height: 1)),
             ],
           ),
           Positioned(

@@ -181,6 +181,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
       ..onSosReceived = (p) async {
         _addActivity('🆘 SOS from ${p.from}');
         _sosAlertStreamController.add(p);
+        await _sosHandler.onIncoming(p);
       }
       ..onStatusReceived = (p) async {
         _addActivity('📡 Status update from ${p.from}');
@@ -198,6 +199,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
       }
       ..onResourceReceived = (p) async {
         _addActivity('📦 Resource from ${p.from}: ${p.payload}');
+        await _resourceManager.onIncoming(p);
       }
       ..onChatReceived = (p) async {
         onChatReceived?.call(p);
