@@ -379,7 +379,7 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                     ),
                   ),
                 );
-              });
+              }),
             ],
           );
         }),
@@ -463,7 +463,8 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
             } else if (entry.contains('chat') || entry.contains('\u{1F4AC}')) {
               color = AegisColors.electricBlue;
               icon = Icons.chat_bubble_outline_rounded;
-            } else if (entry.contains('joined') || entry.contains('\u{1F50D}')) {
+            } else if (entry.contains('joined') ||
+                entry.contains('\u{1F50D}')) {
               color = AegisColors.neonGreen;
               icon = Icons.link_rounded;
             } else {

@@ -256,23 +256,29 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
 
   Widget _input() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AegisColors.background, const Color(0xFF08080E)]), border: Border(top: BorderSide(color: AegisColors.border1.withOpacity(0.3), width: 0.5))),
-      child: Row(children: [
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF08080E),
+        border: Border(top: BorderSide(color: AegisColors.border1.withOpacity(0.2), width: 0.5)),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
         Expanded(
           child: Container(
-            height: 46,
-            decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(16), border: Border.all(color: AegisColors.border1.withOpacity(0.5), width: 0.5)),
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            constraints: const BoxConstraints(minHeight: 46, maxHeight: 120),
+            decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5)),
+            padding: const EdgeInsets.only(left: 14, right: 4),
             child: Row(children: [
               Expanded(child: TextField(
                 controller: _messageController,
-                style: TextStyle(color: Colors.white, fontSize: 14),
-                decoration: InputDecoration(hintText: 'Type a message...', hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 14), border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.symmetric(horizontal: 12)),
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                textCapitalization: TextCapitalization.sentences,
+                style: TextStyle(color: Colors.white, fontSize: 15),
+                decoration: InputDecoration(hintText: 'Type a message...', hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 15), border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 0)),
               )),
               GestureDetector(
                 onTap: () => showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (_) => _attachSheet()),
-                child: Container(width: 36, height: 36, margin: const EdgeInsets.all(2), decoration: BoxDecoration(color: AegisColors.border1.withOpacity(0.3), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.attach_file_rounded, color: AegisColors.textMuted, size: 18)),
+                child: Container(width: 36, height: 36, margin: const EdgeInsets.only(bottom: 6), decoration: BoxDecoration(color: AegisColors.border1.withOpacity(0.3), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.attach_file_rounded, color: AegisColors.textMuted, size: 18)),
               ),
             ]),
           ),
