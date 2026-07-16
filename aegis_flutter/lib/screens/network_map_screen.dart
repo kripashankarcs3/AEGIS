@@ -1,11 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
 import 'identity_screen.dart';
 import '../widgets/node_popup_card.dart';
 import 'chat_conversation_screen.dart';
+import '../providers/mesh_provider.dart';
 
 class MapNodeItem {
   final String id;
@@ -46,12 +48,10 @@ class SurvivorMapPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5;
 
-    // Rings
     for (final r in [maxR * 0.35, maxR * 0.68, maxR]) {
       canvas.drawCircle(c, r, p);
     }
 
-    // Lines
     canvas.drawLine(Offset(c.dx - maxR, c.dy), Offset(c.dx + maxR, c.dy), p);
     canvas.drawLine(Offset(c.dx, c.dy - maxR), Offset(c.dx, c.dy + maxR), p);
   }
@@ -117,14 +117,14 @@ class SurvivorMapPainter extends CustomPainter {
   bool shouldRepaint(covariant SurvivorMapPainter old) => false;
 }
 
-class NetworkMapScreen extends StatefulWidget {
+class NetworkMapScreen extends ConsumerStatefulWidget {
   const NetworkMapScreen({super.key});
 
   @override
-  State<NetworkMapScreen> createState() => _NetworkMapScreenState();
+  ConsumerState<NetworkMapScreen> createState() => _NetworkMapScreenState();
 }
 
-class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerProviderStateMixin {
+class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with SingleTickerProviderStateMixin {
   late AnimationController _pulse;
   late Animation<double> _pulseA;
 
@@ -153,6 +153,9 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    final peerCount = ref.watch(meshPeerCountProvider);
+    final packetsRelayed = ref.watch(meshPacketsRelayedProvider);
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -161,7 +164,7 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StaggeredFadeIn(index: 0, child: _header()),
+              StaggeredFadeIn(index: 0, child: _header(peerCount, packetsRelayed)),
               const SizedBox(height: 18),
               StaggeredFadeIn(index: 1, child: _mapWidget()),
               const SizedBox(height: 18),
@@ -169,7 +172,7 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
               const SizedBox(height: 24),
               StaggeredFadeIn(index: 3, child: _healthCard()),
               const SizedBox(height: 16),
-              StaggeredFadeIn(index: 4, child: _statsCard()),
+              StaggeredFadeIn(index: 4, child: _statsCard(peerCount, packetsRelayed)),
             ],
           ),
         ),
@@ -177,7 +180,7 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
     );
   }
 
-  Widget _header() {
+  Widget _header(int peerCount, int packetsRelayed) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -188,9 +191,9 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
             const SizedBox(height: 6),
             Row(
               children: [
-                Text('• 8 Nodes Online', style: TextStyle(fontSize: 11, color: AegisColors.neonGreen, fontWeight: FontWeight.bold)),
+                Text('• $peerCount Nodes Online', style: TextStyle(fontSize: 11, color: AegisColors.neonGreen, fontWeight: FontWeight.bold)),
                 const SizedBox(width: 12),
-                Text('• 127 Relayed', style: TextStyle(fontSize: 11, color: AegisColors.violet, fontWeight: FontWeight.bold)),
+                Text('• $packetsRelayed Relayed', style: TextStyle(fontSize: 11, color: AegisColors.violet, fontWeight: FontWeight.bold)),
                 const SizedBox(width: 12),
                 Text('• Live', style: TextStyle(fontSize: 11, color: AegisColors.electricBlue, fontWeight: FontWeight.bold)),
               ],
@@ -416,7 +419,7 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
     );
   }
 
-  Widget _statsCard() {
+  Widget _statsCard(int peerCount, int packetsRelayed) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
       decoration: BoxDecoration(
@@ -428,9 +431,9 @@ class _NetworkMapScreenState extends State<NetworkMapScreen> with SingleTickerPr
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _statCol('8', 'Nodes'),
+          _statCol('$peerCount', 'Nodes'),
           _dividerCol(),
-          _statCol('127', 'Packets Relayed'),
+          _statCol('$packetsRelayed', 'Packets Relayed'),
           _dividerCol(),
           _statCol('42ms', 'Avg Latency'),
           _dividerCol(),

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
@@ -7,20 +8,21 @@ import '../models/survivor_node.dart';
 import '../widgets/radar_painter.dart';
 import '../widgets/mesh_stats_bar.dart';
 import '../providers/theme_provider.dart';
+import '../providers/mesh_provider.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
 import 'sos_incoming_overlay.dart';
 import '../widgets/node_popup_card.dart';
 import 'chat_conversation_screen.dart';
 
-class RadarScreen extends StatefulWidget {
+class RadarScreen extends ConsumerStatefulWidget {
   const RadarScreen({super.key});
 
   @override
-  State<RadarScreen> createState() => _RadarScreenState();
+  ConsumerState<RadarScreen> createState() => _RadarScreenState();
 }
 
-class _RadarScreenState extends State<RadarScreen>
+class _RadarScreenState extends ConsumerState<RadarScreen>
     with TickerProviderStateMixin {
   bool _isEmptyRadar = false;
 
@@ -114,14 +116,12 @@ class _RadarScreenState extends State<RadarScreen>
         ),
         Row(
           children: [
-            // Wifi/Mesh Connection Button
             _iconBtn(
               _isEmptyRadar ? Icons.wifi_off_rounded : Icons.wifi_rounded,
               _isEmptyRadar ? AegisColors.sosRed : AegisColors.neonGreen,
               () => setState(() => _isEmptyRadar = !_isEmptyRadar),
             ),
             const SizedBox(width: 8),
-            // Theme Toggle Button
             _iconBtn(
               themeProvider.isLightActive
                   ? Icons.dark_mode_rounded
@@ -136,7 +136,6 @@ class _RadarScreenState extends State<RadarScreen>
               },
             ),
             const SizedBox(width: 8),
-            // Notification Bell Button
             _iconBtn(
               Icons.notifications_none_outlined,
               AegisColors.textPrimary,
@@ -145,7 +144,6 @@ class _RadarScreenState extends State<RadarScreen>
               badge: true,
             ),
             const SizedBox(width: 8),
-            // Profile Button
             _avatarBtn(),
           ],
         ),
@@ -382,7 +380,6 @@ class _RadarScreenState extends State<RadarScreen>
                   ),
                 );
               }),
-              // Floating Zoom Controls on the Right
               Positioned(
                 right: 14,
                 top: constraints.maxHeight / 2 - 50,
@@ -439,6 +436,8 @@ class _RadarScreenState extends State<RadarScreen>
   }
 
   Widget _activitySection() {
+    final activity = ref.watch(meshActivityProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -461,17 +460,47 @@ class _RadarScreenState extends State<RadarScreen>
           ],
         ),
         const SizedBox(height: 16),
-        _activityLog(AegisColors.neonGreen, Icons.link_rounded,
-            'SIG-8AF3 joined the network', '2m ago'),
-        const SizedBox(height: 10),
-        _activityLog(AegisColors.electricBlue, Icons.swap_horiz_rounded,
-            'Message relayed to SIG-B2C1', '3m ago'),
-        const SizedBox(height: 10),
-        _activityLog(AegisColors.sosRed, Icons.warning_amber_rounded,
-            'SOS from SIG-1D9A received', '5m ago'),
-        const SizedBox(height: 10),
-        _activityLog(AegisColors.textMuted, Icons.cloud_download_rounded,
-            'Resource from SIG-C4E1 relayed', '7m ago'),
+        if (activity.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AegisColors.cardBg,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AegisColors.border1, width: 0.5),
+            ),
+            child: Center(
+              child: Text(
+                'Waiting for mesh activity...',
+                style: TextStyle(
+                  color: AegisColors.textMuted,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          )
+        else
+          ...activity.map((entry) {
+            Color color;
+            IconData icon;
+            if (entry.contains('SOS') || entry.contains('\u{1F6E8}')) {
+              color = AegisColors.sosRed;
+              icon = Icons.warning_amber_rounded;
+            } else if (entry.contains('chat') || entry.contains('\u{1F4AC}')) {
+              color = AegisColors.electricBlue;
+              icon = Icons.chat_bubble_outline_rounded;
+            } else if (entry.contains('joined') || entry.contains('\u{1F50D}')) {
+              color = AegisColors.neonGreen;
+              icon = Icons.link_rounded;
+            } else {
+              color = AegisColors.textMuted;
+              icon = Icons.swap_horiz_rounded;
+            }
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: _activityLog(color, icon, entry, ''),
+            );
+          }),
       ],
     );
   }

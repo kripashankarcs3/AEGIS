@@ -5,6 +5,8 @@ import '../constants/aegis_animations.dart';
 import 'chat_conversation_screen.dart';
 import 'broadcast_screen.dart';
 
+final _sigIdRegex = RegExp(r'^SIG-[A-Za-z0-9]{4}$');
+
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -216,7 +218,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
           SizedBox(height: 20),
-          _sheetOpt(Icons.chat_bubble_outline_rounded, 'New Chat', AegisColors.violet, () => Navigator.of(context).pop()),
+          _sheetOpt(Icons.chat_bubble_outline_rounded, 'New Chat', AegisColors.violet, () { Navigator.of(context).pop(); _showNewChatDialog(); }),
           SizedBox(height: 4),
           _sheetDivider(),
           SizedBox(height: 4),
@@ -242,5 +244,64 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _sheetDivider() {
     return Container(margin: const EdgeInsets.symmetric(horizontal: 4), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
+  }
+
+  void _showNewChatDialog() {
+    final controller = TextEditingController();
+    String? errorText;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: AegisColors.surface1,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text('New Chat', style: TextStyle(color: AegisColors.textPrimary, fontWeight: FontWeight.w700)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Enter the SIG-ID of the peer you want to chat with.', style: TextStyle(color: AegisColors.textSecondary, fontSize: 13)),
+              SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                style: TextStyle(color: AegisColors.textPrimary, fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'SIG-XXXX',
+                  hintStyle: TextStyle(color: AegisColors.textMuted),
+                  errorText: errorText,
+                  filled: true,
+                  fillColor: AegisColors.surface2,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text('Cancel', style: TextStyle(color: AegisColors.textMuted)),
+            ),
+            TextButton(
+              onPressed: () {
+                final sigId = controller.text.trim().toUpperCase();
+                if (!_sigIdRegex.hasMatch(sigId)) {
+                  setDialogState(() => errorText = 'Must be SIG-XXXX format');
+                  return;
+                }
+                Navigator.of(ctx).pop();
+                Navigator.of(context).push(PageRouteBuilder(
+                  pageBuilder: (_, a, __) => ChatConversationScreen(nodeId: sigId),
+                  transitionsBuilder: (_, a, __, child) => SlideTransition(
+                    position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)),
+                    child: child,
+                  ),
+                ));
+              },
+              child: Text('Start Chat', style: TextStyle(color: AegisColors.violet, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_animations.dart';
+import '../providers/identity_provider.dart';
 
-class IdentityScreen extends StatelessWidget {
+class IdentityScreen extends ConsumerWidget {
   const IdentityScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    const String publicKey =
-        'a1b2c3d4e5f678901234567890abcdef1234567890abcdef12';
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sigId = ref.watch(sigIdProvider);
+    final identity = ref.watch(identityProvider);
+    final publicKey = identity.publicKey;
+    final displayKey = publicKey.isEmpty ? 'Not generated yet' : publicKey;
 
     return Scaffold(
       backgroundColor: AegisColors.background,
@@ -64,10 +68,10 @@ class IdentityScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StaggeredFadeIn(index: 0, child: _profileCard(context)),
+              StaggeredFadeIn(index: 0, child: _profileCard(context, sigId)),
               const SizedBox(height: 28),
               StaggeredFadeIn(
-                  index: 1, child: _publicKeySection(context, publicKey)),
+                  index: 1, child: _publicKeySection(context, displayKey)),
               const SizedBox(height: 28),
               StaggeredFadeIn(index: 2, child: _securitySection()),
               const SizedBox(height: 28),
@@ -79,7 +83,7 @@ class IdentityScreen extends StatelessWidget {
     );
   }
 
-  Widget _profileCard(BuildContext context) {
+  Widget _profileCard(BuildContext context, String sigId) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -122,7 +126,7 @@ class IdentityScreen extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              'SIG-7F3A',
+                              sigId,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
@@ -134,7 +138,7 @@ class IdentityScreen extends StatelessWidget {
                             GestureDetector(
                               onTap: () {
                                 Clipboard.setData(
-                                    const ClipboardData(text: 'SIG-7F3A'));
+                                    ClipboardData(text: sigId));
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content:
@@ -236,12 +240,14 @@ class IdentityScreen extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         GestureDetector(
-          onTap: () {
-            Clipboard.setData(ClipboardData(text: key));
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Public key copied to clipboard')),
-            );
-          },
+          onTap: key.startsWith('Not generated')
+              ? null
+              : () {
+                  Clipboard.setData(ClipboardData(text: key));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Public key copied to clipboard')),
+                  );
+                },
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -258,14 +264,15 @@ class IdentityScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Public Key (Tap to copy)',
+                      key.startsWith('Not generated') ? '' : 'Public Key (Tap to copy)',
                       style: TextStyle(
                           fontSize: 11,
                           color: AegisColors.textSecondary,
                           fontWeight: FontWeight.w600),
                     ),
-                    Icon(Icons.copy_rounded,
-                        color: AegisColors.textMuted, size: 14),
+                    if (!key.startsWith('Not generated'))
+                      Icon(Icons.copy_rounded,
+                          color: AegisColors.textMuted, size: 14),
                   ],
                 ),
                 const SizedBox(height: 10),
