@@ -20,10 +20,11 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -31,12 +32,12 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
           style: TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline_rounded, color: Colors.white),
+            icon: Icon(Icons.info_outline_rounded, color: AegisColors.textPrimary),
             onPressed: () {},
           ),
         ],
@@ -79,7 +80,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                           style: TextStyle(
                             fontSize: 32.0,
                             fontWeight: FontWeight.w900,
-                            color: Colors.white,
+                            color: AegisColors.textPrimary,
                           ),
                         ),
                         SizedBox(height: 4.0),
@@ -146,7 +147,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                           style: TextStyle(
                             fontSize: 14.0,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AegisColors.textPrimary,
                           ),
                         ),
                         SizedBox(height: 3.0),
@@ -172,7 +173,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                       activeColor: Colors.white,
                       activeTrackColor: AegisColors.neonGreen,
                       inactiveThumbColor: Colors.grey,
-                      inactiveTrackColor: const Color(0xFF1E293B),
+                      inactiveTrackColor: AegisColors.border1,
                     ),
                   ),
                 ],
@@ -256,7 +257,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                               children: [
                                 Text(
                                   'Sync Less Frequently',
-                                  style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
+                                  style: TextStyle(color: AegisColors.textPrimary, fontSize: 13.0, fontWeight: FontWeight.bold),
                                 ),
                                 SizedBox(height: 3.0),
                                 Text(
@@ -312,7 +313,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
               children: [
                 Text(
                   title,
-                  style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: AegisColors.textPrimary, fontSize: 13.0, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 3.0),
                 Text(
@@ -330,7 +331,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
               activeColor: Colors.white,
               activeTrackColor: AegisColors.neonGreen,
               inactiveThumbColor: Colors.grey,
-              inactiveTrackColor: const Color(0xFF1E293B),
+              inactiveTrackColor: AegisColors.border1,
             ),
           ),
         ],
@@ -339,8 +340,8 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
   }
 
   Widget _buildDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
+    return Divider(
+      color: AegisColors.border1,
       height: 1.0,
       thickness: 0.5,
     );
@@ -359,7 +360,7 @@ class BatterySaverGaugePainter extends CustomPainter {
 
     // Draw background track ring
     final Paint trackPaint = Paint()
-      ..color = const Color(0xFF1E293B)
+      ..color = AegisColors.border1
       ..style = PaintingStyle.stroke
       ..strokeWidth = 6.0
       ..strokeCap = StrokeCap.round;

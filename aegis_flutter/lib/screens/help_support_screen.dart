@@ -9,10 +9,11 @@ class HelpSupportScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -20,7 +21,7 @@ class HelpSupportScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
           ),
         ),
       ),
@@ -67,7 +68,7 @@ class HelpSupportScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AegisColors.textPrimary,
                           ),
                         ),
                         SizedBox(height: 4.0),
@@ -193,7 +194,7 @@ class HelpSupportScreen extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AegisColors.textPrimary,
                       fontSize: 13.0,
                       fontWeight: FontWeight.bold,
                     ),
@@ -217,8 +218,8 @@ class HelpSupportScreen extends StatelessWidget {
   }
 
   Widget _buildDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
+    return Divider(
+      color: AegisColors.border1,
       height: 1.0,
       thickness: 0.5,
     );

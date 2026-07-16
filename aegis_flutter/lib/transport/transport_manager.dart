@@ -32,29 +32,57 @@ class TransportManager {
   }
 
   Future<void> initialize() async {
-    debugPrint('Initializing transports...');
+    debugPrint('🚀 [Transport] Initializing all transports...');
 
-    await _mdns.start();
-    await _nearby.startAdvertising();
-    await _nearby.startDiscovery();
-    await _bluetooth.startAdvertising();
+    // Start mDNS discovery (listen mode only)
+    try {
+      await _mdns.start();
+      debugPrint('✅ [mDNS] Started discovery');
+    } catch (e) {
+      debugPrint('❌ [mDNS] Failed: $e');
+    }
+
+    // Start Nearby Connections (WiFi Direct — primary transport)
+    try {
+      await _nearby.startAdvertising();
+      debugPrint('✅ [Nearby] Advertising started');
+    } catch (e) {
+      debugPrint('❌ [Nearby] Advertising failed: $e');
+    }
+
+    try {
+      await _nearby.startDiscovery();
+      debugPrint('✅ [Nearby] Discovery started');
+    } catch (e) {
+      debugPrint('❌ [Nearby] Discovery failed: $e');
+    }
+
+    // Start Bluetooth LE fallback
+    try {
+      await _bluetooth.startAdvertising();
+      debugPrint('✅ [BLE] Started');
+    } catch (e) {
+      debugPrint('❌ [BLE] Failed: $e');
+    }
 
     _nearby.messageStream.listen((packet) {
+      debugPrint('📨 [Nearby] Packet received from ${packet.from}');
       onPacketReceived?.call(packet);
     });
 
     _bluetooth.messageStream.listen((packet) {
+      debugPrint('📨 [BLE] Packet received from ${packet.from}');
       onPacketReceived?.call(packet);
     });
 
     if (_tcpDirect != null) {
       _tcpDirect!.messageStream.listen((packet) {
-        debugPrint('TCP Direct -> mesh_router');
+        debugPrint('📨 [TCP] Packet received from ${packet.from}');
         onPacketReceived?.call(packet);
       });
     }
 
-    debugPrint('All transports active');
+    debugPrint('✅ [Transport] All transports initialized. isConnected=$isConnected');
   }
 
   bool hasDirectTcp(String sigId) => _tcpDirect?.hasPeer(sigId) ?? false;

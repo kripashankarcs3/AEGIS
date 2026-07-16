@@ -18,6 +18,7 @@ import '../core/message_queue.dart';
 import '../core/sos_handler.dart';
 import '../core/status_beacon.dart';
 import '../core/resource_manager.dart';
+import '../models/resource_item.dart';
 import '../models/signal_packet.dart';
 import '../models/survivor_node_model.dart';
 import '../services/background_service.dart';
@@ -200,6 +201,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
       ..onResourceReceived = (p) async {
         _addActivity('📦 Resource from ${p.from}: ${p.payload}');
         await _resourceManager.onIncoming(p);
+        state = state.copyWith();
       }
       ..onChatReceived = (p) async {
         onChatReceived?.call(p);
@@ -245,6 +247,12 @@ class MeshNotifier extends StateNotifier<MeshState> {
     _backgroundService.stop();
     await _transport.dispose();
     state = state.copyWith(isRunning: false, isConnected: false, peerCount: 0);
+  }
+
+  Future<void> postResource(ResourceItem item) async {
+    _resourceManager.addResource(item);
+    state = state.copyWith();
+    await _resourceManager.broadcastResource(item);
   }
 
   // ─────────────────────────────────────────────────────────────────────
@@ -297,3 +305,8 @@ final meshPacketsRelayedProvider =
 
 final meshActivityProvider =
     Provider<List<String>>((ref) => ref.watch(meshProvider).recentActivity);
+
+final meshResourcesProvider = Provider<List<ResourceItem>>((ref) {
+  ref.watch(meshProvider);
+  return ref.read(meshProvider.notifier).resourceManager.resources;
+});

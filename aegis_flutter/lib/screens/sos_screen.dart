@@ -71,8 +71,42 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
     }
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('SOS broadcast sent to mesh network')),
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AegisColors.cardBg,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: AegisColors.border1, width: 0.5)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64, height: 64,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: AegisColors.neonGreen.withOpacity(0.12)),
+                child: Icon(Icons.check_circle_rounded, color: AegisColors.neonGreen, size: 36),
+              ),
+              SizedBox(height: 20),
+              Text('SOS Sent!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AegisColors.textPrimary)),
+              SizedBox(height: 8),
+              Text('Your emergency broadcast has been\nsent to the mesh network.', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: AegisColors.textSecondary, height: 1.4)),
+            ],
+          ),
+          actions: [
+            Center(
+              child: SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  style: TextButton.styleFrom(
+                    backgroundColor: AegisColors.neonGreen.withOpacity(0.12),
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text('OK', style: TextStyle(color: AegisColors.neonGreen, fontWeight: FontWeight.w700, fontSize: 15)),
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     }
   }

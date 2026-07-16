@@ -11,23 +11,24 @@ class VoiceMessageScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Voice Message',
           style: TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 22.0),
+            icon: Icon(Icons.info_outline_rounded, color: AegisColors.textPrimary, size: 22.0),
             onPressed: () {},
           ),
         ],
@@ -67,13 +68,13 @@ class VoiceMessageScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12.0),
               // Time counter details
-              const Center(
+              Center(
                 child: Text(
                   '00:12',
                   style: TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AegisColors.textPrimary,
                   ),
                 ),
               ),
@@ -191,10 +192,10 @@ class VoiceMessageScreen extends ConsumerWidget {
                 children: [
                   Text(
                     nodeId,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AegisColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2.0),
@@ -232,8 +233,8 @@ class VoiceMessageScreen extends ConsumerWidget {
   }
 
   Widget _buildInnerDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
+    return Divider(
+      color: AegisColors.border1,
       height: 1.0,
       thickness: 0.5,
     );

@@ -12,10 +12,11 @@ class ShareFileScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -23,12 +24,12 @@ class ShareFileScreen extends ConsumerWidget {
           style: TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline_rounded, color: Colors.white, size: 22.0),
+            icon: Icon(Icons.info_outline_rounded, color: AegisColors.textPrimary, size: 22.0),
             onPressed: () {},
           ),
         ],
@@ -57,7 +58,7 @@ class ShareFileScreen extends ConsumerWidget {
                       Text(
                         'Drag & drop file here',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AegisColors.textPrimary,
                           fontSize: 13.0,
                           fontWeight: FontWeight.bold,
                         ),
@@ -80,7 +81,7 @@ class ShareFileScreen extends ConsumerWidget {
                         child: Text(
                           'Choose File',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AegisColors.violet,
                             fontSize: 12.0,
                             fontWeight: FontWeight.bold,
                           ),
@@ -146,7 +147,7 @@ class ShareFileScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AegisColors.textPrimary,
                     ),
                   ),
                   SizedBox(height: 2.0),
@@ -184,8 +185,8 @@ class ShareFileScreen extends ConsumerWidget {
   }
 
   Widget _buildInnerDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
+    return Divider(
+      color: AegisColors.border1,
       height: 1.0,
       thickness: 0.5,
     );
@@ -226,7 +227,7 @@ class DashedBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF1F2937)
+      ..color = AegisColors.border2
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 

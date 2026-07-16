@@ -24,6 +24,7 @@ class NearbyService {
       bool success = await _nearby.startAdvertising(
         _myDeviceId ?? 'AEGIS',
         Strategy.P2P_CLUSTER,
+        serviceId: 'com.aegis.mesh',
         onConnectionInitiated: _onConnectionInitiated,
         onConnectionResult: _onConnectionResult,
         onDisconnected: _onDisconnected,
@@ -42,6 +43,7 @@ class NearbyService {
       await _nearby.startDiscovery(
         _myDeviceId ?? 'AEGIS',
         Strategy.P2P_CLUSTER,
+        serviceId: 'com.aegis.mesh',
         onEndpointFound: _onEndpointFound,
         onEndpointLost: _onEndpointLost,
       );
@@ -51,7 +53,7 @@ class NearbyService {
   }
 
   void _onEndpointFound(String id, String name, String serviceId) {
-    debugPrint('👀 Found: $name');
+    debugPrint('👀 [Nearby] Endpoint found: $name (id=$id, serviceId=$serviceId)');
     _nearby.requestConnection(
       _myDeviceId ?? 'AEGIS',
       id,
@@ -71,9 +73,12 @@ class NearbyService {
   }
 
   void _onConnectionResult(String id, Status status) {
+    debugPrint('🔗 [Nearby] Connection result for $id: $status');
     if (status == Status.CONNECTED) {
-      debugPrint('✅ Connected: $id');
+      debugPrint('✅ [Nearby] Connected to $id');
       _connectedPeers[id] = id;
+    } else {
+      debugPrint('❌ [Nearby] Connection REJECTED for $id: $status');
     }
   }
 

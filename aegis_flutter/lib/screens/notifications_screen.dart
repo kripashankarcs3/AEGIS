@@ -17,10 +17,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -28,12 +29,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           style: TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings_outlined, color: Colors.white, size: 22.0),
+            icon: Icon(Icons.settings_outlined, color: AegisColors.textPrimary, size: 22.0),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -135,7 +136,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildFilterPill(int index, String label) {
     final bool isSelected = _selectedFilter == index;
     final Color bgColor = isSelected ? AegisColors.violet : Colors.transparent;
-    final Color strokeColor = isSelected ? AegisColors.violet : const Color(0xFF1E293B);
+    final Color strokeColor = isSelected ? AegisColors.violet : AegisColors.border1;
     final Color textColor = isSelected ? Colors.white : AegisColors.textSecondary;
 
     return GestureDetector(
@@ -205,7 +206,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AegisColors.textPrimary,
                   ),
                 ),
                 SizedBox(height: 2.0),
@@ -234,8 +235,8 @@ style: TextStyle(
   }
 
   Widget _buildDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
+    return Divider(
+      color: AegisColors.border1,
       height: 1.0,
       thickness: 0.5,
     );

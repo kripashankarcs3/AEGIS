@@ -17,10 +17,11 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -28,12 +29,12 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
           style: TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline_rounded, color: Colors.white),
+            icon: Icon(Icons.info_outline_rounded, color: AegisColors.textPrimary),
             onPressed: () {},
           ),
         ],
@@ -89,7 +90,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                                   style: TextStyle(
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: AegisColors.textPrimary,
                                   ),
                                 ),
                                 SizedBox(
@@ -104,7 +105,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                                     activeColor: Colors.white,
                                     activeTrackColor: AegisColors.neonGreen,
                                     inactiveThumbColor: Colors.grey,
-                                    inactiveTrackColor: const Color(0xFF1E293B),
+                                    inactiveTrackColor: AegisColors.border1,
                                   ),
                                 ),
                               ],
@@ -160,7 +161,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                             children: [
                               Text(
                                 'Sync When Connected',
-                                style: TextStyle(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
+                                style: TextStyle(color: AegisColors.textPrimary, fontSize: 13.0, fontWeight: FontWeight.bold),
                               ),
                               SizedBox(height: 3.0),
                               Text(
@@ -182,7 +183,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                             activeColor: Colors.white,
                             activeTrackColor: AegisColors.neonGreen,
                             inactiveThumbColor: Colors.grey,
-                            inactiveTrackColor: const Color(0xFF1E293B),
+                            inactiveTrackColor: AegisColors.border1,
                           ),
                         ),
                       ],
@@ -344,7 +345,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AegisColors.textPrimary,
                       fontSize: 13.0,
                       fontWeight: FontWeight.bold,
                     ),
@@ -370,8 +371,8 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
   }
 
   Widget _buildDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
+    return Divider(
+      color: AegisColors.border1,
       height: 1.0,
       thickness: 0.5,
     );

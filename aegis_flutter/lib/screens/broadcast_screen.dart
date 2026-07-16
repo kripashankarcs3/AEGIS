@@ -69,10 +69,11 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF090D16),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -80,12 +81,12 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
           style: TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AegisColors.textPrimary,
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline_rounded, color: Colors.white, size: 22.0),
+            icon: Icon(Icons.info_outline_rounded, color: AegisColors.textPrimary, size: 22.0),
             onPressed: () {},
           ),
         ],
@@ -170,7 +171,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
                         children: [
                           _buildAudienceRow(index),
                           if (index < _audiences.length - 1)
-                            const Divider(color: Color(0xFF1E293B), height: 1.0, thickness: 0.5),
+                            Divider(color: AegisColors.border1, height: 1.0, thickness: 0.5),
                         ],
                       );
                     }),
@@ -201,7 +202,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
                         controller: _messageController,
                         maxLines: 3,
                         maxLength: 200,
-                        style: TextStyle(color: Colors.white, fontSize: 13.0),
+                        style: TextStyle(color: AegisColors.textPrimary, fontSize: 13.0),
                         decoration: InputDecoration(
                           hintText: 'Type your message...',
                           hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 13.0),
@@ -322,7 +323,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
                     audience['title']!,
                     style: TextStyle(
                       fontSize: 13.0,
-                      color: Colors.white,
+                      color: AegisColors.textPrimary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -360,7 +361,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
 
   Widget _buildPriorityButton(int index, String label) {
     final bool isSelected = _selectedPriority == index;
-    final Color strokeColor = isSelected ? AegisColors.sosRed : const Color(0xFF1E293B);
+    final Color strokeColor = isSelected ? AegisColors.sosRed : AegisColors.border1;
     final Color textColor = isSelected ? AegisColors.sosRed : AegisColors.textSecondary;
 
     return Expanded(
