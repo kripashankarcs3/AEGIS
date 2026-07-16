@@ -13,7 +13,6 @@ class SurvivorNode {
   final int hops;
   final NodeStatus status;
   final bool isUser;
-  // Position from center (-1.0 to 1.0)
   final double dx;
   final double dy;
 
@@ -27,18 +26,18 @@ class SurvivorNode {
   });
 
   Color get color {
-    if (isUser) return const Color(0xFF3B82F6); // Royal Blue
+    if (isUser) return const Color(0xFF3B82F6);
     switch (status) {
       case NodeStatus.online:
-        return const Color(0xFF10B981); // Green
+        return const Color(0xFF10B981);
       case NodeStatus.relay:
-        return const Color(0xFFF59E0B); // Yellow
+        return const Color(0xFFF59E0B);
       case NodeStatus.busy:
-        return const Color(0xFF8B5CF6); // Purple
+        return const Color(0xFF8B5CF6);
       case NodeStatus.offline:
-        return const Color(0xFF4B5563); // Grey
+        return const Color(0xFF4B5563);
       case NodeStatus.sos:
-        return const Color(0xFFEF4444); // Red
+        return const Color(0xFFEF4444);
     }
   }
 

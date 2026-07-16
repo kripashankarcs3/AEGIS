@@ -52,15 +52,15 @@ class ResourceItem {
   Color get color {
     switch (category) {
       case ResourceCategory.water:
-        return const Color(0xFF10B981); // Green
+        return const Color(0xFF10B981);
       case ResourceCategory.food:
-        return const Color(0xFFF97316); // Orange
+        return const Color(0xFFF97316);
       case ResourceCategory.medical:
-        return const Color(0xFFEF4444); // Red
+        return const Color(0xFFEF4444);
       case ResourceCategory.battery:
-        return const Color(0xFF10B981); // Green
+        return const Color(0xFF10B981);
       case ResourceCategory.other:
-        return const Color(0xFF9CA3AF); // Grey
+        return const Color(0xFF9CA3AF);
     }
   }
   
