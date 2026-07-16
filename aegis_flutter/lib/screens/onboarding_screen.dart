@@ -1,72 +1,10 @@
+import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
 import 'login_join_screen.dart';
-import 'splash_screen.dart'; // Import LogoShieldPainter
-
-class OnboardingRingPainter extends CustomPainter {
-  final double angleOffset;
-
-  OnboardingRingPainter({required this.angleOffset});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final double rx = size.width * 0.44;
-    final double ry = size.width * 0.16;
-
-    // Draw main glowing elliptical orbit path
-    final ringPaint = Paint()
-      ..color = const Color(0xFF2563EB).withOpacity(0.2)
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
-    
-    canvas.drawOval(
-      Rect.fromCenter(center: center, width: rx * 2, height: ry * 2),
-      ringPaint,
-    );
-
-    // Draw outer elliptical orbit for 3D depth
-    final outerRingPaint = Paint()
-      ..color = const Color(0xFF2563EB).withOpacity(0.08)
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
-    
-    canvas.drawOval(
-      Rect.fromCenter(center: center, width: rx * 2.3, height: ry * 2.3),
-      outerRingPaint,
-    );
-
-    // Dynamic constellation chord links connecting the floating node spheres
-    final double angle1 = -pi * 0.85 + angleOffset;
-    final double angle2 = -pi * 0.5 + angleOffset;
-    final double angle3 = -pi * 0.15 + angleOffset;
-    final double angle4 = pi * 0.15 + angleOffset;
-    final double angle5 = pi * 0.75 + angleOffset;
-
-    final p1 = Offset(center.dx + rx * cos(angle1), center.dy + ry * sin(angle1));
-    final p2 = Offset(center.dx + rx * cos(angle2), center.dy + ry * sin(angle2));
-    final p3 = Offset(center.dx + rx * cos(angle3), center.dy + ry * sin(angle3));
-    final p4 = Offset(center.dx + rx * cos(angle4), center.dy + ry * sin(angle4));
-    final p5 = Offset(center.dx + rx * cos(angle5), center.dy + ry * sin(angle5));
-
-    final linePaint = Paint()
-      ..color = const Color(0xFF3B82F6).withOpacity(0.18)
-      ..strokeWidth = 0.8;
-
-    canvas.drawLine(p1, p2, linePaint);
-    canvas.drawLine(p2, p3, linePaint);
-    canvas.drawLine(p3, p4, linePaint);
-    canvas.drawLine(p4, p5, linePaint);
-    canvas.drawLine(p5, p1, linePaint);
-    canvas.drawLine(p1, p3, linePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant OnboardingRingPainter oldDelegate) {
-    return oldDelegate.angleOffset != angleOffset;
-  }
-}
+import 'splash_screen.dart'; // Import LogoShieldPainter and StarsBackgroundPainter
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -76,307 +14,389 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> with TickerProviderStateMixin {
-  late AnimationController _ringController;
-  late AnimationController _breatheController;
-  late AnimationController _listController;
+  late AnimationController _entranceController;
+  late AnimationController _graphicFloatController;
+  late AnimationController _glowPulseController;
+  late AnimationController _networkPulseController;
+  late AnimationController _iconRotateController;
+  late AnimationController _backgroundController;
 
-  late Animation<double> _breatheScale;
-  late Animation<double> _breatheGlow;
+  // Staggered entrance animations
+  late Animation<double> _line1Fade;
+  late Animation<double> _line1Slide;
+  late Animation<double> _line2Fade;
+  late Animation<double> _line2Slide;
+  late Animation<double> _subtitleFade;
+  late Animation<double> _subtitleSlide;
+  late Animation<double> _graphicFade;
+  late Animation<double> _graphicSlide;
+  late Animation<double> _cardFade;
+  late Animation<double> _cardSlide;
+  late Animation<double> _buttonFade;
+  late Animation<double> _buttonSlide;
 
-  // Staggered list animations for list container
-  late Animation<double> _containerFade;
-  late Animation<Offset> _containerSlide;
+  // Network connection data pulse tracking
+  int _activeConnectionIndex = 0;
 
   @override
   void initState() {
     super.initState();
 
-    // 1. Orbital revolving ring controller
-    _ringController = AnimationController(
+    // 1. Entrance staggered animation timeline (1400ms)
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
+
+    // Heading Line 1: Welcome to (0ms to 500ms => Interval(0.0, 0.35))
+    _line1Fade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.0, 0.35, curve: Curves.easeOutCubic)),
+    );
+    _line1Slide = Tween<double>(begin: 20.0, end: 0.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.0, 0.35, curve: Curves.easeOutCubic)),
+    );
+
+    // Heading Line 2: AEGIS (120ms to 620ms => 120/1400 = 0.08 to 620/1400 = 0.44)
+    _line2Fade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.08, 0.44, curve: Curves.easeOutCubic)),
+    );
+    _line2Slide = Tween<double>(begin: 20.0, end: 0.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.08, 0.44, curve: Curves.easeOutCubic)),
+    );
+
+    // Subtitle: Stay connected (320ms to 820ms => 320/1400 = 0.22 to 820/1400 = 0.58)
+    _subtitleFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.22, 0.58, curve: Curves.easeOutCubic)),
+    );
+    _subtitleSlide = Tween<double>(begin: 20.0, end: 0.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.22, 0.58, curve: Curves.easeOutCubic)),
+    );
+
+    // Center Graphic (350ms to 850ms => 350/1400 = 0.25 to 850/1400 = 0.61)
+    _graphicFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.25, 0.61, curve: Curves.easeOutCubic)),
+    );
+    _graphicSlide = Tween<double>(begin: 20.0, end: 0.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.25, 0.61, curve: Curves.easeOutCubic)),
+    );
+
+    // Feature Card (500ms to 1000ms => 500/1400 = 0.35 to 1000/1400 = 0.71)
+    _cardFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.35, 0.71, curve: Curves.easeOutCubic)),
+    );
+    _cardSlide = Tween<double>(begin: 20.0, end: 0.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.35, 0.71, curve: Curves.easeOutCubic)),
+    );
+
+    // Button (700ms to 1200ms => 700/1400 = 0.50 to 1200/1400 = 0.85)
+    _buttonFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.50, 0.85, curve: Curves.easeOutCubic)),
+    );
+    _buttonSlide = Tween<double>(begin: 20.0, end: 0.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: const Interval(0.50, 0.85, curve: Curves.easeOutCubic)),
+    );
+
+    _entranceController.forward();
+
+    // 2. Graphic floating and animation controllers
+    _graphicFloatController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 24),
     )..repeat();
 
-    // 2. Logo breathing controller
-    _breatheController = AnimationController(
+    _glowPulseController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(milliseconds: 2800),
     )..repeat(reverse: true);
 
-    _breatheScale = Tween<double>(begin: 0.94, end: 1.06).animate(
-      CurvedAnimation(parent: _breatheController, curve: Curves.easeInOut),
-    );
-
-    _breatheGlow = Tween<double>(begin: 0.05, end: 0.35).animate(
-      CurvedAnimation(parent: _breatheController, curve: Curves.easeInOut),
-    );
-
-    // 3. Staggered entrance controller
-    _listController = AnimationController(
+    _networkPulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(seconds: 4),
     );
+    
+    _networkPulseController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        if (mounted) {
+          setState(() {
+            _activeConnectionIndex = (_activeConnectionIndex + 1) % 6;
+          });
+          _networkPulseController.forward(from: 0.0);
+        }
+      }
+    });
+    _networkPulseController.forward();
 
-    _containerFade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _listController, curve: const Interval(0.2, 0.8, curve: Curves.easeIn)),
-    );
-    _containerSlide = Tween<Offset>(begin: const Offset(0.0, 0.15), end: Offset.zero).animate(
-      CurvedAnimation(parent: _listController, curve: const Interval(0.2, 0.8, curve: Curves.easeOut)),
-    );
+    // 3. Feature Icons slow rotation (6 seconds)
+    _iconRotateController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 6),
+    )..repeat(reverse: true);
 
-    _listController.forward();
+    // 4. Background floating stars (8 seconds)
+    _backgroundController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 8),
+    )..repeat();
   }
 
   @override
   void dispose() {
-    _ringController.dispose();
-    _breatheController.dispose();
-    _listController.dispose();
+    _entranceController.dispose();
+    _graphicFloatController.dispose();
+    _glowPulseController.dispose();
+    _networkPulseController.dispose();
+    _iconRotateController.dispose();
+    _backgroundController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Rotation angle for feature icons
+    final double featureRotateAngle = (_iconRotateController.value * 4 - 2) * pi / 180;
+
     return Scaffold(
-      backgroundColor: AegisColors.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF02040A), // Almost black top
+              Color(0xFF040814), // Deep navy blue
+            ],
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          bottom: true,
+          child: Stack(
             children: [
-              const SizedBox(height: 12.0),
-              
-              // 1. App Header Title and Subtitles
-              const Text(
-                'Welcome to',
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 4.0),
-              // Gradient AEGIS Title
-              ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [
-                    Color(0xFF8B5CF6), // Purple
-                    Color(0xFF2563EB), // Blue
-                  ],
-                ).createShader(bounds),
-                child: const Text(
-                  'AEGIS',
-                  style: TextStyle(
-                    fontSize: 34.0,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: 2.0,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Text(
-                    'Stay connected. Stay informed. ',
-                    style: TextStyle(
-                      color: AegisColors.textSecondary,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    'Stay alive.',
-                    style: TextStyle(
-                      color: Color(0xFF8B5CF6),
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-
-              // 2. Animated Node ring connection orbital graphic (ellipse 3D style)
+              // 1. Moving Stars Background (extremely subtle 8% opacity)
               AnimatedBuilder(
-                animation: _ringController,
+                animation: _backgroundController,
                 builder: (context, child) {
-                  final double orbitalAngle = _ringController.value * 2 * pi;
-
-                  return AspectRatio(
-                    aspectRatio: 1.5,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final center = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
-                        final double rx = constraints.maxWidth * 0.44;
-                        final double ry = constraints.maxWidth * 0.16;
-
-                        // Compute dynamic elliptical coordinates
-                        final double baseAngle1 = -pi * 0.85 + orbitalAngle;
-                        final double baseAngle2 = -pi * 0.5 + orbitalAngle;
-                        final double baseAngle3 = -pi * 0.15 + orbitalAngle;
-                        final double baseAngle4 = pi * 0.15 + orbitalAngle;
-                        final double baseAngle5 = pi * 0.75 + orbitalAngle;
-
-                        return Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            // Glowing Ellipse Painter
-                            Positioned.fill(
-                              child: CustomPaint(
-                                painter: OnboardingRingPainter(angleOffset: orbitalAngle),
-                              ),
-                            ),
-                            
-                            // Central Breathing Shield Logo
-                            Positioned(
-                              left: center.dx - 22.0,
-                              top: center.dy - 25.0,
-                              child: ScaleTransition(
-                                scale: _breatheScale,
-                                child: AnimatedBuilder(
-                                  animation: _breatheController,
-                                  builder: (context, child) {
-                                    return SizedBox(
-                                      width: 44.0,
-                                      height: 50.0,
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Positioned.fill(
-                                            child: CustomPaint(
-                                              painter: LogoShieldPainter(),
-                                            ),
-                                          ),
-                                          const Positioned(
-                                            top: 8.0,
-                                            child: Text(
-                                              'A',
-                                              style: TextStyle(
-                                                fontSize: 20.0,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                          const Positioned(
-                                            bottom: 8.0,
-                                            child: Icon(
-                                              Icons.wifi,
-                                              color: Color(0xFF2563EB),
-                                              size: 9.0,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-
-                            // Floating node bubbles on elliptical orbit path
-                            _buildRingBubble(center, rx, ry, baseAngle1, const Color(0xFF38BDF8), Icons.person_rounded),
-                            _buildRingBubble(center, rx, ry, baseAngle2, const Color(0xFF38BDF8), Icons.chat_bubble_rounded),
-                            _buildRingBubble(center, rx, ry, baseAngle3, const Color(0xFF38BDF8), Icons.vpn_key_rounded),
-                            _buildRingBubble(center, rx, ry, baseAngle4, const Color(0xFF38BDF8), Icons.settings_input_antenna),
-                            _buildRingBubble(center, rx, ry, baseAngle5, const Color(0xFF38BDF8), Icons.map_rounded),
-                          ],
-                        );
-                      },
+                  return Positioned.fill(
+                    child: CustomPaint(
+                      painter: StarsBackgroundPainter(animationValue: _backgroundController.value),
                     ),
                   );
                 },
               ),
-              const SizedBox(height: 16.0),
 
-              // 3. Features list grouped in a single premium card container
-              FadeTransition(
-                opacity: _containerFade,
-                child: SlideTransition(
-                  position: _containerSlide,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0F131A),
-                      borderRadius: BorderRadius.circular(12.0),
-                      border: Border.all(color: AegisColors.border1, width: 1.0),
-                    ),
-                    child: Column(
+              // 2. Scrollable Body containing layout
+              SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: const EdgeInsets.only(top: 58.0, left: 28.0, right: 28.0, bottom: 34.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // A. Header Text Block (Welcome to AEGIS)
+                    Column(
                       children: [
-                        _buildFeatureRow(
-                          icon: Icons.share_rounded,
-                          color: const Color(0xFF2563EB),
-                          title: 'Mesh Communication',
-                          description: 'Connect with nearby devices',
+                        FadeTransition(
+                          opacity: _line1Fade,
+                          child: AnimatedBuilder(
+                            animation: _line1Slide,
+                            builder: (context, child) {
+                              return Transform.translate(
+                                offset: Offset(0, _line1Slide.value),
+                                child: const Text(
+                                  'Welcome to',
+                                  style: TextStyle(
+                                    fontSize: 38.0,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                    fontFamily: 'SF Pro Display',
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                        _buildDivider(),
-                        _buildFeatureRow(
-                          icon: Icons.psychology_rounded,
-                          color: const Color(0xFF8B5CF6),
-                          title: 'AI Emergency Assistant',
-                          description: 'Get smart help in critical moments',
-                        ),
-                        _buildDivider(),
-                        _buildFeatureRow(
-                          icon: Icons.medical_services_rounded,
-                          color: const Color(0xFFEC4899),
-                          title: 'Resources & Community',
-                          description: 'Share, help and survive together',
+                        const SizedBox(height: 4.0),
+                        FadeTransition(
+                          opacity: _line2Fade,
+                          child: AnimatedBuilder(
+                            animation: _line2Slide,
+                            builder: (context, child) {
+                              return Transform.translate(
+                                offset: Offset(0, _line2Slide.value),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    // Slight glow layer behind title
+                                    ShaderMask(
+                                      shaderCallback: (bounds) => const LinearGradient(
+                                        colors: [
+                                          Color(0xFF7B3EFF), // Purple
+                                          Color(0xFF256DFF), // Blue
+                                          Color(0xFF27D8FF), // Cyan
+                                        ],
+                                      ).createShader(bounds),
+                                      child: Text(
+                                        'AEGIS',
+                                        style: TextStyle(
+                                          fontSize: 52.0,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.white.withOpacity(0.2),
+                                          fontFamily: 'SF Pro Display',
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                    // Sharp front text
+                                    ShaderMask(
+                                      shaderCallback: (bounds) => const LinearGradient(
+                                        colors: [
+                                          Color(0xFF7B3EFF),
+                                          Color(0xFF256DFF),
+                                          Color(0xFF27D8FF),
+                                        ],
+                                      ).createShader(bounds),
+                                      child: const Text(
+                                        'AEGIS',
+                                        style: TextStyle(
+                                          fontSize: 52.0,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.white,
+                                          fontFamily: 'SF Pro Display',
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 28.0),
+                    const SizedBox(height: 12.0),
 
-              // 4. Bottom action gradient button (Get Started)
-              Container(
-                width: double.infinity,
-                height: 48.0,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF8B5CF6), // Purple
-                      Color(0xFF2563EB), // Blue
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(8.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF2563EB).withOpacity(0.25),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+                    // B. Subtitle Block
+                    FadeTransition(
+                      opacity: _subtitleFade,
+                      child: AnimatedBuilder(
+                        animation: _subtitleSlide,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _subtitleSlide.value),
+                            child: Column(
+                              children: const [
+                                Text(
+                                  'Stay connected.',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFFA8B3C7),
+                                    fontFamily: 'SF Pro Display',
+                                    height: 1.44,
+                                  ),
+                                ),
+                                SizedBox(height: 4.0),
+                                Text(
+                                  'Stay informed.',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFFA8B3C7),
+                                    fontFamily: 'SF Pro Display',
+                                    height: 1.44,
+                                  ),
+                                ),
+                                SizedBox(height: 4.0),
+                                Text(
+                                  'Stay alive.',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF7B3EFF), // Purple text
+                                    fontFamily: 'SF Pro Display',
+                                    height: 1.44,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const LoginJoinScreen(),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: const Center(
-                      child: Text(
-                        'Get Started',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14.5,
-                          letterSpacing: 0.5,
+                    const SizedBox(height: 38.0),
+
+                    // C. HERO Center Orbital Graphic (occupies ~72% of width)
+                    FadeTransition(
+                      opacity: _graphicFade,
+                      child: AnimatedBuilder(
+                        animation: _graphicSlide,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _graphicSlide.value),
+                            child: child,
+                          );
+                        },
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final double width = constraints.maxWidth * 0.72;
+                            return SizedBox(
+                              width: width,
+                              height: width * 0.72,
+                              child: FuturisticOrbitalGraphic(
+                                width: width,
+                                floatValue: _graphicFloatController.value,
+                                glowScaleValue: _glowPulseController.value,
+                                networkPulseValue: _networkPulseController.value,
+                                activeConnectionIndex: _activeConnectionIndex,
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 42.0),
+
+                    // D. Premium Feature List Card
+                    FadeTransition(
+                      opacity: _cardFade,
+                      child: AnimatedBuilder(
+                        animation: _cardSlide,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _cardSlide.value),
+                            child: child,
+                          );
+                        },
+                        child: _buildFeatureCard(featureRotateAngle),
+                      ),
+                    ),
+                    const SizedBox(height: 36.0),
+
+                    // E. Action Navigation Button
+                    FuturisticButton(
+                      text: 'Get Started',
+                      onTap: () {
+                        Navigator.of(context).pushReplacement(
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => const LoginJoinScreen(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+                              return FadeTransition(
+                                opacity: curved,
+                                child: ScaleTransition(
+                                  scale: Tween<double>(begin: 0.97, end: 1.0).animate(curved),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            transitionDuration: const Duration(milliseconds: 400),
+                          ),
+                        );
+                      },
+                      entranceFade: _buttonFade,
+                      entranceSlide: _buttonSlide,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -386,101 +406,564 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
     );
   }
 
-  Widget _buildRingBubble(Offset center, double rx, double ry, double angle, Color color, IconData icon) {
-    final double x = center.dx + rx * cos(angle);
-    final double y = center.dy + ry * sin(angle);
-
-    return Positioned(
-      left: x - 13.0,
-      top: y - 13.0,
-      child: Container(
-        width: 26.0,
-        height: 26.0,
-        decoration: BoxDecoration(
-          color: const Color(0xFF0F131A),
-          shape: BoxShape.circle,
-          border: Border.all(color: color.withOpacity(0.85), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.35),
-              blurRadius: 6,
-              spreadRadius: 0.5,
-            ),
-          ],
+  Widget _buildFeatureCard(double rotationAngle) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFF09111F),
+        borderRadius: BorderRadius.circular(28.0),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.08),
+          width: 1.0,
         ),
-        child: Center(
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 11.5,
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF256DFF).withOpacity(0.12),
+            blurRadius: 40.0,
+            spreadRadius: -2.0,
           ),
-        ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildFeatureRow({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required String description,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Row(
+      child: Column(
         children: [
-          // Circular icon container
-          Container(
-            width: 38.0,
-            height: 38.0,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
-              shape: BoxShape.circle,
-              border: Border.all(color: color.withOpacity(0.25), width: 1.0),
-            ),
-            child: Center(
-              child: Icon(
-                icon,
-                color: color,
-                size: 18.0,
-              ),
-            ),
+          _buildFeatureItem(
+            icon: Icons.hub_rounded,
+            title: 'Mesh Communication',
+            subtitle: 'Connect with nearby devices',
+            rotationAngle: rotationAngle,
           ),
-          const SizedBox(width: 14.0),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 3.0),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 11.0,
-                    color: AegisColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
+          _buildDivider(),
+          _buildFeatureItem(
+            icon: Icons.psychology_rounded,
+            title: 'AI Emergency Assistant',
+            subtitle: 'Get smart help in critical moments',
+            rotationAngle: rotationAngle,
+          ),
+          _buildDivider(),
+          _buildFeatureItem(
+            icon: Icons.groups_rounded,
+            title: 'Resources & Community',
+            subtitle: 'Share, help and survive together',
+            rotationAngle: rotationAngle,
           ),
         ],
       ),
     );
   }
 
+  Widget _buildFeatureItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required double rotationAngle,
+  }) {
+    return Row(
+      children: [
+        Transform.rotate(
+          angle: rotationAngle,
+          child: Container(
+            width: 46.0,
+            height: 46.0,
+            decoration: BoxDecoration(
+              color: const Color(0xFF09111F),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFF7B3EFF).withOpacity(0.5), // Purple outline
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF7B3EFF).withOpacity(0.2),
+                  blurRadius: 10.0,
+                ),
+              ],
+            ),
+            child: Center(
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 20.0,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 16.0),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  fontFamily: 'SF Pro Display',
+                ),
+              ),
+              const SizedBox(height: 4.0),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFFA8B3C7),
+                  fontFamily: 'SF Pro Display',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildDivider() {
-    return const Divider(
-      color: Color(0xFF1E293B),
-      height: 1.0,
-      thickness: 0.5,
-      indent: 68.0, // align with start of text
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14.0),
+      child: Divider(
+        color: Colors.white.withOpacity(0.06), // Opacity 6%
+        height: 1.0,
+        thickness: 1.0,
+        indent: 62.0, // align with text start
+      ),
+    );
+  }
+}
+
+class FuturisticOrbitalGraphic extends StatefulWidget {
+  final double width;
+  final double floatValue;
+  final double glowScaleValue;
+  final double networkPulseValue;
+  final int activeConnectionIndex;
+
+  const FuturisticOrbitalGraphic({
+    super.key,
+    required this.width,
+    required this.floatValue,
+    required this.glowScaleValue,
+    required this.networkPulseValue,
+    required this.activeConnectionIndex,
+  });
+
+  @override
+  State<FuturisticOrbitalGraphic> createState() => _FuturisticOrbitalGraphicState();
+}
+
+class _FuturisticOrbitalGraphicState extends State<FuturisticOrbitalGraphic> with SingleTickerProviderStateMixin {
+  late AnimationController _shieldFloatController;
+
+  // Symmetrical nodes setup
+  final int totalNodes = 6;
+  final List<IconData> nodeIcons = [
+    Icons.chat_bubble_rounded, // Chat
+    Icons.person_rounded,      // Person
+    Icons.phone_rounded,       // Phone
+    Icons.lock_rounded,        // Security
+    Icons.volunteer_activism_rounded, // Resources
+    Icons.sensors_rounded,     // Signal
+  ];
+
+  // Random float speeds & phase offsets to keep floating movements independent
+  final List<double> floatSpeeds = [0.85, 1.15, 0.95, 1.25, 0.75, 1.05];
+  final List<double> floatPhases = [0.0, 1.3, 2.6, 3.9, 4.8, 5.7];
+
+  @override
+  void initState() {
+    super.initState();
+    // Shield float controller (4 seconds infinite)
+    _shieldFloatController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _shieldFloatController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double centerDx = widget.width / 2;
+    final double centerDy = widget.width * 0.36;
+    final double rx = widget.width * 0.44;
+    final double ry = widget.width * 0.20;
+
+    // Calculate node base angles around the orbital path
+    final List<double> angles = List.generate(totalNodes, (index) => index * pi / 3);
+
+    // Compute coordinates of the floating nodes
+    final List<Offset> nodePositions = [];
+    for (int i = 0; i < totalNodes; i++) {
+      final double angle = angles[i];
+      final double bx = centerDx + rx * cos(angle);
+      final double by = centerDy + ry * sin(angle);
+
+      // Independent vertical/horizontal float logic based on speed & phase parameters
+      final double floatAngle = widget.floatValue * 2 * pi * floatSpeeds[i] + floatPhases[i];
+      final double dx = sin(floatAngle) * 3.0;
+      final double dy = cos(floatAngle) * 6.0; // vertical amplitude 6px
+
+      nodePositions.add(Offset(bx + dx, by + dy));
+    }
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // Concentric elliptical rings and network curves background painter
+        Positioned.fill(
+          child: CustomPaint(
+            painter: OrbitalBackdropPainter(
+              nodePositions: nodePositions,
+              pulseValue: widget.networkPulseValue,
+              activeConnectionIndex: widget.activeConnectionIndex,
+            ),
+          ),
+        ),
+
+        // Centered Shield Logo with custom Hero transition
+        Positioned(
+          left: centerDx - 22.0,
+          top: centerDy - 25.0,
+          child: AnimatedBuilder(
+            animation: _shieldFloatController,
+            builder: (context, child) {
+              // Floating -5px to +5px
+              final double dy = sin(_shieldFloatController.value * 2 * pi) * 5.0;
+              // Very subtle rotation (-1 degree to +1 degree => -0.017 to +0.017 rad)
+              final double rotation = sin(_shieldFloatController.value * 2 * pi) * (1.0 * pi / 180.0);
+
+              return Transform.translate(
+                offset: Offset(0, dy),
+                child: Transform.rotate(
+                  angle: rotation,
+                  child: Hero(
+                    tag: 'aegis_logo',
+                    child: SizedBox(
+                      width: 44.0,
+                      height: 50.0,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Positioned.fill(
+                            child: CustomPaint(
+                              painter: LogoShieldPainter(glowFactor: 1.0),
+                            ),
+                          ),
+                          const Positioned(
+                            top: 8.0,
+                            child: Text(
+                              'A',
+                              style: TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontFamily: 'SF Pro Display',
+                              ),
+                            ),
+                          ),
+                          const Positioned(
+                            bottom: 8.0,
+                            child: Icon(
+                              Icons.wifi,
+                              color: Color(0xFF27D8FF),
+                              size: 9.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+
+        // Symmetrical floating glass card node bubbles
+        ...List.generate(totalNodes, (index) {
+          final Offset pos = nodePositions[index];
+          final IconData icon = nodeIcons[index];
+
+          return Positioned(
+            left: pos.dx - 26.0,
+            top: pos.dy - 26.0,
+            child: Container(
+              width: 52.0,
+              height: 52.0,
+              decoration: BoxDecoration(
+                color: const Color(0xFF09111F).withOpacity(0.85), // Glass card container
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xFF256DFF).withOpacity(0.4),
+                  width: 1.2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF256DFF).withOpacity(0.20 * widget.glowScaleValue),
+                    blurRadius: 14.0 * widget.glowScaleValue,
+                    spreadRadius: 1.0,
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Icon(
+                  icon,
+                  color: Colors.white,
+                  size: 26.0,
+                ),
+              ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+}
+
+class OrbitalBackdropPainter extends CustomPainter {
+  final List<Offset> nodePositions;
+  final double pulseValue;
+  final int activeConnectionIndex;
+
+  OrbitalBackdropPainter({
+    required this.nodePositions,
+    required this.pulseValue,
+    required this.activeConnectionIndex,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final double rx = size.width * 0.44;
+    final double ry = size.width * 0.20;
+
+    // 1. Draw 3 concentric elliptical rings (gradient blue -> transparent, 12% opacity)
+    for (double f in [1.0, 0.82, 0.64]) {
+      final rect = Rect.fromCenter(
+        center: center,
+        width: rx * 2 * f,
+        height: ry * 2 * f,
+      );
+      final ringPaint = Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF256DFF),
+            Colors.transparent,
+          ],
+        ).createShader(rect)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..color = const Color(0xFF256DFF).withOpacity(0.12);
+      
+      canvas.drawOval(rect, ringPaint);
+    }
+
+    // 2. Draw curved network connection lines
+    if (nodePositions.length < 6) return;
+
+    final linePaint = Paint()
+      ..color = const Color(0xFF256DFF).withOpacity(0.35)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    final List<Path> connectionPaths = [];
+
+    for (int i = 0; i < 6; i++) {
+      final p1 = nodePositions[i];
+      final p2 = nodePositions[(i + 1) % 6];
+
+      final Offset mid = (p1 + p2) / 2;
+      // Bend curve slightly towards center
+      final Offset control = mid + (center - mid) * 0.20;
+
+      final path = Path();
+      path.moveTo(p1.dx, p1.dy);
+      path.quadraticBezierTo(control.dx, control.dy, p2.dx, p2.dy);
+      
+      canvas.drawPath(path, linePaint);
+      connectionPaths.add(path);
+    }
+
+    // Draw active traveling light pulse (4px cyan dot)
+    if (activeConnectionIndex < connectionPaths.length) {
+      final Path activePath = connectionPaths[activeConnectionIndex];
+      final List<PathMetric> metrics = activePath.computeMetrics().toList();
+      if (metrics.isNotEmpty) {
+        final PathMetric metric = metrics.first;
+        final double length = metric.length;
+        final Tangent? tangent = metric.getTangentForOffset(length * pulseValue);
+        if (tangent != null) {
+          final pulsePaint = Paint()
+            ..color = const Color(0xFF27D8FF)
+            ..style = PaintingStyle.fill;
+          
+          final glowPaint = Paint()
+            ..color = const Color(0xFF27D8FF).withOpacity(0.6)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5.0);
+          
+          canvas.drawCircle(tangent.position, 6.0, glowPaint);
+          canvas.drawCircle(tangent.position, 4.0, pulsePaint);
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant OrbitalBackdropPainter oldDelegate) {
+    return oldDelegate.pulseValue != pulseValue ||
+        oldDelegate.activeConnectionIndex != activeConnectionIndex ||
+        oldDelegate.nodePositions != nodePositions;
+  }
+}
+
+class FuturisticButton extends StatefulWidget {
+  final String text;
+  final VoidCallback onTap;
+  final Animation<double> entranceFade;
+  final Animation<double> entranceSlide;
+
+  const FuturisticButton({
+    super.key,
+    required this.text,
+    required this.onTap,
+    required this.entranceFade,
+    required this.entranceSlide,
+  });
+
+  @override
+  State<FuturisticButton> createState() => _FuturisticButtonState();
+}
+
+class _FuturisticButtonState extends State<FuturisticButton> with TickerProviderStateMixin {
+  late AnimationController _pressController;
+  late AnimationController _glowController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pressController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+      lowerBound: 0.97,
+      upperBound: 1.0,
+      value: 1.0,
+    );
+
+    // Glow starts after 500ms, pulses 100% -> 112% -> 100% every 3s
+    _glowController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+    
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _glowController.repeat(reverse: true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    _glowController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: widget.entranceFade,
+      child: AnimatedBuilder(
+        animation: widget.entranceSlide,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(0, widget.entranceSlide.value),
+            child: child,
+          );
+        },
+        child: GestureDetector(
+          onTapDown: (_) => _pressController.animateTo(0.97, curve: Curves.easeIn),
+          onTapUp: (_) {
+            _pressController.animateTo(1.0, curve: Curves.easeOut);
+            widget.onTap();
+          },
+          onTapCancel: () => _pressController.animateTo(1.0),
+          child: AnimatedBuilder(
+            animation: Listenable.merge([_pressController, _glowController]),
+            builder: (context, child) {
+              final double scale = _pressController.value;
+              final double glowScale = 1.0 + (_glowController.value * 0.12);
+
+              return Transform.scale(
+                scale: scale,
+                child: Container(
+                  width: double.infinity,
+                  height: 60.0,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18.0),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0xFF7B3EFF), // Purple
+                        Color(0xFF256DFF), // Blue
+                      ],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF256DFF).withOpacity(0.25 * glowScale),
+                        blurRadius: 55.0 * glowScale,
+                        spreadRadius: 1.0,
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      // Glossy highlight at top edge
+                      Positioned(
+                        top: 1,
+                        left: 12,
+                        right: 12,
+                        child: Container(
+                          height: 1.0,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.white.withOpacity(0.0),
+                                Colors.white.withOpacity(0.35),
+                                Colors.white.withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Center(
+                        child: Text(
+                          widget.text,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                            fontFamily: 'SF Pro Display',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
     );
   }
 }

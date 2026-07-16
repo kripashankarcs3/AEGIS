@@ -19,9 +19,9 @@ void main() {
     final getStartedBtn = find.text('Get Started');
     expect(getStartedBtn, findsOneWidget);
     
-    // Manually drag scroll view down to bring button into view
-    await tester.drag(find.byType(SingleChildScrollView), const Offset(0.0, -450.0));
-    await tester.pump(const Duration(milliseconds: 200));
+    // Ensure "Get Started" button is visible and fully scrolled into view
+    await tester.ensureVisible(getStartedBtn);
+    await tester.pump(const Duration(milliseconds: 100));
 
     // 4. Tap "Get Started" and transition to Login/Join Screen (slide transit is 500ms)
     await tester.tap(getStartedBtn);
