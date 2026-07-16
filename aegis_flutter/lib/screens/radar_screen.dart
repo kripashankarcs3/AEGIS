@@ -28,6 +28,33 @@ class RadarScreen extends ConsumerStatefulWidget {
 
 class _RadarScreenState extends ConsumerState<RadarScreen>
     with TickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+  late AnimationController _dotBlinkController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat();
+    _pulseAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.linear),
+    );
+    _dotBlinkController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    _dotBlinkController.dispose();
+    super.dispose();
+  }
+
   List<SurvivorNode> _buildNodes(
       String myId, Map<String, SurvivorNodeModel> survivors) {
     final nodes = <SurvivorNode>[];
@@ -225,12 +252,22 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
       children: [
         Row(
           children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: AegisColors.neonGreen,
-                shape: BoxShape.circle,
+            AnimatedBuilder(
+              animation: _dotBlinkController,
+              builder: (_, child) => Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: AegisColors.neonGreen.withOpacity(0.3 + 0.7 * _dotBlinkController.value),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AegisColors.neonGreen.withOpacity(0.2 * _dotBlinkController.value),
+                      blurRadius: 6,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -288,15 +325,50 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
           return Stack(
             children: [
               Positioned.fill(
-                child: CustomPaint(
-                  painter: RadarBackgroundPainter(
-                    nodes: displayNodes,
-                    pulseValue: 0.0,
+                child: AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (_, __) => CustomPaint(
+                    painter: RadarBackgroundPainter(
+                      nodes: displayNodes,
+                      pulseValue: _pulseAnimation.value,
+                    ),
                   ),
                 ),
               ),
+              if (!hasPeers)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: constraints.maxHeight * 0.15,
+                  child: AnimatedBuilder(
+                    animation: _pulseController,
+                    builder: (_, __) => Column(
+                      children: [
+                        SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AegisColors.neonGreen.withOpacity(0.5 + 0.3 * sin(_pulseAnimation.value * pi * 2)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Scanning for survivors...',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AegisColors.textSecondary.withOpacity(0.6 + 0.4 * sin(_pulseAnimation.value * pi * 2)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ...displayNodes.map((node) {
-                final floatY = 0.0;
+                final floatY = node.isUser ? 0.0 : sin(_pulseAnimation.value * 2 * pi + node.dx * 5) * 3.0;
                 final nx = c.dx + node.dx * maxR;
                 final ny = c.dy + node.dy * maxR + floatY;
                 final size = node.isUser ? 38.0 : 30.0;
@@ -347,40 +419,58 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            width: size,
-                            height: size,
-                            decoration: BoxDecoration(
-                              gradient: node.isUser
-                                  ? AegisColors.primaryGradient
-                                  : LinearGradient(colors: [
-                                      node.color,
-                                      node.color.withOpacity(0.8)
-                                    ]),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.9),
-                                width: node.isUser ? 2.5 : 1.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: node.color.withOpacity(0.25),
-                                  blurRadius: 8,
-                                  spreadRadius: 1,
-                                )
-                              ],
-                            ),
-                            child: Center(
-                              child: Icon(
-                                node.isUser
-                                    ? Icons.person_rounded
-                                    : (isSos
-                                        ? Icons.warning_amber_rounded
-                                        : Icons.sensors_rounded),
-                                color: Colors.white,
-                                size: node.isUser ? 18 : 14,
-                              ),
-                            ),
+                          AnimatedBuilder(
+                            animation: _pulseController,
+                            builder: (_, child) {
+                              final sosPulse = sin(_pulseAnimation.value * pi * 2 + node.dx * 3) * 0.5 + 0.5;
+                              return Container(
+                                width: size,
+                                height: size,
+                                decoration: BoxDecoration(
+                                  gradient: node.isUser
+                                      ? AegisColors.primaryGradient
+                                      : LinearGradient(colors: [
+                                          node.color,
+                                          node.color.withOpacity(0.8)
+                                        ]),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: isSos
+                                        ? AegisColors.sosRed.withOpacity(0.5 + 0.5 * sosPulse)
+                                        : Colors.white.withOpacity(0.9),
+                                    width: node.isUser ? 2.5 : (isSos ? 2.0 + sosPulse : 1.5),
+                                  ),
+                                  boxShadow: isSos
+                                      ? [
+                                          BoxShadow(
+                                            color: AegisColors.sosRed.withOpacity(0.2 + 0.4 * sosPulse),
+                                            blurRadius: 12 + 12 * sosPulse,
+                                            spreadRadius: 3 + 5 * sosPulse,
+                                          ),
+                                        ]
+                                      : [
+                                          BoxShadow(
+                                            color: node.isUser
+                                                ? AegisColors.electricBlue.withOpacity(0.3 + 0.2 * sin(_pulseAnimation.value * pi * 2))
+                                                : node.color.withOpacity(0.25),
+                                            blurRadius: node.isUser ? 10 + 6 * sin(_pulseAnimation.value * pi * 2) : 8,
+                                            spreadRadius: node.isUser ? 2 + 2 * sin(_pulseAnimation.value * pi * 2) : 1,
+                                          ),
+                                        ],
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    node.isUser
+                                        ? Icons.person_rounded
+                                        : (isSos
+                                            ? Icons.warning_amber_rounded
+                                            : Icons.sensors_rounded),
+                                    color: Colors.white,
+                                    size: node.isUser ? 18 : 14,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           const SizedBox(height: 2),
                           Text(

@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../constants/aegis_colors.dart';
 import 'radar_screen.dart';
 import 'chat_screen.dart';
@@ -52,10 +53,45 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
     setState(() => _currentIndex = index);
   }
 
+  Future<bool> _onWillPop() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AegisColors.surface1,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Exit AEGIS?', style: TextStyle(color: Colors.white)),
+        content: const Text(
+          'Are you sure you want to exit?',
+          style: TextStyle(color: Color(0xFFA8B3C7)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel', style: TextStyle(color: Color(0xFFA8B3C7))),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Exit', style: TextStyle(color: Color(0xFFFF4444))),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AegisColors.background,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final exit = await _onWillPop();
+        if (exit && context.mounted) {
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AegisColors.background,
       extendBody: true,
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
@@ -103,6 +139,7 @@ class _MainShellState extends State<MainShell> with TickerProviderStateMixin {
             ),
           ),
         ),
+      ),
       ),
     );
   }

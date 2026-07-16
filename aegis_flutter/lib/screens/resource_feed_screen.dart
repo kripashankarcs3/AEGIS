@@ -4,6 +4,7 @@ import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
 import '../models/resource_item.dart';
 import '../widgets/resource_card.dart';
+import 'chat_conversation_screen.dart';
 
 class ResourceFeedScreen extends StatefulWidget {
   const ResourceFeedScreen({super.key});
@@ -35,26 +36,44 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                StaggeredFadeIn(index: 0, child: _header()),
-                SizedBox(height: 16),
-                StaggeredFadeIn(index: 1, child: _filterPillsWidget()),
-                SizedBox(height: 20),
-                Expanded(child: ListView.builder(itemCount: _items.length, padding: const EdgeInsets.only(bottom: 180), itemBuilder: (_, i) {
-                  final item = _items[i];
-                  if (_selectedFilterPill > 0) {
-                    if (item.category.name.toLowerCase() != _filterPills[_selectedFilterPill].toLowerCase()) return const SizedBox.shrink();
-                  }
-                  return StaggeredFadeIn(index: i + 2, child: ResourceCard(item: item, actionLabel: 'View', onReplyTap: () {}));
-                })),
-              ]),
-            ),
-            Positioned(left: 24, right: 24, bottom: 90, child: StaggeredFadeIn(index: 6, child: _offerBtn())),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              StaggeredFadeIn(index: 0, child: _header()),
+              const SizedBox(height: 16),
+              StaggeredFadeIn(index: 1, child: _filterPillsWidget()),
+              const SizedBox(height: 20),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _items.length,
+                  itemBuilder: (_, i) {
+                    final item = _items[i];
+                    if (_selectedFilterPill > 0) {
+                      if (item.category.name.toLowerCase() != _filterPills[_selectedFilterPill].toLowerCase()) return const SizedBox.shrink();
+                    }
+                    return StaggeredFadeIn(
+                      index: i + 2,
+                      child: ResourceCard(
+                        item: item,
+                        actionLabel: 'View',
+                        onReplyTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ChatConversationScreen(nodeId: item.nodeId),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              StaggeredFadeIn(index: 6, child: _offerBtn()),
+            ],
+          ),
         ),
       ),
     );
