@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
+import '../providers/mesh_provider.dart';
 import '../models/resource_item.dart';
 import '../widgets/resource_card.dart';
 import 'chat_conversation_screen.dart';
 
-class ResourceFeedScreen extends StatefulWidget {
+class ResourceFeedScreen extends ConsumerStatefulWidget {
   const ResourceFeedScreen({super.key});
 
   @override
-  State<ResourceFeedScreen> createState() => _ResourceFeedScreenState();
+  ConsumerState<ResourceFeedScreen> createState() => _ResourceFeedScreenState();
 }
 
-class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
+class _ResourceFeedScreenState extends ConsumerState<ResourceFeedScreen> {
   int _selectedFilterPill = 0;
   late List<ResourceItem> _items;
 
@@ -29,6 +31,7 @@ class _ResourceFeedScreenState extends State<ResourceFeedScreen> {
       const ResourceItem(id: '4', category: ResourceCategory.battery, title: 'Power Bank', detail: '6 available', nodeId: 'SIG-C4E1', hops: 2, timeAgo: '150 m away • 2 hops', type: ResourceType.offered),
       const ResourceItem(id: '5', category: ResourceCategory.other, title: 'Blankets', detail: '10 available', nodeId: 'SIG-9E10', hops: 3, timeAgo: '600 m away • 3 hops', type: ResourceType.offered),
     ];
+    _items.addAll(ref.read(meshProvider.notifier).resourceManager.resources);
   }
 
   @override

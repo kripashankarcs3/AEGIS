@@ -97,6 +97,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
       CurvedAnimation(parent: _entranceController, curve: const Interval(0.50, 0.85, curve: Curves.easeOutCubic)),
     );
 
+    _entranceController.value = 0.3;
     _entranceController.forward();
 
     // 2. Graphic floating and animation controllers

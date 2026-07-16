@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
+import '../providers/survivor_provider.dart';
+import '../models/survivor_node_model.dart';
 import 'chat_conversation_screen.dart';
 import 'broadcast_screen.dart';
 
 final _sigIdRegex = RegExp(r'^SIG-[A-Za-z0-9]{4}$');
 
-class ChatScreen extends StatefulWidget {
+class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends ConsumerState<ChatScreen> {
   int _tab = 0;
 
   @override
@@ -35,15 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   SizedBox(height: 20),
                   Expanded(
                     child: ListView(children: [
-                      _tile(AegisColors.violet, 'SIG-8AF3', '10:24 AM', 'All good here. We have supplies.', unread: 2, badgeText: 'SAFE', badgeColor: AegisColors.neonGreen, dot: true),
-                      _divider(),
-                      _tile(AegisColors.sosRed, 'SIG-4D2F', '10:18 AM', 'Need medical assistance.', unread: 1, urgent: true, badgeText: 'NEED HELP', badgeColor: AegisColors.sosRed),
-                      _divider(),
-                      _tile(AegisColors.neonGreen, 'SIG-1A9D', '9:56 AM', 'How many people in your group?', dot: true),
-                      _divider(),
-                      _tile(AegisColors.electricBlue, 'SIG-B2C1', '9:41 AM', 'Water available. 2 bottles left.', dot: true),
-                      _divider(),
-                      _tile(AegisColors.violet, 'SIG-3C7E', '9:32 AM', 'Heading north. Roads blocked.', dot: true),
+                      ..._buildPeerList(ref.watch(survivorProvider)),
                       const SizedBox(height: 16),
                       _buildTipBanner(),
                     ]),
@@ -105,6 +100,73 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   bool _showTip = true;
+
+  String _formatTime(int epochMs) {
+    final dt = DateTime.fromMillisecondsSinceEpoch(epochMs);
+    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$hour:$minute $ampm';
+  }
+
+  List<Widget> _buildPeerList(Map<String, SurvivorNodeModel> survivors) {
+    if (survivors.isEmpty) {
+      return [
+        _tile(AegisColors.violet, 'SIG-8AF3', '10:24 AM', 'All good here. We have supplies.', unread: 2, badgeText: 'SAFE', badgeColor: AegisColors.neonGreen, dot: true),
+        _divider(),
+        _tile(AegisColors.sosRed, 'SIG-4D2F', '10:18 AM', 'Need medical assistance.', unread: 1, urgent: true, badgeText: 'NEED HELP', badgeColor: AegisColors.sosRed),
+        _divider(),
+        _tile(AegisColors.neonGreen, 'SIG-1A9D', '9:56 AM', 'How many people in your group?', dot: true),
+        _divider(),
+        _tile(AegisColors.electricBlue, 'SIG-B2C1', '9:41 AM', 'Water available. 2 bottles left.', dot: true),
+        _divider(),
+        _tile(AegisColors.violet, 'SIG-3C7E', '9:32 AM', 'Heading north. Roads blocked.', dot: true),
+      ];
+    }
+
+    final tiles = <Widget>[];
+    final entries = survivors.entries.toList();
+    for (var i = 0; i < entries.length; i++) {
+      final entry = entries[i];
+      final node = entry.value;
+      final isNeedHelp = node.status == 'need_help';
+      final hasResources = node.status == 'have_resources';
+      final color = isNeedHelp
+          ? AegisColors.sosRed
+          : hasResources
+              ? const Color(0xFFF59E0B)
+              : AegisColors.neonGreen;
+      final badgeText = isNeedHelp
+          ? 'NEED HELP'
+          : hasResources
+              ? 'HAS RESOURCES'
+              : 'SAFE';
+      final badgeColor = isNeedHelp
+          ? AegisColors.sosRed
+          : hasResources
+              ? const Color(0xFFF59E0B)
+              : AegisColors.neonGreen;
+      final subtitle = node.message.isNotEmpty
+          ? node.message
+          : 'Status: ${node.status}';
+      final time = _formatTime(node.lastSeen);
+      tiles.add(_tile(
+        color,
+        node.id,
+        time,
+        subtitle,
+        unread: 0,
+        urgent: isNeedHelp,
+        dot: !isNeedHelp,
+        badgeText: badgeText,
+        badgeColor: badgeColor,
+      ));
+      if (i < entries.length - 1) {
+        tiles.add(_divider());
+      }
+    }
+    return tiles;
+  }
 
   Widget _buildTipBanner() {
     if (!_showTip) return const SizedBox.shrink();

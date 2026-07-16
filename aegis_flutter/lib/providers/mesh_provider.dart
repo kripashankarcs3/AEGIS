@@ -25,6 +25,7 @@ import '../services/storage_service.dart';
 import '../transport/transport_manager.dart';
 import '../transport/nearby_service.dart';
 import '../transport/bluetooth_service.dart' as bt;
+import '../transport/direct_tcp_service.dart';
 import '../core/mdns_discovery.dart';
 import 'identity_provider.dart';
 import 'chat_provider.dart';
@@ -80,6 +81,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
   late NearbyService _nearby;
   late bt.BluetoothService _bluetooth;
   late MdnsDiscovery _mdns;
+  late DirectTcpService _directTcp;
   late TransportManager _transport;
   late MeshRouter _router;
   late SOSHandler _sosHandler;
@@ -126,11 +128,13 @@ class MeshNotifier extends StateNotifier<MeshState> {
     _nearby = NearbyService()..setMyDeviceId(myId);
     _bluetooth = bt.BluetoothService();
     _mdns = MdnsDiscovery();
+    _directTcp = DirectTcpService()..setMySigId(myId);
 
     _transport = TransportManager(
       nearby: _nearby,
       bluetooth: _bluetooth,
       mdns: _mdns,
+      tcpDirect: _directTcp,
     );
 
     _router = MeshRouter(
@@ -220,6 +224,13 @@ class MeshNotifier extends StateNotifier<MeshState> {
       debugPrint('⚠️ Transport init error: $e');
     }
 
+    // 7b. Start Direct TCP server for QR-based direct connections
+    try {
+      await _directTcp.startServer();
+    } catch (e) {
+      debugPrint('⚠️ Direct TCP server error: $e');
+    }
+
     // 8. Start background timers
     _backgroundService.start();
 
@@ -237,6 +248,12 @@ class MeshNotifier extends StateNotifier<MeshState> {
   // ─────────────────────────────────────────────────────────────────────
   // Helpers
   // ─────────────────────────────────────────────────────────────────────
+
+  /// Connect to a peer via Direct TCP (from QR scan).
+  Future<void> connectDirectPeer(String sigId, String ip, int port) async {
+    await _directTcp.connectToPeer(sigId, ip, port);
+    _addActivity('Connected to $sigId via QR direct TCP');
+  }
 
   /// Send a typed packet directly (used by ChatProvider).
   Future<void> sendPacket(SignalPacket packet) => _router.sendPacket(packet);

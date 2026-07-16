@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_animations.dart';
 import '../providers/identity_provider.dart';
+import '../providers/network_provider.dart';
 
 class IdentityScreen extends ConsumerWidget {
   const IdentityScreen({super.key});
@@ -14,6 +16,12 @@ class IdentityScreen extends ConsumerWidget {
     final identity = ref.watch(identityProvider);
     final publicKey = identity.publicKey;
     final displayKey = publicKey.isEmpty ? 'Not generated yet' : publicKey;
+    final localIp = ref.watch(localIpProvider);
+    final qrData = localIp.whenOrNull(
+          data: (ip) =>
+              'AEGIS-V1|$sigId|$ip|9090|$publicKey',
+        ) ??
+        'AEGIS-V1|$sigId|0.0.0.0|9090|$publicKey';
 
     return Scaffold(
       backgroundColor: AegisColors.background,
@@ -73,9 +81,11 @@ class IdentityScreen extends ConsumerWidget {
               StaggeredFadeIn(
                   index: 1, child: _publicKeySection(context, displayKey)),
               const SizedBox(height: 28),
-              StaggeredFadeIn(index: 2, child: _securitySection()),
+              StaggeredFadeIn(index: 2, child: _qrCodeSection(qrData, sigId)),
               const SizedBox(height: 28),
-              StaggeredFadeIn(index: 3, child: _infoBox()),
+              StaggeredFadeIn(index: 3, child: _securitySection()),
+              const SizedBox(height: 28),
+              StaggeredFadeIn(index: 4, child: _infoBox()),
             ],
           ),
         ),
@@ -288,6 +298,79 @@ class IdentityScreen extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _qrCodeSection(String qrData, String sigId) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+                width: 3,
+                height: 14,
+                decoration: BoxDecoration(
+                    color: AegisColors.violet,
+                    borderRadius: BorderRadius.circular(2))),
+            const SizedBox(width: 8),
+            Text(
+              'DIRECT CONNECT QR',
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: AegisColors.textSecondary,
+                  letterSpacing: 0.5),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AegisColors.border1, width: 0.5),
+          ),
+          child: Column(
+            children: [
+              QrImageView(
+                data: qrData,
+                version: QrVersions.auto,
+                size: 200,
+                backgroundColor: Colors.white,
+                eyeStyle: const QrEyeStyle(
+                  eyeShape: QrEyeShape.square,
+                  color: Color(0xFF1A1A2E),
+                ),
+                dataModuleStyle: const QrDataModuleStyle(
+                  dataModuleShape: QrDataModuleShape.square,
+                  color: Color(0xFF1A1A2E),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Share this QR to connect directly',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AegisColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                sigId,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AegisColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
         ),
       ],

@@ -55,6 +55,16 @@ dependencies:
   # Image picker for profile photos
   image_picker: ^1.0.7
 
+  # ■■ QR CODE — Direct Peer Connection via QR ■■■■■■■■■■■■■■■
+  # QR code generation for Identity Screen
+  qr_flutter: ^4.1.0
+
+  # QR code scanning via camera
+  mobile_scanner: ^3.5.7
+
+  # Get local WiFi IP address for QR TCP connection
+  network_info_plus: ^6.0.0
+
   # Cupertino Icons
   cupertino_icons: ^1.0.8
 

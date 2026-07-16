@@ -1,10 +1,7 @@
-// Transport Manager - Replaces WebRTCManager
-// Coordinates: Nearby Connections (WiFi Direct) + Bluetooth LE + mDNS
-// Connects to existing mesh_router.dart
-
 import 'package:flutter/foundation.dart';
 import 'nearby_service.dart';
 import 'bluetooth_service.dart';
+import 'direct_tcp_service.dart';
 import '../models/signal_packet.dart';
 import '../core/mdns_discovery.dart';
 
@@ -12,70 +9,86 @@ class TransportManager {
   final NearbyService _nearby;
   final BluetoothService _bluetooth;
   final MdnsDiscovery _mdns;
+  DirectTcpService? _tcpDirect;
 
-  // Callback to mesh_router (same as WebRTCManager)
   Function(SignalPacket packet)? onPacketReceived;
 
-  bool get isConnected => _nearby.isConnected || _bluetooth.isConnected;
+  bool get isConnected =>
+      _nearby.isConnected || _bluetooth.isConnected || (_tcpDirect?.isConnected ?? false);
 
   TransportManager({
     required NearbyService nearby,
     required BluetoothService bluetooth,
     required MdnsDiscovery mdns,
+    DirectTcpService? tcpDirect,
   })  : _nearby = nearby,
         _bluetooth = bluetooth,
-        _mdns = mdns;
+        _mdns = mdns {
+    _tcpDirect = tcpDirect;
+  }
 
-  // Initialize all transports
+  void setTcpDirect(DirectTcpService service) {
+    _tcpDirect = service;
+  }
+
   Future<void> initialize() async {
-    debugPrint('🚀 Initializing transports...');
+    debugPrint('Initializing transports...');
 
-    // Start mDNS discovery (reuse existing)
     await _mdns.start();
-
-    // Start Nearby Connections (WiFi Direct)
     await _nearby.startAdvertising();
     await _nearby.startDiscovery();
-
-    // Start Bluetooth scanning
     await _bluetooth.startAdvertising();
 
-    // Listen to incoming packets → send to mesh_router
     _nearby.messageStream.listen((packet) {
-      debugPrint('📨 Nearby → mesh_router');
       onPacketReceived?.call(packet);
     });
 
     _bluetooth.messageStream.listen((packet) {
-      debugPrint('📨 Bluetooth → mesh_router');
       onPacketReceived?.call(packet);
     });
 
-    debugPrint('✅ All transports active');
+    if (_tcpDirect != null) {
+      _tcpDirect!.messageStream.listen((packet) {
+        debugPrint('TCP Direct -> mesh_router');
+        onPacketReceived?.call(packet);
+      });
+    }
+
+    debugPrint('All transports active');
   }
 
-  // Send packet (called by mesh_router.sendPacket)
-  Future<void> sendPacket(SignalPacket packet) async {
-    // Try WiFi Direct first (fastest, longest range)
+  bool hasDirectTcp(String sigId) => _tcpDirect?.hasPeer(sigId) ?? false;
+
+  Future<void> sendPacket(SignalPacket packet, {String? directPeerId}) async {
+    final targetId = directPeerId ??
+        (packet.to != 'broadcast' && packet.to != 'ALL' ? packet.to : null);
+    if (targetId != null && _tcpDirect != null && _tcpDirect!.hasPeer(targetId)) {
+      await _tcpDirect!.send(packet, peerSigId: targetId);
+      return;
+    }
+
     if (_nearby.isConnected) {
-      debugPrint('📤 Sending via WiFi Direct');
       await _nearby.send(packet);
       return;
     }
 
-    // Fallback to Bluetooth
     if (_bluetooth.isConnected) {
-      debugPrint('📤 Sending via Bluetooth');
       await _bluetooth.send(packet);
       return;
     }
 
-    debugPrint('❌ No transport available');
+    if (_tcpDirect != null && _tcpDirect!.isConnected) {
+      await _tcpDirect!.send(packet);
+      return;
+    }
+
+    debugPrint('No transport available');
   }
 
   Future<void> dispose() async {
     _nearby.dispose();
     _bluetooth.dispose();
     _mdns.dispose();
+    _tcpDirect?.dispose();
   }
 }

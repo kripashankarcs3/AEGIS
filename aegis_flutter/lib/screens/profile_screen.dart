@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../constants/aegis_colors.dart';
-import '../providers/theme_provider.dart';
 import '../services/storage_service.dart';
 import 'help_support_screen.dart';
 import 'identity_screen.dart';
