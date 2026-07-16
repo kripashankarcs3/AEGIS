@@ -1,65 +1,62 @@
+// Chat Provider — per-peer conversation state.
+//
+// Uses Riverpod StateNotifier. Each open conversation is a separate
+// ChatNotifier instance keyed by the remote peer's SIG-ID.
+//
+// Wiring:
+//   - MeshProvider sets myIdentityProvider override after identity is ready.
+//   - MeshProvider wires meshProvider.notifier.onChatReceived to
+//     forward incoming SignalPackets here.
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/signal_packet.dart';
-import '../services/storage_service.dart';
+import '../models/chat_message.dart';
 
-// NOTE: this should eventually pull the real identity + mesh send function
-// from identity_provider.dart / mesh_provider.dart once those are filled
-// in. Left as overridable providers below so chat_screen.dart can be built
-// against this right now without waiting.
+// ──────────────────────────────────────────────
+// Identity + send stubs (overridden by MeshProvider)
+// ──────────────────────────────────────────────
 
-final myIdentityProvider = Provider<String>((ref) => 'SIG-UNKNOWN');
+/// Local device SIG-ID. Overridden with a real value by MeshProvider.
+final myIdentityProvider = Provider<String>((ref) => 'SIG-????');
 
-final sendPacketProvider = Provider<Future<void> Function(String peerId, Map<String, dynamic> packet)>(
-  (ref) => (peerId, packet) async {
-    // replace with real mesh_router.dart call once wired up
-    print('[stub] would send to $peerId: ${packet['type']}');
-  },
+/// Raw send function. Overridden by MeshProvider.
+final sendPacketProvider =
+    Provider<Future<void> Function(String peerId, SignalPacket packet)>(
+  (ref) => (_, __) async {},
 );
 
-class ChatMessageState {
+// ──────────────────────────────────────────────
+// Message delivery status
+// ──────────────────────────────────────────────
+
+enum MessageStatus { sending, sent, delivered, queued, failed }
+
+// ──────────────────────────────────────────────
+// State entry
+// ──────────────────────────────────────────────
+
+class ChatEntry {
   final String id;
   final String from;
   final String to;
   final String text;
-  final int timestamp;
+  final DateTime timestamp;
   final List<String> path;
-  final String status; // sending | sent | delivered | queued | failed
+  final MessageStatus status;
   final bool isMine;
 
-  ChatMessageState({
+  const ChatEntry({
     required this.id,
     required this.from,
     required this.to,
     required this.text,
     required this.timestamp,
     this.path = const [],
-    this.status = 'sending',
+    this.status = MessageStatus.sending,
     this.isMine = false,
   });
 
-  Map<String, dynamic> toMap() => {
-        'id': id,
-        'from': from,
-        'to': to,
-        'text': text,
-        'timestamp': timestamp,
-        'path': path,
-        'status': status,
-        'isMine': isMine,
-      };
-
-  factory ChatMessageState.fromMap(Map<String, dynamic> m) => ChatMessageState(
-        id: m['id'],
-        from: m['from'],
-        to: m['to'],
-        text: m['text'],
-        timestamp: m['timestamp'],
-        path: List<String>.from(m['path'] ?? []),
-        status: m['status'] ?? 'sent',
-        isMine: m['isMine'] ?? false,
-      );
-
-  ChatMessageState copyWith({String? status}) => ChatMessageState(
+  ChatEntry copyWith({MessageStatus? status}) => ChatEntry(
         id: id,
         from: from,
         to: to,
@@ -69,82 +66,116 @@ class ChatMessageState {
         status: status ?? this.status,
         isMine: isMine,
       );
+
+  /// Convert to the legacy ChatMessage model used by UI screens.
+  ChatMessage toChatMessage() => ChatMessage(
+        id: id,
+        senderId: from,
+        senderName: from,
+        message: text,
+        timestamp: timestamp,
+        isMine: isMine,
+      );
 }
 
-class ChatNotifier extends StateNotifier<List<ChatMessageState>> {
+// ──────────────────────────────────────────────
+// Notifier
+// ──────────────────────────────────────────────
+
+class ChatNotifier extends StateNotifier<List<ChatEntry>> {
+  ChatNotifier({
+    required this.peerId,
+    required this.myId,
+    required this.sendFn,
+  }) : super([]);
+
   final String peerId;
   final String myId;
-  final Future<void> Function(String, Map<String, dynamic>) sendPacket;
+  final Future<void> Function(String, SignalPacket) sendFn;
 
-  ChatNotifier({required this.peerId, required this.myId, required this.sendPacket}) : super([]) {
-    _load();
-  }
-
-  void _load() {
-    final raw = StorageService.getChatHistory(peerId);
-    state = raw.map((m) => ChatMessageState.fromMap(m)).toList();
-  }
-
+  // ── Send a new message ────────────────────────────────────────────────
   Future<void> send(String text) async {
-    final msg = ChatMessageState(
+    final entry = ChatEntry(
       id: 'msg_${DateTime.now().millisecondsSinceEpoch}',
       from: myId,
       to: peerId,
       text: text,
-      timestamp: DateTime.now().millisecondsSinceEpoch,
+      timestamp: DateTime.now(),
       isMine: true,
-      status: 'sending',
+      status: MessageStatus.sending,
     );
 
-    state = [...state, msg];
-    _persist();
+    state = [...state, entry];
 
     try {
       final packet = SignalPacket(
-        id: msg.id,
+        id: entry.id,
         from: myId,
         to: peerId,
         type: PacketType.chat,
         payload: text,
-        timestamp: msg.timestamp,
+        ttl: 10,
+        hopCount: 0,
+        path: [myId],
+        timestamp: DateTime.now(),
       );
-      await sendPacket(peerId, packet.toJson());
-      _updateStatus(msg.id, 'sent');
+      await sendFn(peerId, packet);
+      _updateStatus(entry.id, MessageStatus.sent);
     } catch (_) {
-      _updateStatus(msg.id, 'queued'); // message_queue.dart picks this up
+      // Message queue in MeshRouter will retry
+      _updateStatus(entry.id, MessageStatus.queued);
     }
   }
 
-  // called when mesh_router.dart hands us an incoming chat packet for this peer
+  // ── Receive incoming packet from MeshProvider ─────────────────────────
   void receiveIncoming(SignalPacket packet) {
-    final msg = ChatMessageState(
+    // Dedup check
+    if (state.any((e) => e.id == packet.id)) return;
+
+    final entry = ChatEntry(
       id: packet.id,
       from: packet.from,
       to: myId,
-      text: packet.payload ?? '',
+      text: packet.payload,
       timestamp: packet.timestamp,
       path: packet.path,
-      status: 'delivered',
+      status: MessageStatus.delivered,
       isMine: false,
     );
-    state = [...state, msg];
-    _persist();
+
+    state = [...state, entry];
   }
 
-  void _updateStatus(String msgId, String status) {
-    state = state.map((m) => m.id == msgId ? m.copyWith(status: status) : m).toList();
-    _persist();
+  // ── Mark message delivered on ACK ─────────────────────────────────────
+  void markDelivered(String messageId) {
+    _updateStatus(messageId, MessageStatus.delivered);
   }
 
-  void _persist() {
-    StorageService.saveChatHistory(peerId, state.map((m) => m.toMap()).toList());
+  void _updateStatus(String id, MessageStatus status) {
+    state =
+        state.map((e) => e.id == id ? e.copyWith(status: status) : e).toList();
   }
+
+  /// All entries as the legacy ChatMessage type (for existing UI screens).
+  List<ChatMessage> get messages =>
+      state.map((e) => e.toChatMessage()).toList();
 }
 
-final chatProvider = StateNotifierProvider.family<ChatNotifier, List<ChatMessageState>, String>(
+// ──────────────────────────────────────────────
+// Provider (one per peer SIG-ID)
+// ──────────────────────────────────────────────
+
+final chatProvider =
+    StateNotifierProvider.family<ChatNotifier, List<ChatEntry>, String>(
   (ref, peerId) => ChatNotifier(
     peerId: peerId,
     myId: ref.watch(myIdentityProvider),
-    sendPacket: ref.watch(sendPacketProvider),
+    sendFn: ref.watch(sendPacketProvider),
   ),
 );
+
+/// Convenience provider: messages as legacy ChatMessage list for a given peer.
+final chatMessagesProvider =
+    Provider.family<List<ChatMessage>, String>((ref, peerId) {
+  return ref.watch(chatProvider(peerId).notifier).messages;
+});
