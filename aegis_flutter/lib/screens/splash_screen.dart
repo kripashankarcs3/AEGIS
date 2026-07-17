@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../constants/aegis_colors.dart';
 import '../providers/mesh_provider.dart';
@@ -416,6 +417,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     super.dispose();
   }
 
+  void _warmUpGps() {
+    Geolocator.getCurrentPosition(
+      timeLimit: const Duration(seconds: 30),
+      desiredAccuracy: LocationAccuracy.low,
+    ).then((_) {
+      debugPrint('📍 GPS warm-up complete');
+    }).catchError((_) {
+      // GPS warm-up failed silently — SOS screen will retry when needed.
+    });
+  }
+
   Future<void> _startMeshAndNavigate() async {
     await [
       Permission.location,
@@ -428,6 +440,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     ].request();
 
     ref.read(meshProvider.notifier).start();
+
+    // GPS pre-warm: fire-and-forget to get an early GPS fix
+    // so SOS screen doesn't need to wait for cold start later.
+    _warmUpGps();
 
     await Future.delayed(const Duration(milliseconds: 3000));
 

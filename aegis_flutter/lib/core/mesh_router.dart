@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import '../models/signal_packet.dart';
 import 'message_queue.dart';
 import '../transport/transport_manager.dart';
@@ -37,6 +38,10 @@ class MeshRouter {
   Future<void> Function(SignalPacket)? onResourceReceived;
 
   Future<void> receivePacket(SignalPacket packet) async {
+    if (packet.from == localSigId) {
+      debugPrint('🔁 Ignoring self-originated packet ${packet.id}');
+      return;
+    }
     if (_processedPackets.contains(packet.id)) return;
 
     _processedPackets.add(packet.id);
@@ -80,7 +85,7 @@ class MeshRouter {
     await _transportManager.sendPacket(forwarded);
   }
 
-  Future<void> sendPacket(SignalPacket packet) async {
+  Future<bool> sendPacket(SignalPacket packet) async {
     var outgoing = packet;
 
     if (_signCallback != null && _publicKeyBytes != null) {
@@ -91,7 +96,7 @@ class MeshRouter {
       } catch (_) {}
     }
 
-    await _transportManager.sendPacket(outgoing);
+    return await _transportManager.sendPacket(outgoing);
   }
 
   Future<void> flushQueue() async {

@@ -11,29 +11,36 @@ import '../models/signal_packet.dart';
 class BluetoothService {
   static const _bleChannel = MethodChannel('aegis_ble');
 
-  // Valid 128-bit BLE UUIDs (using random base to avoid conflicts)
+  // BLE is used ONLY for peer discovery (extracting SIG-ID from scan
+  // response). GATT data transfer is not supported — no GATT server on
+  // Android side. All packet transport goes through Nearby Connections.
   static const String aegisServiceUuid = 'a6e5f100-0000-1000-8000-00805f9b34fb';
-  static const String aegisCharUuid = 'a6e5f101-0001-1000-8000-00805f9b34fb';
 
   final _messageController = StreamController<SignalPacket>.broadcast();
   Stream<SignalPacket> get messageStream => _messageController.stream;
 
-  final Map<String, fbp.BluetoothDevice> _connectedDevices = {};
-  final Map<String, fbp.BluetoothCharacteristic?> _txCharacteristics = {};
-  final Map<String, StreamSubscription?> _dataSubscriptions = {};
   Timer? _scanTimer;
   StreamSubscription<List<fbp.ScanResult>>? _scanSub;
-  bool get isConnected => _connectedDevices.isNotEmpty;
+  bool get isConnected => false;
 
   /// Called when a scan discovers a peer's SIG-ID from BLE advertisement
   /// service data (no GATT connect needed).
   void Function(String sigId)? onPeerDiscovered;
 
-  /// Called by mesh_provider when a new BLE peer connects
-  VoidCallback? onNewPeerConnected;
-
   String _mySigId = 'SIG-????';
   void setMySigId(String id) => _mySigId = id;
+
+  /// Extracts the peer's SIG-ID from BLE advertisement service data.
+  String? _extractSigId(fbp.ScanResult r) {
+    try {
+      final sd = r.advertisementData.serviceData;
+      final raw = sd[fbp.Guid(aegisServiceUuid)];
+      if (raw != null && raw.isNotEmpty) {
+        return utf8.decode(raw);
+      }
+    } catch (_) {}
+    return null;
+  }
 
   Future<void> startAdvertising() async {
     debugPrint('📢 BLE: Starting...');
@@ -54,7 +61,8 @@ class BluetoothService {
       _startPeriodicScan();
 
       try {
-        final advertised = await _bleChannel.invokeMethod<bool>('startAdvertising', {'sigId': _mySigId});
+        final advertised = await _bleChannel
+            .invokeMethod<bool>('startAdvertising', {'sigId': _mySigId});
         if (advertised == true) {
           debugPrint('✅ BLE advertising started via platform channel');
         } else {
@@ -80,30 +88,23 @@ class BluetoothService {
 
     debugPrint('📡 BLE: Found AEGIS device — ${r.device.remoteId}');
 
-    // Extract SIG-ID from scan response service data
-    try {
-      final sd = r.advertisementData.serviceData;
-      final raw = sd[fbp.Guid(aegisServiceUuid)];
-      if (raw != null && raw.isNotEmpty) {
-        final peerSigId = utf8.decode(raw);
-        debugPrint('📡 BLE: Peer SIG-ID = $peerSigId');
-        if (peerSigId != _mySigId) {
-          onPeerDiscovered?.call(peerSigId);
-        }
-      } else {
-        debugPrint('📡 BLE: No service data (scan response not yet received)');
-      }
-    } catch (e) {
-      debugPrint('⚠️ BLE: Failed to parse service data: $e');
+    // Extract SIG-ID from scan response service data.
+    // BLE is used only for peer discovery (no GATT data transfer —
+    // Nearby/WiFi Direct is the primary transport for packets).
+    final peerSigId = _extractSigId(r);
+    if (peerSigId != null && peerSigId != _mySigId) {
+      debugPrint('📡 BLE: Peer SIG-ID = $peerSigId');
+      onPeerDiscovered?.call(peerSigId);
+    } else if (peerSigId == null) {
+      debugPrint('📡 BLE: No service data (scan response not yet received)');
     }
-
-    _connectToDevice(r.device);
   }
 
   void _startPeriodicScan() {
     _scanTimer?.cancel();
     _doScanCycle();
-    _scanTimer = Timer.periodic(const Duration(seconds: 8), (_) => _doScanCycle());
+    _scanTimer =
+        Timer.periodic(const Duration(seconds: 8), (_) => _doScanCycle());
   }
 
   Future<void> _doScanCycle() async {
@@ -119,57 +120,10 @@ class BluetoothService {
     debugPrint('📡 BLE: Scan cycle done');
   }
 
-  Future<void> _connectToDevice(fbp.BluetoothDevice device) async {
-    final id = device.remoteId.toString();
-    if (_connectedDevices.containsKey(id)) return;
-
-    try {
-      await device.connect();
-      _connectedDevices[id] = device;
-
-      final services = await device.discoverServices();
-      for (final svc in services) {
-        if (svc.uuid.str128.toLowerCase() == aegisServiceUuid) {
-          for (final char in svc.characteristics) {
-            if (char.uuid.str128.toLowerCase() == aegisCharUuid) {
-              await char.setNotifyValue(true);
-              _txCharacteristics[id] = char;
-              _dataSubscriptions[id]?.cancel();
-              _dataSubscriptions[id] = char.lastValueStream.listen(_onDataReceived);
-            }
-          }
-        }
-      }
-      onNewPeerConnected?.call();
-    } catch (e) {
-      debugPrint('❌ BLE connect: $e');
-      _connectedDevices.remove(id);
-    }
-  }
-
-  void _onDataReceived(List<int> value) {
-    try {
-      final json = jsonDecode(utf8.decode(value));
-      final packet = SignalPacket.fromJson(json);
-      _messageController.add(packet);
-    } catch (e) {
-      debugPrint('❌ BLE parse: $e');
-    }
-  }
-
-  Future<void> send(SignalPacket packet) async {
-    try {
-      final bytes = utf8.encode(jsonEncode(packet.toJson()));
-
-      for (final id in _connectedDevices.keys) {
-        final char = _txCharacteristics[id];
-        if (char != null) {
-          await char.write(bytes);
-        }
-      }
-    } catch (e) {
-      debugPrint('❌ BLE send: $e');
-    }
+  Future<bool> send(SignalPacket packet) async {
+    // BLE is peer-discovery only; all data transfer goes through
+    // Nearby Connections (WiFi Direct). See bluetooth_service.dart header.
+    return false;
   }
 
   void dispose() {
@@ -179,15 +133,6 @@ class BluetoothService {
       _bleChannel.invokeMethod('stopAdvertising');
     } catch (_) {}
     fbp.FlutterBluePlus.stopScan();
-    for (final sub in _dataSubscriptions.values) {
-      sub?.cancel();
-    }
-    _dataSubscriptions.clear();
-    for (final device in _connectedDevices.values) {
-      device.disconnect();
-    }
-    _connectedDevices.clear();
-    _txCharacteristics.clear();
     _messageController.close();
   }
 }

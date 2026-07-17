@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class MainShell extends ConsumerStatefulWidget {
 class _MainShellState extends ConsumerState<MainShell>
     with TickerProviderStateMixin {
   late int _currentIndex;
+  StreamSubscription? _sosSub;
   late AnimationController _sosPulse;
   late AnimationController _glowShift;
   late Animation<double> _sosScale;
@@ -41,10 +43,11 @@ class _MainShellState extends ConsumerState<MainShell>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(meshProvider.notifier).sosAlertStream.listen((packet) {
+      _sosSub = ref.read(meshProvider.notifier).sosAlertStream.listen((packet) {
         if (!mounted) return;
-        final mySigId = ref.read(sigIdProvider);
-        if (packet.from == mySigId) return;
+        final identityState = ref.read(identityProvider);
+        if (!identityState.isReady) return;
+        if (packet.from == identityState.sigId) return;
         Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => SosIncomingOverlayScreen(packet: packet),
         ));
@@ -65,6 +68,7 @@ class _MainShellState extends ConsumerState<MainShell>
 
   @override
   void dispose() {
+    _sosSub?.cancel();
     _sosPulse.dispose();
     _glowShift.dispose();
     super.dispose();

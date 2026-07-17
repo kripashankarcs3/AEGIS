@@ -23,6 +23,7 @@ class StatusBeacon {
   String _deviceName = '';
   String _platform = '';
   String _appVersion = '1.0.0';
+  String? _profileImageBase64;
 
   void setDeviceInfo(
       {String deviceName = '',
@@ -31,6 +32,10 @@ class StatusBeacon {
     _deviceName = deviceName;
     _platform = platform;
     _appVersion = appVersion;
+  }
+
+  void setProfileImage(String? base64) {
+    _profileImageBase64 = base64;
   }
 
   /// Tracks the last-known status of each peer: peerId → payload string.
@@ -64,6 +69,7 @@ class StatusBeacon {
           ? _platform
           : '${Platform.operatingSystem} ${Platform.version}',
       'appVersion': _appVersion,
+      'profileImageBase64': _profileImageBase64 ?? '',
     };
 
     final packet = SignalPacket(

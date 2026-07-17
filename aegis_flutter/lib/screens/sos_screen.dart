@@ -65,22 +65,26 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
       }
       if (perm != LocationPermission.deniedForever &&
           perm != LocationPermission.denied) {
+        // 1. Cached position instantly (no GPS wait)
+        final cached = await Geolocator.getLastKnownPosition();
+        if (cached != null) {
+          lat = cached.latitude;
+          lon = cached.longitude;
+        }
+        // 2. Quick GPS attempt (3s — pre-warmed from splash screen)
         try {
           final pos = await Geolocator.getCurrentPosition(
-            timeLimit: const Duration(seconds: 8),
+            timeLimit: const Duration(seconds: 3),
           );
           lat = pos.latitude;
           lon = pos.longitude;
         } catch (_) {
-          final last = await Geolocator.getLastKnownPosition();
-          if (last != null) {
-            lat = last.latitude;
-            lon = last.longitude;
-          }
+          // Use cached (or 0,0) — non-blocking, dialog shows immediately.
         }
       }
     } catch (_) {}
 
+    // 3. Send SOS immediately with whatever location we have
     final message = _detailsController.text.trim();
     final categoryLabel = _categories[_selectedCategory]['label'] as String;
     sosHandler.sendSOS(
@@ -90,6 +94,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
       category: categoryLabel,
     );
 
+    // 4. Show dialog immediately (no GPS wait)
     if (mounted) {
       showDialog(
         context: context,

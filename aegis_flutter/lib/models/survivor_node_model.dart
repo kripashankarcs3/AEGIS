@@ -13,6 +13,7 @@ class SurvivorNodeModel {
   final String deviceName;
   final String platform;
   final String appVersion;
+  final String? profileImageBase64;
 
   const SurvivorNodeModel({
     required this.id,
@@ -27,6 +28,7 @@ class SurvivorNodeModel {
     this.deviceName = '',
     this.platform = '',
     this.appVersion = '',
+    this.profileImageBase64,
   });
 
   bool get hasBattery => batteryLevel >= 0;
@@ -46,7 +48,39 @@ class SurvivorNodeModel {
         'deviceName': deviceName,
         'platform': platform,
         'appVersion': appVersion,
+        'profileImageBase64': profileImageBase64,
       };
+
+  SurvivorNodeModel copyWith({
+    String? id,
+    String? status,
+    double? lat,
+    double? lng,
+    List<String>? resources,
+    String? message,
+    int? lastSeen,
+    int? batteryLevel,
+    int? signalStrength,
+    String? deviceName,
+    String? platform,
+    String? appVersion,
+    String? profileImageBase64,
+  }) =>
+      SurvivorNodeModel(
+        id: id ?? this.id,
+        status: status ?? this.status,
+        lat: lat ?? this.lat,
+        lng: lng ?? this.lng,
+        resources: resources ?? this.resources,
+        message: message ?? this.message,
+        lastSeen: lastSeen ?? this.lastSeen,
+        batteryLevel: batteryLevel ?? this.batteryLevel,
+        signalStrength: signalStrength ?? this.signalStrength,
+        deviceName: deviceName ?? this.deviceName,
+        platform: platform ?? this.platform,
+        appVersion: appVersion ?? this.appVersion,
+        profileImageBase64: profileImageBase64 ?? this.profileImageBase64,
+      );
 
   factory SurvivorNodeModel.fromMap(Map<dynamic, dynamic> m) =>
       SurvivorNodeModel(
@@ -62,6 +96,7 @@ class SurvivorNodeModel {
         deviceName: m['deviceName'] as String? ?? '',
         platform: m['platform'] as String? ?? '',
         appVersion: m['appVersion'] as String? ?? '',
+        profileImageBase64: m['profileImageBase64'] as String?,
       );
 
   static const _statusMap = <String, NodeStatus>{
@@ -97,7 +132,8 @@ class SurvivorNodeModel {
       double? lng,
       List<String>? resources,
       String? message,
-      int? lastSeen}) {
+      int? lastSeen,
+      String? profileImageBase64}) {
     return SurvivorNodeModel(
       id: node.id,
       status: _reverseStatusMap[node.status] ?? 'offline',
@@ -106,6 +142,7 @@ class SurvivorNodeModel {
       resources: resources ?? [],
       message: message ?? '',
       lastSeen: lastSeen ?? DateTime.now().millisecondsSinceEpoch,
+      profileImageBase64: profileImageBase64,
     );
   }
 }
