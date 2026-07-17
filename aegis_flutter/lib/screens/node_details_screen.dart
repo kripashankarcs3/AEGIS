@@ -1,15 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_animations.dart';
+import '../models/survivor_node_model.dart';
+import '../providers/survivor_provider.dart';
 import 'chat_conversation_screen.dart';
 
-class NodeDetailsScreen extends StatelessWidget {
+class NodeDetailsScreen extends ConsumerWidget {
   final String nodeId;
   const NodeDetailsScreen({super.key, required this.nodeId});
 
+  static String _timeAgo(int timestamp) {
+    final diff = DateTime.now().millisecondsSinceEpoch - timestamp;
+    if (diff < 10000) return 'Just now';
+    if (diff < 60000) return '${diff ~/ 1000}s ago';
+    if (diff < 3600000) return '${diff ~/ 60000}m ago';
+    return '${diff ~/ 3600000}h ago';
+  }
+
   @override
-  Widget build(BuildContext context) {
-    final bool isOffline = nodeId == 'SIG-9E10';
+  Widget build(BuildContext context, WidgetRef ref) {
+    final survivor = ref
+        .watch(survivorProvider)
+        .values
+        .where((n) => n.id == nodeId)
+        .firstOrNull;
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    final isOffline = survivor == null || nowMs - survivor.lastSeen > 120000;
 
     return Scaffold(
       backgroundColor: AegisColors.background,
@@ -59,13 +76,16 @@ class NodeDetailsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StaggeredFadeIn(index: 0, child: _profileCard(isOffline)),
+              StaggeredFadeIn(
+                  index: 0, child: _profileCard(survivor, isOffline)),
               const SizedBox(height: 24),
-              StaggeredFadeIn(index: 1, child: _connectionSection(isOffline)),
+              StaggeredFadeIn(
+                  index: 1, child: _connectionSection(survivor, isOffline)),
               const SizedBox(height: 24),
-              StaggeredFadeIn(index: 2, child: _deviceSection()),
+              StaggeredFadeIn(index: 2, child: _deviceSection(survivor)),
               const SizedBox(height: 28),
-              StaggeredFadeIn(index: 3, child: _actionsSection(context)),
+              StaggeredFadeIn(
+                  index: 3, child: _actionsSection(context, survivor)),
             ],
           ),
         ),
@@ -73,7 +93,7 @@ class NodeDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _profileCard(bool isOffline) {
+  Widget _profileCard(SurvivorNodeModel? survivor, bool isOffline) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -129,13 +149,13 @@ class NodeDetailsScreen extends StatelessWidget {
                             color: (isOffline
                                     ? AegisColors.textMuted
                                     : AegisColors.neonGreen)
-                                .withOpacity(0.08),
+                                .withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                                 color: (isOffline
                                         ? AegisColors.textMuted
                                         : AegisColors.neonGreen)
-                                    .withOpacity(0.2),
+                                    .withValues(alpha: 0.2),
                                 width: 0.5),
                           ),
                           child: Text(
@@ -153,7 +173,11 @@ class NodeDetailsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      isOffline ? 'Disconnected' : '2 hops away • via SIG-B2C1',
+                      isOffline
+                          ? 'Disconnected'
+                          : survivor != null && survivor.signalStrength > 0
+                              ? '${5 - survivor.signalStrength} hop(s) away'
+                              : 'Nearby',
                       style: TextStyle(
                         fontSize: 12,
                         color: AegisColors.textSecondary,
@@ -166,17 +190,17 @@ class NodeDetailsScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          Container(height: 0.5, color: AegisColors.border1.withOpacity(0.5)),
+          Container(height: 0.5, color: AegisColors.border1.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('First seen',
+              Text('Last seen',
                   style: TextStyle(
                       fontSize: 12,
                       color: AegisColors.textSecondary,
                       fontWeight: FontWeight.w500)),
-              Text('2 mins ago',
+              Text(survivor != null ? _timeAgo(survivor.lastSeen) : 'Never',
                   style: TextStyle(
                       fontSize: 12,
                       color: AegisColors.textPrimary,
@@ -187,12 +211,12 @@ class NodeDetailsScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Last seen',
+              Text('Signal strength',
                   style: TextStyle(
                       fontSize: 12,
                       color: AegisColors.textSecondary,
                       fontWeight: FontWeight.w500)),
-              Text('Just now',
+              Text(survivor != null ? '${survivor.signalStrength}/4' : '--',
                   style: TextStyle(
                       fontSize: 12,
                       color: AegisColors.textPrimary,
@@ -204,7 +228,7 @@ class NodeDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _connectionSection(bool isOffline) {
+  Widget _connectionSection(SurvivorNodeModel? survivor, bool isOffline) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -237,17 +261,23 @@ class NodeDetailsScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              _infoRow('Link Quality', isOffline ? 'None' : 'Strong',
+              _infoRow('Signal Strength',
+                  isOffline ? '--' : '${survivor?.signalStrength ?? 0}/4',
                   isStatus: true,
                   statusColor: isOffline
                       ? AegisColors.textMuted
-                      : AegisColors.neonGreen),
+                      : (survivor?.signalStrength ?? 0) >= 3
+                          ? AegisColors.neonGreen
+                          : AegisColors.electricBlue),
               _divider(),
-              _infoRow('Latency', isOffline ? '--' : '28 ms'),
+              _infoRow('Hops Away', isOffline ? '--' : '1'),
               _divider(),
-              _infoRow('Packets Relayed', isOffline ? '0' : '245'),
-              _divider(),
-              _infoRow('Uptime', isOffline ? '--' : '2h 14m'),
+              _infoRow(
+                  'Battery',
+                  survivor?.hasBattery == true
+                      ? '${survivor!.batteryLevel}%'
+                      : '--',
+                  showBattery: survivor?.hasBattery == true),
             ],
           ),
         ),
@@ -255,7 +285,7 @@ class NodeDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _deviceSection() {
+  Widget _deviceSection(SurvivorNodeModel? survivor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -288,13 +318,23 @@ class NodeDetailsScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              _infoRow('Device Name', 'Pixel 7'),
+              _infoRow(
+                  'Device Name',
+                  survivor?.deviceName.isNotEmpty == true
+                      ? survivor!.deviceName
+                      : 'Unknown'),
               _divider(),
-              _infoRow('Platform', 'Android 14'),
+              _infoRow(
+                  'Platform',
+                  survivor?.platform.isNotEmpty == true
+                      ? survivor!.platform
+                      : 'Unknown'),
               _divider(),
-              _infoRow('App Version', '1.0.0+15'),
-              _divider(),
-              _infoRow('Battery', '76%', showBattery: true),
+              _infoRow(
+                  'App Version',
+                  survivor?.appVersion.isNotEmpty == true
+                      ? survivor!.appVersion
+                      : '--'),
             ],
           ),
         ),
@@ -302,7 +342,7 @@ class NodeDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _actionsSection(BuildContext context) {
+  Widget _actionsSection(BuildContext context, SurvivorNodeModel? survivor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -455,7 +495,7 @@ class NodeDetailsScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 18),
       height: 0.5,
-      color: AegisColors.border1.withOpacity(0.5),
+      color: AegisColors.border1.withValues(alpha: 0.5),
     );
   }
 }

@@ -12,6 +12,7 @@ import 'identity_screen.dart';
 import 'settings_screen.dart';
 import 'emergency_contacts_screen.dart';
 import 'devices_network_screen.dart';
+import 'login_join_screen.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -222,7 +223,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: green.withOpacity(0.12),
+        color: green.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -396,25 +397,57 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       height: 1, thickness: 1, color: border, indent: 20, endIndent: 20);
 
   Widget _logoutButton() {
-    return Container(
-      height: 52,
-      decoration: BoxDecoration(
-        color: AegisColors.sosRed.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AegisColors.sosRed.withOpacity(0.3)),
+    return GestureDetector(
+      onTap: () => _confirmLogout(),
+      child: Container(
+        height: 52,
+        decoration: BoxDecoration(
+          color: AegisColors.sosRed.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AegisColors.sosRed.withValues(alpha: 0.3)),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.logout_rounded, color: Color(0xFFFF2D3D), size: 22),
+            SizedBox(width: 12),
+            Text('Log Out',
+                style: TextStyle(
+                    color: Color(0xFFFF2D3D),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800)),
+          ],
+        ),
       ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.logout_rounded, color: Color(0xFFFF2D3D), size: 22),
-          SizedBox(width: 12),
-          Text('Log Out',
-              style: TextStyle(
-                  color: Color(0xFFFF2D3D),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800)),
-        ],
-      ),
+    );
+  }
+
+  void _confirmLogout() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AegisColors.cardBg,
+        title: const Text('Log Out'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (_) => const LoginJoinScreen(),
+                  ),
+                  (route) => false,
+                );
+              },
+              child: Text('Log Out', style: TextStyle(color: AegisColors.sosRed)),
+            ),
+          ],
+        ),
     );
   }
 }

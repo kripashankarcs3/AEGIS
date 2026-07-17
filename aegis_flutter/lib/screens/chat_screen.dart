@@ -4,12 +4,14 @@ import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
 import '../providers/survivor_provider.dart';
+import '../providers/chat_provider.dart';
+import '../providers/identity_provider.dart';
 import '../models/survivor_node_model.dart';
 import '../services/storage_service.dart';
 import 'chat_conversation_screen.dart';
 import 'broadcast_screen.dart';
 
-final _sigIdRegex = RegExp(r'^SIG-[A-Za-z0-9]{4}$');
+final _sigIdRegex = RegExp(r'^SIG-[A-Za-z0-9]{8}$');
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
@@ -20,9 +22,22 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   int _tab = 0;
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
+    final allSurvivors = ref.watch(survivorProvider);
+    final myId = ref.watch(sigIdProvider);
+
+    // Remove own SIG-ID so self-chat never appears
+    final peers = Map<String, SurvivorNodeModel>.from(allSurvivors)..remove(myId);
+
+    final filteredSurvivors = _searchQuery.isEmpty || _searchQuery == ' '
+        ? peers
+        : Map.fromEntries(peers.entries.where((e) =>
+            e.value.id.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            e.value.message.toLowerCase().contains(_searchQuery.toLowerCase())));
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -36,10 +51,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   StaggeredFadeIn(index: 0, child: _header()),
                   SizedBox(height: 6),
                   StaggeredFadeIn(index: 1, child: _tabs()),
+                  if (_searchQuery.isNotEmpty) ...[
+                    SizedBox(height: 8),
+                    _searchBar(),
+                  ],
                   SizedBox(height: 20),
                   Expanded(
                     child: ListView(children: [
-                      ..._buildPeerList(ref.watch(survivorProvider)),
+                      ..._buildPeerList(filteredSurvivors),
                       const SizedBox(height: 16),
                     ]),
                   ),
@@ -53,23 +72,81 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
+  Widget _searchBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(12), border: Border.all(color: AegisColors.border1, width: 0.5)),
+      child: TextField(
+        autofocus: true,
+        style: TextStyle(color: AegisColors.textPrimary, fontSize: 14),
+        decoration: InputDecoration(
+          hintText: 'Search by SIG-ID or message...',
+          hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 13),
+          border: InputBorder.none,
+          isDense: true,
+          suffixIcon: GestureDetector(
+            onTap: () => setState(() => _searchQuery = ''),
+            child: Icon(Icons.close, color: AegisColors.textMuted, size: 18),
+          ),
+        ),
+        onChanged: (v) => setState(() => _searchQuery = v),
+      ),
+    );
+  }
+
   Widget _header() {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Row(mainAxisSize: MainAxisSize.min, children: [
         Container(width: 3, height: 24, decoration: BoxDecoration(gradient: AegisColors.purpleGradient, borderRadius: BorderRadius.circular(2))),
         SizedBox(width: 12),
-        Text('ENCRYPTED CHAT', style: AegisStyles.h2),
+        Text('Messages', style: AegisStyles.h2),
       ]),
       Row(mainAxisSize: MainAxisSize.min, children: [
-        _hdrIcon(Icons.search_rounded),
+        _hdrIcon(Icons.search_rounded, () => setState(() => _searchQuery = _searchQuery.isNotEmpty ? '' : ' ')),
         SizedBox(width: 4),
-        _hdrIcon(Icons.tune_rounded),
+        _hdrIcon(Icons.tune_rounded, () => _showFilterOptions()),
       ]),
     ]);
   }
 
-  Widget _hdrIcon(IconData icon) {
-    return Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: Icon(icon, color: AegisColors.textPrimary, size: 18));
+  Widget _hdrIcon(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(10), border: Border.all(color: AegisColors.border1, width: 0.5)), child: Icon(icon, color: AegisColors.textPrimary, size: 18)),
+    );
+  }
+
+  void _showFilterOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+        decoration: BoxDecoration(gradient: AegisColors.cardGradient, borderRadius: BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28))),
+        child: SafeArea(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
+            SizedBox(height: 20),
+            Text('Sort & Filter', style: TextStyle(color: AegisColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700)),
+            SizedBox(height: 16),
+            _filterOption(Icons.access_time_rounded, 'Recent first', () { Navigator.of(context).pop(); }),
+            _filterOption(Icons.person_rounded, 'By name', () { Navigator.of(context).pop(); }),
+            _filterOption(Icons.online_prediction_rounded, 'Online only', () { Navigator.of(context).pop(); }),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Widget _filterOption(IconData icon, String label, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap, borderRadius: BorderRadius.circular(14),
+      child: Padding(padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4), child: Row(children: [
+        Icon(icon, color: AegisColors.violet, size: 20),
+        SizedBox(width: 14),
+        Text(label, style: TextStyle(color: AegisColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w500)),
+      ])),
+    );
   }
 
   Widget _tabs() {
@@ -89,7 +166,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         curve: Curves.easeOutCubic,
         margin: const EdgeInsets.only(right: 28),
         padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: null,
+        decoration: sel ? BoxDecoration(border: Border(bottom: BorderSide(color: AegisColors.violet, width: 2))) : null,
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 200),
           style: TextStyle(color: sel ? AegisColors.textPrimary : AegisColors.textMuted, fontSize: 14, fontWeight: sel ? FontWeight.w700 : FontWeight.w500, letterSpacing: -0.2),
@@ -101,10 +178,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   String _formatTime(int epochMs) {
     final dt = DateTime.fromMillisecondsSinceEpoch(epochMs);
-    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
-    final minute = dt.minute.toString().padLeft(2, '0');
-    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
-    return '$hour:$minute $ampm';
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final msgDate = DateTime(dt.year, dt.month, dt.day);
+    final diff = today.difference(msgDate).inDays;
+
+    if (diff == 0) {
+      final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+      final minute = dt.minute.toString().padLeft(2, '0');
+      final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+      return '$hour:$minute $ampm';
+    }
+    if (diff == 1) return 'Yesterday';
+    return '${dt.day}/${dt.month}';
   }
 
   List<Widget> _buildPeerList(Map<String, SurvivorNodeModel> survivors) {
@@ -153,14 +239,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ? node.message
           : 'Status: ${node.status}';
       final time = _formatTime(node.lastSeen);
+      final isOnline = !node.isOffline && node.lastSeen > DateTime.now().millisecondsSinceEpoch - 120000;
+
+      int unread = 0;
+      try {
+        unread = ref.read(chatProvider(node.id).notifier).unreadCount;
+      } catch (_) {}
+
       tiles.add(_tile(
         color,
         node.id,
         time,
         subtitle,
-        unread: 0,
+        unread: unread,
         urgent: isNeedHelp,
-        dot: !isNeedHelp,
+        dot: isOnline,
         badgeText: badgeText,
         badgeColor: badgeColor,
       ));
@@ -173,7 +266,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Widget _tile(Color avatarColor, String nodeId, String time, String subtitle, {int unread = 0, bool urgent = false, bool dot = false, String? badgeText, Color? badgeColor}) {
     return InkWell(
-      onTap: () => Navigator.of(context).push(PageRouteBuilder(pageBuilder: (_, a, __) => ChatConversationScreen(nodeId: nodeId), transitionsBuilder: (_, a, __, child) => SlideTransition(position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)), child: child))),
+      onTap: () {
+        ref.read(chatProvider(nodeId).notifier).clearUnread();
+        Navigator.of(context).push(PageRouteBuilder(
+          pageBuilder: (_, a, __) => ChatConversationScreen(nodeId: nodeId),
+          transitionsBuilder: (_, a, __, child) => SlideTransition(
+            position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: a, curve: Curves.easeOutCubic)),
+            child: child,
+          ),
+        ));
+      },
       onLongPress: () => _showChatOptions(nodeId),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
@@ -183,7 +285,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             children: [
               Container(
                 width: 48, height: 48,
-                decoration: BoxDecoration(gradient: LinearGradient(colors: [avatarColor.withOpacity(0.2), avatarColor.withOpacity(0.05)]), shape: BoxShape.circle, border: Border.all(color: avatarColor.withOpacity(urgent ? 0.5 : 0.2), width: urgent ? 1.5 : 1), boxShadow: urgent ? [BoxShadow(color: avatarColor.withOpacity(0.3), blurRadius: 12, spreadRadius: 2)] : null),
+                decoration: BoxDecoration(gradient: LinearGradient(colors: [avatarColor.withValues(alpha: 0.2), avatarColor.withValues(alpha: 0.05)]), shape: BoxShape.circle, border: Border.all(color: avatarColor.withValues(alpha: urgent ? 0.5 : 0.2), width: urgent ? 1.5 : 1), boxShadow: urgent ? [BoxShadow(color: avatarColor.withValues(alpha: 0.3), blurRadius: 12, spreadRadius: 2)] : null),
                 child: Icon(Icons.person_rounded, color: avatarColor, size: 24),
               ),
               if (dot)
@@ -211,7 +313,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: badgeColor!.withOpacity(AegisColors.isLight ? 0.12 : 0.2),
+                        color: badgeColor!.withValues(alpha: AegisColors.isLight ? 0.12 : 0.2),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -225,9 +327,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ]),
               SizedBox(height: 6),
               Row(children: [
-                Expanded(child: Text(subtitle, style: TextStyle(fontSize: 13, color: AegisColors.textSecondary.withOpacity(0.8), fontWeight: urgent ? FontWeight.w600 : FontWeight.w400), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                Expanded(child: Text(subtitle, style: TextStyle(fontSize: 13, color: AegisColors.textSecondary.withValues(alpha: 0.8), fontWeight: urgent ? FontWeight.w600 : FontWeight.w400), maxLines: 1, overflow: TextOverflow.ellipsis)),
                 if (unread > 0)
-                  Container(width: 24, height: 24, decoration: BoxDecoration(gradient: urgent ? AegisColors.sosGradient : AegisColors.purpleGradient, shape: BoxShape.circle), child: Center(child: Text('$unread', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)))),
+                  Container(
+                    width: 24, height: 24,
+                    decoration: BoxDecoration(gradient: urgent ? AegisColors.sosGradient : AegisColors.purpleGradient, shape: BoxShape.circle),
+                    child: Center(child: Text('$unread', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800))),
+                  ),
               ]),
             ]),
           ),
@@ -237,7 +343,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _divider() {
-    return Container(margin: const EdgeInsets.only(left: 62), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
+    return Container(margin: const EdgeInsets.only(left: 62), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withValues(alpha: 0.3), Colors.transparent])));
   }
 
   Widget _sheet() {
@@ -264,7 +370,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
         child: Row(children: [
-          Container(width: 40, height: 40, decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.2), width: 0.5)), child: Icon(icon, color: color, size: 20)),
+          Container(width: 40, height: 40, decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.2), width: 0.5)), child: Icon(icon, color: color, size: 20)),
           SizedBox(width: 14),
           Text(label, style: TextStyle(color: AegisColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
         ]),
@@ -273,7 +379,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _sheetDivider() {
-    return Container(margin: const EdgeInsets.symmetric(horizontal: 4), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
+    return Container(margin: const EdgeInsets.symmetric(horizontal: 4), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withValues(alpha: 0.3), Colors.transparent])));
   }
 
   void _showChatOptions(String nodeId) {
@@ -287,9 +393,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
             SizedBox(height: 20),
-            _sheetOpt(Icons.delete_outline_rounded, 'Delete Chat', AegisColors.sosRed, () {
+            _sheetOpt(Icons.delete_outline_rounded, 'Delete Chat', AegisColors.sosRed, () async {
               Navigator.of(context).pop();
               ref.read(survivorProvider.notifier).removeSurvivor(nodeId);
+              await StorageService.deleteChatHistory(nodeId);
             }),
             SizedBox(height: 4),
             _sheetDivider(),
@@ -324,7 +431,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 controller: controller,
                 style: TextStyle(color: AegisColors.textPrimary, fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: 'SIG-XXXX',
+                  hintText: 'SIG-XXXXXXXX',
                   hintStyle: TextStyle(color: AegisColors.textMuted),
                   errorText: errorText,
                   filled: true,
@@ -343,7 +450,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               onPressed: () {
                 final sigId = controller.text.trim().toUpperCase();
                 if (!_sigIdRegex.hasMatch(sigId)) {
-                  setDialogState(() => errorText = 'Must be SIG-XXXX format');
+                  setDialogState(() => errorText = 'Must be SIG-XXXXXXXX format');
                   return;
                 }
                 Navigator.of(ctx).pop();

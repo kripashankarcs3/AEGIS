@@ -8,6 +8,8 @@
 //        SplashScreen calls ref.read(meshProvider.notifier).start().
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/mesh_router.dart';
 import '../core/peer_manager.dart';
 import '../core/message_queue.dart';
+import '../core/crypto_service.dart';
 import '../core/sos_handler.dart';
 import '../core/status_beacon.dart';
 import '../core/resource_manager.dart';
@@ -23,6 +26,7 @@ import '../models/signal_packet.dart';
 import '../models/survivor_node.dart';
 import '../models/survivor_node_model.dart';
 import '../services/background_service.dart';
+import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 import '../transport/transport_manager.dart';
 import '../transport/nearby_service.dart';
@@ -43,6 +47,9 @@ class MeshState {
   final int peerCount;
   final int packetsRelayed;
   final List<String> recentActivity;
+  final double networkHealth;
+  final int avgLatencyMs;
+  final double coverage;
 
   const MeshState({
     this.isRunning = false,
@@ -50,6 +57,9 @@ class MeshState {
     this.peerCount = 0,
     this.packetsRelayed = 0,
     this.recentActivity = const [],
+    this.networkHealth = 0.0,
+    this.avgLatencyMs = 0,
+    this.coverage = 0.0,
   });
 
   MeshState copyWith({
@@ -58,6 +68,9 @@ class MeshState {
     int? peerCount,
     int? packetsRelayed,
     List<String>? recentActivity,
+    double? networkHealth,
+    int? avgLatencyMs,
+    double? coverage,
   }) =>
       MeshState(
         isRunning: isRunning ?? this.isRunning,
@@ -65,6 +78,9 @@ class MeshState {
         peerCount: peerCount ?? this.peerCount,
         packetsRelayed: packetsRelayed ?? this.packetsRelayed,
         recentActivity: recentActivity ?? this.recentActivity,
+        networkHealth: networkHealth ?? this.networkHealth,
+        avgLatencyMs: avgLatencyMs ?? this.avgLatencyMs,
+        coverage: coverage ?? this.coverage,
       );
 }
 
@@ -90,6 +106,10 @@ class MeshNotifier extends StateNotifier<MeshState> {
   late StatusBeacon _statusBeacon;
   late ResourceManager _resourceManager;
   late BackgroundService _backgroundService;
+
+  Timer? _staleCleanupTimer;
+  final List<int> _hopHistory = [];
+  static const int _maxHopHistory = 50;
 
   // Public accessors for screens/providers
   SOSHandler get sosHandler => _sosHandler;
@@ -128,7 +148,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
     _peerManager = PeerManager();
     _messageQueue = MessageQueue();
     _nearby = NearbyService()..setMyDeviceId(myId);
-    _bluetooth = bt.BluetoothService();
+    _bluetooth = bt.BluetoothService()..setMySigId(myId);
     _mdns = MdnsDiscovery();
     _directTcp = DirectTcpService()..setMySigId(myId);
 
@@ -141,7 +161,8 @@ class MeshNotifier extends StateNotifier<MeshState> {
 
     // Wire MessageQueue retry callbacks
     _messageQueue.isPeerReachable = (peerId) => _transport.isConnected;
-    _messageQueue.sendToPeer = (peerId, packet) => _transport.sendPacket(packet);
+    _messageQueue.sendToPeer =
+        (peerId, packet) => _transport.sendPacket(packet);
 
     _router = MeshRouter(
       transportManager: _transport,
@@ -150,6 +171,66 @@ class MeshNotifier extends StateNotifier<MeshState> {
 
     // Set localSigId so relayPacket() can append self to path (L9)
     _router.localSigId = myId;
+
+    // Wire crypto signing for outgoing packets
+    try {
+      final crypto = CryptoService();
+      final pubHex = identity.publicKey;
+      final privB64 = identity.privateKey;
+      if (pubHex.isNotEmpty && privB64.isNotEmpty) {
+        final pubBytes = _hexToBytes(pubHex);
+        final privBytes = base64Decode(privB64);
+        if (pubBytes.isNotEmpty && privBytes.isNotEmpty) {
+          final keyPair = crypto.keyPairFromBytes(privBytes, pubBytes);
+          _router.setSignCallback(
+            (message) => crypto.signMessage(message, keyPair),
+            pubBytes,
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ Crypto signing setup failed: $e');
+    }
+
+    // When BLE scan discovers a peer's SIG-ID in advertisement data,
+    // add it to the survivor list immediately (no GATT connect needed).
+    _bluetooth.onPeerDiscovered = (peerSigId) {
+      if (_ref.read(survivorProvider).containsKey(peerSigId)) return;
+      final node = SurvivorNodeModel(
+        id: peerSigId,
+        status: 'safe',
+        lat: 0,
+        lng: 0,
+        resources: [],
+        message: '',
+        lastSeen: DateTime.now().millisecondsSinceEpoch,
+        batteryLevel: -1,
+        signalStrength: 2,
+        deviceName: '',
+        platform: '',
+        appVersion: '',
+      );
+      _ref.read(survivorProvider.notifier).updateFromIncoming(node);
+      _addActivity('🔵 BLE peer discovered: $peerSigId');
+    };
+
+    // When BLE connects to a new peer, immediately broadcast
+    // a status packet so the remote side sees us as a node.
+    _bluetooth.onNewPeerConnected = () {
+      final pkt = SignalPacket(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        from: myId,
+        to: 'ALL',
+        type: PacketType.status,
+        payload: 'ONLINE',
+        ttl: 3,
+        hopCount: 0,
+        path: [myId],
+        timestamp: DateTime.now(),
+      );
+      _router.sendPacket(pkt);
+      debugPrint('📤 BLE: Sent immediate status after peer connect');
+    };
 
     // SOSHandler uses constructor injection (meshRouter + selfId)
     _sosHandler = SOSHandler(
@@ -161,6 +242,10 @@ class MeshNotifier extends StateNotifier<MeshState> {
     _statusBeacon = StatusBeacon(
       meshRouter: _router,
       selfId: myId,
+    );
+    _statusBeacon.setDeviceInfo(
+      platform: '${Platform.operatingSystem} ${Platform.version}',
+      appVersion: '1.0.0',
     );
 
     // ResourceManager uses constructor injection (meshRouter + selfId)
@@ -188,6 +273,8 @@ class MeshNotifier extends StateNotifier<MeshState> {
         state = state.copyWith(peerCount: _peerManager.peerCount);
         _addActivity('🔗 New peer: ${packet.from}');
       }
+      if (_hopHistory.length >= _maxHopHistory) _hopHistory.removeAt(0);
+      _hopHistory.add(packet.hopCount);
       _router.receivePacket(packet);
       _incrementRelayed();
     };
@@ -198,18 +285,48 @@ class MeshNotifier extends StateNotifier<MeshState> {
         _addActivity('🆘 SOS from ${p.from}');
         _sosAlertStreamController.add(p);
         await _sosHandler.onIncoming(p);
+        if (p.from != myId) {
+          NotificationService.instance.showSosNotification(
+            from: p.from,
+            category: p.category ?? 'Emergency',
+            message: p.payload.isNotEmpty ? p.payload : 'Emergency assistance needed!',
+          );
+        }
       }
       ..onStatusReceived = (p) async {
         _addActivity('📡 Status update from ${p.from}');
         state = state.copyWith(peerCount: _peerManager.peerCount);
+        String status = 'safe';
+        int battery = -1;
+        String deviceName = '';
+        String platform = '';
+        String appVersion = '';
+        try {
+          final info = jsonDecode(p.payload) as Map<String, dynamic>;
+          status = info['status'] == 'ONLINE'
+              ? 'safe'
+              : (info['status'] as String? ?? 'safe');
+          battery = (info['battery'] as num?)?.toInt() ?? -1;
+          deviceName = info['deviceName'] as String? ?? '';
+          platform = info['platform'] as String? ?? '';
+          appVersion = info['appVersion'] as String? ?? '';
+        } catch (_) {
+          status = p.payload == 'ONLINE' ? 'safe' : p.payload;
+        }
         final node = SurvivorNodeModel(
           id: p.from,
-          status: p.payload == 'ONLINE' ? 'safe' : p.payload,
+          status: status,
           lat: p.latitude,
           lng: p.longitude,
           resources: [],
           message: '',
           lastSeen: DateTime.now().millisecondsSinceEpoch,
+          batteryLevel: battery,
+          signalStrength:
+              p.hopCount == 0 ? 4 : (p.hopCount >= 3 ? 1 : 4 - p.hopCount),
+          deviceName: deviceName,
+          platform: platform,
+          appVersion: appVersion,
         );
         _ref.read(survivorProvider.notifier).updateFromIncoming(node);
       }
@@ -224,6 +341,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
         final chatNotifier = _ref.read(chatProvider(p.from).notifier);
         chatNotifier.receiveIncoming(p);
         _addActivity('💬 Message from ${p.from}');
+        NotificationService.instance.showMessageNotification(p.from, p.payload);
       }
       ..onAckReceived = (p) async {
         onAckReceived?.call(p);
@@ -250,8 +368,40 @@ class MeshNotifier extends StateNotifier<MeshState> {
       debugPrint('⚠️ Direct TCP server error: $e');
     }
 
-    // 8. Start background timers
+    // 8. Start background timers (and message queue retry — via BackgroundService)
     _backgroundService.start();
+
+    // 8b. Periodically cleanup stale + update network health
+    _staleCleanupTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      _ref
+          .read(survivorProvider.notifier)
+          .removeStale(const Duration(seconds: 30));
+      _peerManager.clearInactivePeers(const Duration(seconds: 30));
+      final count = _peerManager.peerCount;
+
+      double health = 0.0;
+      int avgLatency = 0;
+      double coverage = 0.0;
+
+      if (count > 0) {
+        final avgHops = _hopHistory.isEmpty
+            ? 0.0
+            : _hopHistory.reduce((a, b) => a + b) / _hopHistory.length;
+        avgLatency = (avgHops * 50).round();
+        coverage = (count / 5.0).clamp(0.0, 1.0);
+        final signalScore = (1.0 - (avgHops / 4.0)).clamp(0.0, 1.0);
+        health = (0.4 * coverage +
+            0.3 * signalScore +
+            0.3 * (state.isConnected ? 1.0 : 0.0));
+      }
+
+      state = state.copyWith(
+        peerCount: count,
+        networkHealth: health,
+        avgLatencyMs: avgLatency,
+        coverage: coverage,
+      );
+    });
 
     state = state.copyWith(isRunning: true);
     debugPrint('✅ MeshProvider: stack running as $myId');
@@ -259,8 +409,13 @@ class MeshNotifier extends StateNotifier<MeshState> {
 
   Future<void> stop() async {
     if (!state.isRunning) return;
-    _backgroundService.stop();
-    await _transport.dispose();
+    _staleCleanupTimer?.cancel();
+    try {
+      _backgroundService.stop();
+    } catch (_) {}
+    try {
+      await _transport.dispose();
+    } catch (_) {}
     state = state.copyWith(isRunning: false, isConnected: false, peerCount: 0);
   }
 
@@ -282,6 +437,17 @@ class MeshNotifier extends StateNotifier<MeshState> {
 
   /// Send a typed packet directly (used by ChatProvider).
   Future<void> sendPacket(SignalPacket packet) => _router.sendPacket(packet);
+
+  List<int> _hexToBytes(String hex) {
+    final clean = hex.replaceAll(' ', '');
+    final result = <int>[];
+    for (int i = 0; i < clean.length; i += 2) {
+      final end = i + 2;
+      if (end > clean.length) break;
+      result.add(int.parse(clean.substring(i, end), radix: 16));
+    }
+    return result;
+  }
 
   void _incrementRelayed() {
     state = state.copyWith(packetsRelayed: state.packetsRelayed + 1);
@@ -325,3 +491,12 @@ final meshResourcesProvider = Provider<List<ResourceItem>>((ref) {
   ref.watch(meshProvider);
   return ref.read(meshProvider.notifier).resourceManager.resources;
 });
+
+final meshNetworkHealthProvider =
+    Provider<double>((ref) => ref.watch(meshProvider).networkHealth);
+
+final meshAvgLatencyProvider =
+    Provider<int>((ref) => ref.watch(meshProvider).avgLatencyMs);
+
+final meshCoverageProvider =
+    Provider<double>((ref) => ref.watch(meshProvider).coverage);

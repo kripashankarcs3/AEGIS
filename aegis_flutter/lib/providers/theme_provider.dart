@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/aegis_colors.dart';
+import '../services/storage_service.dart';
 
 enum AppThemeMode { system, light, dark }
 
@@ -31,6 +32,7 @@ class ThemeProvider extends ChangeNotifier {
         (mode == AppThemeMode.system &&
             WidgetsBinding.instance.platformDispatcher.platformBrightness ==
                 Brightness.light));
+    StorageService.setSetting('app_theme_mode', mode.index);
     notifyListeners();
   }
 }
@@ -56,7 +58,11 @@ class _ThemeProviderWidgetState extends State<ThemeProviderWidget> {
   @override
   void initState() {
     super.initState();
-    _provider.setMode(AppThemeMode.dark);
+    final savedIndex = StorageService.getSetting('app_theme_mode') as int?;
+    final mode = savedIndex != null
+        ? AppThemeMode.values[savedIndex.clamp(0, AppThemeMode.values.length - 1)]
+        : AppThemeMode.dark;
+    _provider.setMode(mode);
   }
 
   @override

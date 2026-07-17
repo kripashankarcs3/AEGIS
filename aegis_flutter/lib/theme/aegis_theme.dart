@@ -43,7 +43,7 @@ class AegisTheme {
       iconTheme: IconThemeData(color: AegisColors.textSecondary, size: 22),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: AegisColors.electricBlue,
-        selectionColor: AegisColors.electricBlue.withOpacity(0.3),
+        selectionColor: AegisColors.electricBlue.withValues(alpha: 0.3),
         selectionHandleColor: AegisColors.electricBlue,
       ),
       chipTheme: ChipThemeData(
@@ -122,7 +122,7 @@ class AegisTheme {
       iconTheme: IconThemeData(color: AegisColorsLight.textSecondary, size: 22),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: AegisColorsLight.electricBlue,
-        selectionColor: AegisColorsLight.electricBlue.withOpacity(0.3),
+        selectionColor: AegisColorsLight.electricBlue.withValues(alpha: 0.3),
         selectionHandleColor: AegisColorsLight.electricBlue,
       ),
       chipTheme: ChipThemeData(

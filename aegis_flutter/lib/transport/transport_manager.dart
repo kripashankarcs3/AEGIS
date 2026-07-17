@@ -96,7 +96,7 @@ class TransportManager {
     }
 
     if (_nearby.isConnected) {
-      await _nearby.send(packet);
+      await _nearby.send(packet, targetPeerId: targetId);
       return;
     }
 

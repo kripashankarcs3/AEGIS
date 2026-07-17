@@ -59,7 +59,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: CustomPaint(
-                          painter: BatterySaverGaugePainter(percentage: 0.78),
+                          painter: BatterySaverGaugePainter(percentage: 0.0),
                         ),
                       ),
                     ),
@@ -76,7 +76,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                         ),
                         SizedBox(height: 10.0),
                         Text(
-                          '78%',
+                          '--%',
                           style: TextStyle(
                             fontSize: 32.0,
                             fontWeight: FontWeight.w900,
@@ -93,7 +93,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                         ),
                         SizedBox(height: 3.0),
                         Text(
-                          '22h 45m',
+                          '--h --m',
                           style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.bold,
@@ -122,10 +122,10 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                     width: 40.0,
                     height: 40.0,
                     decoration: BoxDecoration(
-                      color: AegisColors.neonGreen.withOpacity(0.08),
+                      color: AegisColors.neonGreen.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AegisColors.neonGreen.withOpacity(0.3),
+                        color: AegisColors.neonGreen.withValues(alpha: 0.3),
                         width: 1.0,
                       ),
                     ),
@@ -170,7 +170,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                           _batterySaverMode = val;
                         });
                       },
-                      activeColor: Colors.white,
+                      activeThumbColor: Colors.white,
                       activeTrackColor: AegisColors.neonGreen,
                       inactiveThumbColor: Colors.grey,
                       inactiveTrackColor: AegisColors.border1,

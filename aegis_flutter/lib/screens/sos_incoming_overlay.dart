@@ -44,14 +44,25 @@ class _SosIncomingOverlayScreenState
     final amPm = dt.hour >= 12 ? 'PM' : 'AM';
     final min = dt.minute.toString().padLeft(2, '0');
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     return '$h:$min $amPm  •  ${dt.day} ${months[dt.month - 1]} ${dt.year}';
   }
 
   String _formatLocation(double? lat, double? lng) {
     if (lat == null || lng == null) return 'Location unknown';
+    if (lat == 0.0 && lng == 0.0) return 'Location unavailable';
     final latDir = lat >= 0 ? 'N' : 'S';
     final lngDir = lng >= 0 ? 'E' : 'W';
     return '${lat.abs().toStringAsFixed(4)}° $latDir, ${lng.abs().toStringAsFixed(4)}° $lngDir';
@@ -66,19 +77,20 @@ class _SosIncomingOverlayScreenState
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(
-              color: AegisColors.sosRed.withOpacity(0.55),
+              color: AegisColors.sosRed.withValues(alpha: 0.55),
               width: 3.0,
             ),
             boxShadow: [
               BoxShadow(
-                color: AegisColors.sosRed.withOpacity(0.12),
+                color: AegisColors.sosRed.withValues(alpha: 0.12),
                 blurRadius: 20,
                 spreadRadius: 2,
               ),
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -97,9 +109,9 @@ class _SosIncomingOverlayScreenState
                           height: 100.0,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: AegisColors.sosRed.withOpacity(0.04),
+                            color: AegisColors.sosRed.withValues(alpha: 0.04),
                             border: Border.all(
-                                color: AegisColors.sosRed.withOpacity(0.12),
+                                color: AegisColors.sosRed.withValues(alpha: 0.12),
                                 width: 1.5),
                           ),
                         ),
@@ -110,9 +122,9 @@ class _SosIncomingOverlayScreenState
                         height: 74.0,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AegisColors.sosRed.withOpacity(0.08),
+                          color: AegisColors.sosRed.withValues(alpha: 0.08),
                           border: Border.all(
-                              color: AegisColors.sosRed.withOpacity(0.24),
+                              color: AegisColors.sosRed.withValues(alpha: 0.24),
                               width: 2.0),
                         ),
                       ),
@@ -243,10 +255,10 @@ class _SosIncomingOverlayScreenState
                         padding: const EdgeInsets.symmetric(
                             vertical: 10.0, horizontal: 12.0),
                         decoration: BoxDecoration(
-                          color: AegisColors.sosRed.withOpacity(0.08),
+                          color: AegisColors.sosRed.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(6.0),
                           border: Border.all(
-                              color: AegisColors.sosRed.withOpacity(0.24),
+                              color: AegisColors.sosRed.withValues(alpha: 0.24),
                               width: 1.0),
                         ),
                         child: Center(
@@ -286,7 +298,7 @@ class _SosIncomingOverlayScreenState
                       borderRadius: BorderRadius.circular(6.0),
                       boxShadow: [
                         BoxShadow(
-                          color: AegisColors.sosRed.withOpacity(0.35),
+                          color: AegisColors.sosRed.withValues(alpha: 0.35),
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
@@ -340,7 +352,9 @@ class _SosIncomingOverlayScreenState
 
                 // Expiry timer sub-tagline
                 Text(
-                  '${p.hopCount} beeps sent  •  Alert will auto-expire in 60s',
+                  p.hopCount == 0
+                      ? 'Direct signal  •  Alert will auto-expire in 60s'
+                      : '${p.hopCount} hop${p.hopCount == 1 ? '' : 's'} away  •  Alert will auto-expire in 60s',
                   style: TextStyle(
                     color: AegisColors.sosRed,
                     fontSize: 11.5,

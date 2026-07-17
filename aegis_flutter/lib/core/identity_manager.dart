@@ -32,14 +32,14 @@ class IdentityManager {
     if (pubKey is SimplePublicKey && keyPair is SimpleKeyPair) {
       final privKeyBytes = await keyPair.extractPrivateKeyBytes();
       final pubBytes = pubKey.bytes;
-      final h = List<int>.filled(4, 0);
+      final h = List<int>.filled(8, 0);
       for (int i = 0; i < pubBytes.length; i++) {
-        h[i % 4] ^= pubBytes[i];
+        h[i % 8] ^= pubBytes[i];
       }
       final code = h
           .map((b) => b.toRadixString(16).padLeft(2, '0').toUpperCase())
           .join()
-          .substring(0, 4);
+          .substring(0, 8);
       _sigId = 'SIG-$code';
       _publicKey =
           pubBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();

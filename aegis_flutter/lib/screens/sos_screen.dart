@@ -59,19 +59,36 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
 
     double lat = 0.0, lon = 0.0;
     try {
-      final pos = await Geolocator.getCurrentPosition(
-        timeLimit: const Duration(seconds: 3),
-      );
-      lat = pos.latitude;
-      lon = pos.longitude;
+      LocationPermission perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) {
+        perm = await Geolocator.requestPermission();
+      }
+      if (perm != LocationPermission.deniedForever &&
+          perm != LocationPermission.denied) {
+        try {
+          final pos = await Geolocator.getCurrentPosition(
+            timeLimit: const Duration(seconds: 8),
+          );
+          lat = pos.latitude;
+          lon = pos.longitude;
+        } catch (_) {
+          final last = await Geolocator.getLastKnownPosition();
+          if (last != null) {
+            lat = last.latitude;
+            lon = last.longitude;
+          }
+        }
+      }
     } catch (_) {}
 
     final message = _detailsController.text.trim();
-    if (message.isEmpty) {
-      sosHandler.sendSOS(latitude: lat, longitude: lon);
-    } else {
-      sosHandler.sendSOS(latitude: lat, longitude: lon, message: message);
-    }
+    final categoryLabel = _categories[_selectedCategory]['label'] as String;
+    sosHandler.sendSOS(
+      latitude: lat,
+      longitude: lon,
+      message: message.isEmpty ? 'Emergency!' : message,
+      category: categoryLabel,
+    );
 
     if (mounted) {
       showDialog(
@@ -84,7 +101,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
             children: [
               Container(
                 width: 64, height: 64,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: AegisColors.neonGreen.withOpacity(0.12)),
+                decoration: BoxDecoration(shape: BoxShape.circle, color: AegisColors.neonGreen.withValues(alpha: 0.12)),
                 child: Icon(Icons.check_circle_rounded, color: AegisColors.neonGreen, size: 36),
               ),
               SizedBox(height: 20),
@@ -100,7 +117,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
                 child: TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
                   style: TextButton.styleFrom(
-                    backgroundColor: AegisColors.neonGreen.withOpacity(0.12),
+                    backgroundColor: AegisColors.neonGreen.withValues(alpha: 0.12),
                     padding: EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -122,7 +139,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
         animation: _bgAnim,
         builder: (_, __) {
           return Container(
-            decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AegisColors.sosRed.withOpacity(_bgAnim.value * 0.04), Colors.transparent])),
+            decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AegisColors.sosRed.withValues(alpha: _bgAnim.value * 0.04), Colors.transparent])),
             child: SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
@@ -215,7 +232,7 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
             shape: BoxShape.circle,
             color: sel ? catColor : Colors.transparent,
             border: Border.all(color: sel ? catColor : AegisColors.border1, width: sel ? 2 : 1),
-            boxShadow: sel ? [BoxShadow(color: catColor.withOpacity(0.3), blurRadius: 16, spreadRadius: 3)] : null,
+            boxShadow: sel ? [BoxShadow(color: catColor.withValues(alpha: 0.3), blurRadius: 16, spreadRadius: 3)] : null,
           ),
           child: Icon(icon, color: sel ? Colors.white : AegisColors.textSecondary, size: 24),
         ),
@@ -253,10 +270,10 @@ class _SosScreenState extends ConsumerState<SosScreen> with TickerProviderStateM
         duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic,
         height: 46,
         decoration: BoxDecoration(
-          gradient: sel ? LinearGradient(colors: [color.withOpacity(0.15), color.withOpacity(0.04)]) : null,
+          gradient: sel ? LinearGradient(colors: [color.withValues(alpha: 0.15), color.withValues(alpha: 0.04)]) : null,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: sel ? color : AegisColors.border1, width: sel ? 1.5 : 1),
-          boxShadow: sel ? [BoxShadow(color: color.withOpacity(0.2), blurRadius: 12, spreadRadius: 1)] : null,
+          boxShadow: sel ? [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 12, spreadRadius: 1)] : null,
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           AnimatedContainer(

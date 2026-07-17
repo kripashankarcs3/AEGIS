@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../constants/aegis_colors.dart';
 
 class LanguageScreen extends StatefulWidget {
@@ -58,10 +59,10 @@ class _LanguageScreenState extends State<LanguageScreen> {
                           width: 56.0,
                           height: 56.0,
                           decoration: BoxDecoration(
-                            color: AegisColors.neonGreen.withOpacity(0.08),
+                            color: AegisColors.neonGreen.withValues(alpha: 0.08),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: AegisColors.neonGreen.withOpacity(0.3),
+                              color: AegisColors.neonGreen.withValues(alpha: 0.3),
                               width: 1.0,
                             ),
                           ),
@@ -181,6 +182,20 @@ class _LanguageScreenState extends State<LanguageScreen> {
               padding: const EdgeInsets.all(16.0),
               child: GestureDetector(
                 onTap: () {
+                  final box = Hive.box('settings');
+                  box.put('app_language_index', _selectedLanguageIndex);
+                  box.put(
+                    'app_language_name',
+                    _languages[_selectedLanguageIndex]['name'],
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Language set to ${_languages[_selectedLanguageIndex]['name']}',
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
                   Navigator.of(context).pop();
                 },
                 child: Container(
@@ -191,7 +206,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                     borderRadius: BorderRadius.circular(6.0),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF047857).withOpacity(0.25),
+                        color: const Color(0xFF047857).withValues(alpha: 0.25),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),

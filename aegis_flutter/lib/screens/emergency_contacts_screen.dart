@@ -134,7 +134,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
             margin: const EdgeInsets.only(right: 14),
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: AegisColors.electricBlue.withOpacity(0.1),
+              color: AegisColors.electricBlue.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: IconButton(
@@ -180,7 +180,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                         Container(
                           width: 44, height: 44,
                           decoration: BoxDecoration(
-                            color: AegisColors.electricBlue.withOpacity(0.1),
+                            color: AegisColors.electricBlue.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: Center(
@@ -208,7 +208,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                           child: Container(
                             width: 32, height: 32,
                             decoration: BoxDecoration(
-                              color: AegisColors.sosRed.withOpacity(0.08),
+                              color: AegisColors.sosRed.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(Icons.delete_outline_rounded, color: AegisColors.sosRed, size: 18),

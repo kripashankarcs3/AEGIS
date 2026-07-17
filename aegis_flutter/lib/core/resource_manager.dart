@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../models/resource_item.dart';
 import '../models/signal_packet.dart';
@@ -39,7 +40,7 @@ class ResourceManager {
       from: _selfId,
       to: 'ALL',
       type: PacketType.resource,
-      payload: item.title,
+      payload: '{"title":"${item.title}","detail":"${item.detail}","type":"${item.type.name}"}',
       ttl: 5,
       hopCount: 0,
       path: [_selfId],
@@ -54,15 +55,28 @@ class ResourceManager {
   Future<void> onIncoming(SignalPacket packet) async {
     debugPrint(
         '📦 ResourceManager.onIncoming: ${packet.from} → ${packet.payload}');
+    String title = packet.payload;
+    String detail = '';
+    ResourceType rType = ResourceType.offered;
+    try {
+      final decoded = jsonDecode(packet.payload) as Map<String, dynamic>;
+      title = decoded['title'] as String? ?? packet.payload;
+      detail = decoded['detail'] as String? ?? '';
+      rType = decoded['type'] == 'requested'
+          ? ResourceType.requested
+          : ResourceType.offered;
+    } catch (_) {
+      // Legacy plain-text payload — keep defaults
+    }
     final item = ResourceItem(
       id: packet.id,
       category: _categoryFromString(packet.category),
-      title: packet.payload,
-      detail: '',
+      title: title,
+      detail: detail,
       nodeId: packet.from,
       hops: packet.hopCount,
       timeAgo: 'just now',
-      type: ResourceType.offered,
+      type: rType,
     );
     // Avoid duplicates
     if (_resources.any((r) => r.id == item.id)) return;

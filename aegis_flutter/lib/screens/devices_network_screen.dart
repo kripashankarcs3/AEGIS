@@ -1,38 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
+import '../providers/survivor_provider.dart';
 
-class DevicesNetworkScreen extends StatefulWidget {
+class DevicesNetworkScreen extends ConsumerWidget {
   const DevicesNetworkScreen({super.key});
 
-  @override
-  State<DevicesNetworkScreen> createState() => _DevicesNetworkScreenState();
-}
-
-class _DevicesNetworkScreenState extends State<DevicesNetworkScreen> {
-  final List<Map<String, dynamic>> _knownDevices = [];
-  bool _isScanning = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadDevices();
-  }
-
-  Future<void> _loadDevices() async {
-    // In future: load from StorageService.getAllSurvivorNodeModels()
-    setState(() {
-      _knownDevices.addAll([
-        {'name': 'SIG-B2C1', 'status': 'Online', 'lastSeen': '2 min ago', 'hops': 1, 'type': 'Relay'},
-        {'name': 'SIG-8AF3', 'status': 'Online', 'lastSeen': '5 min ago', 'hops': 2, 'type': 'Node'},
-        {'name': 'SIG-C4E1', 'status': 'Away', 'lastSeen': '32 min ago', 'hops': 1, 'type': 'Node'},
-        {'name': 'SIG-9E10', 'status': 'Busy', 'lastSeen': '12 min ago', 'hops': 3, 'type': 'Node'},
-        {'name': 'SIG-1D9A', 'status': 'Offline', 'lastSeen': '2 hours ago', 'hops': 3, 'type': 'Node'},
-      ]);
-    });
+  String _formatLastSeen(int epochMs) {
+    final diff = DateTime.now().millisecondsSinceEpoch - epochMs;
+    if (diff < 60000) return 'just now';
+    if (diff < 120000) return '1 min ago';
+    if (diff < 3600000) return '${diff ~/ 60000} min ago';
+    if (diff < 7200000) return '1 hour ago';
+    return '${diff ~/ 3600000} hours ago';
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final survivors = ref.watch(survivorProvider);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final devices = survivors.values.where((n) => now - n.lastSeen <= 120000).toList();
+
     final isLight = AegisColors.isLight;
     final bg = isLight ? const Color(0xFFF8FAFC) : AegisColors.background;
     final cardBg = isLight ? Colors.white : AegisColors.cardBg;
@@ -63,14 +51,12 @@ class _DevicesNetworkScreenState extends State<DevicesNetworkScreen> {
             margin: const EdgeInsets.only(right: 14),
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: AegisColors.electricBlue.withOpacity(0.1),
+              color: AegisColors.electricBlue.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: Icon(_isScanning ? Icons.sensors_rounded : Icons.refresh_rounded, color: AegisColors.electricBlue, size: 18),
-              onPressed: () {
-                setState(() => _isScanning = !_isScanning);
-              },
+              icon: Icon(Icons.refresh_rounded, color: AegisColors.electricBlue, size: 18),
+              onPressed: () => ref.invalidate(survivorProvider),
             ),
           ),
         ],
@@ -93,9 +79,9 @@ class _DevicesNetworkScreenState extends State<DevicesNetworkScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _summaryItem('Connected', '3', AegisColors.neonGreen, textPrimary),
-                  _summaryItem('Hops Avg', '1.8', AegisColors.electricBlue, textPrimary),
-                  _summaryItem('Signal', 'Good', AegisColors.amber, textPrimary),
+                  _summaryItem('Connected', '${devices.length}', AegisColors.neonGreen, textPrimary),
+                  _summaryItem('Hops Avg', devices.isEmpty ? '0' : '${(5 - devices.map((d) => d.signalStrength).reduce((a, b) => a + b) / devices.length).clamp(1, 4).toStringAsFixed(1)}', AegisColors.electricBlue, textPrimary),
+                  _summaryItem('Signal', devices.isNotEmpty ? 'Good' : 'None', AegisColors.amber, textPrimary),
                 ],
               ),
             ),
@@ -107,21 +93,75 @@ class _DevicesNetworkScreenState extends State<DevicesNetworkScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('KNOWN DEVICES', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: textSecondary, letterSpacing: 0.5)),
-                  Text('${_knownDevices.length} total', style: TextStyle(fontSize: 11, color: textSecondary)),
+                  Text('${devices.length} total', style: TextStyle(fontSize: 11, color: textSecondary)),
                 ],
               ),
             ),
             const SizedBox(height: 8),
 
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: _knownDevices.length,
-                itemBuilder: (context, index) {
-                  final device = _knownDevices[index];
-                  return _deviceTile(device, cardBg, border, textPrimary, textSecondary, isLight);
-                },
-              ),
+              child: devices.isEmpty
+                  ? Center(
+                      child: Text('No devices found', style: TextStyle(color: textSecondary, fontSize: 14)),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: devices.length,
+                      itemBuilder: (context, index) {
+                        final node = devices[index];
+                        final isOnline = now - node.lastSeen <= 60000;
+                        final status = isOnline ? 'Online' : 'Away';
+                        final statusColor = isOnline ? AegisColors.neonGreen : AegisColors.amber;
+                        final lastSeen = _formatLastSeen(node.lastSeen);
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: cardBg,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: border),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40, height: 40,
+                                decoration: BoxDecoration(
+                                  color: statusColor.withValues(alpha: 0.12),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.hub_rounded, color: statusColor, size: 20),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(node.id, style: TextStyle(color: textPrimary, fontSize: 14, fontWeight: FontWeight.w700)),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: statusColor.withValues(alpha: 0.12),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(status, style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.w800)),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text('Last seen $lastSeen', style: TextStyle(color: textSecondary, fontSize: 11)),
+                                  ],
+                                ),
+                              ),
+                              Icon(Icons.chevron_right_rounded, color: textSecondary, size: 20),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -136,68 +176,6 @@ class _DevicesNetworkScreenState extends State<DevicesNetworkScreen> {
         const SizedBox(height: 4),
         Text(label, style: TextStyle(color: AegisColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600)),
       ],
-    );
-  }
-
-  Widget _deviceTile(Map<String, dynamic> device, Color cardBg, Color border, Color textPrimary, Color textSecondary, bool isLight) {
-    final status = device['status'] as String;
-    Color statusColor;
-    switch (status) {
-      case 'Online':
-        statusColor = AegisColors.neonGreen;
-      case 'Away':
-        statusColor = AegisColors.amber;
-      case 'Busy':
-        statusColor = AegisColors.violet;
-      default:
-        statusColor = AegisColors.textMuted;
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40, height: 40,
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.hub_rounded, color: statusColor, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(device['name'] as String, style: TextStyle(color: textPrimary, fontSize: 14, fontWeight: FontWeight.w700)),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(status, style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.w800)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text('${device['hops']} hops away • Last seen ${device['lastSeen']}', style: TextStyle(color: textSecondary, fontSize: 11)),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right_rounded, color: textSecondary, size: 20),
-        ],
-      ),
     );
   }
 }

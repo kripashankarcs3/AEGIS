@@ -91,10 +91,10 @@ class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: AegisColors.neonGreen.withOpacity(0.08),
+              color: AegisColors.neonGreen.withValues(alpha: 0.08),
               shape: BoxShape.circle,
               border: Border.all(
-                  color: AegisColors.neonGreen.withOpacity(0.15), width: 1),
+                  color: AegisColors.neonGreen.withValues(alpha: 0.15), width: 1),
             ),
             child: Center(
               child: Icon(Icons.shield_outlined,
@@ -121,10 +121,10 @@ class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AegisColors.neonGreen.withOpacity(0.08),
+                        color: AegisColors.neonGreen.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                            color: AegisColors.neonGreen.withOpacity(0.2),
+                            color: AegisColors.neonGreen.withValues(alpha: 0.2),
                             width: 0.5),
                       ),
                       child: Text(
@@ -318,6 +318,13 @@ class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
   }
 
   Widget _historySection() {
+    final peers = ref.watch(survivorProvider);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final recentPeers = peers.values
+        .where((n) => now - n.lastSeen <= 120000)
+        .toList()
+      ..sort((a, b) => b.lastSeen.compareTo(a.lastSeen));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -343,16 +350,6 @@ class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
                 ),
               ],
             ),
-            Text(
-              'View all',
-              style: TextStyle(
-                color: AegisColors.isLight
-                    ? const Color(0xFF6D28D9)
-                    : AegisColors.violet,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -363,45 +360,59 @@ class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
             border: Border.all(color: AegisColors.border1, width: 0.5),
             boxShadow: AegisColors.cardShadow,
           ),
-          child: Column(
-            children: [
-              _logRow(
-                icon: Icons.sensors_rounded,
-                iconColor: AegisColors.neonGreen,
-                title: 'Status from SIG-8AF3',
-                subtitle: 'Online',
-                time: 'Just now',
-              ),
-              _divider(),
-              _logRow(
-                icon: Icons.warning_amber_rounded,
-                iconColor: AegisColors.sosRed,
-                title: 'SOS from SIG-1D9A',
-                subtitle: 'Needs medical assistance',
-                time: '5 min ago',
-                isAlert: true,
-              ),
-              _divider(),
-              _logRow(
-                icon: Icons.library_books_rounded,
-                iconColor: const Color(0xFF8B5CF6),
-                title: 'Resource from SIG-C4E1',
-                subtitle: 'Relayed item: Water',
-                time: '7 min ago',
-              ),
-              _divider(),
-              _logRow(
-                icon: Icons.sensors_rounded,
-                iconColor: AegisColors.neonGreen,
-                title: 'SIG-4D2F joined the network',
-                subtitle: '',
-                time: '8 min ago',
-              ),
-            ],
-          ),
+          child: recentPeers.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  child: Center(
+                    child: Text(
+                      'No history yet',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AegisColors.textMuted,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                )
+              : Column(
+                  children: [
+                    for (int i = 0; i < recentPeers.length; i++) ...[
+                      if (i > 0) _divider(),
+                      _buildHistoryFromPeer(recentPeers[i]),
+                    ],
+                  ],
+                ),
         ),
       ],
     );
+  }
+
+  Widget _buildHistoryFromPeer(SurvivorNodeModel peer) {
+    final (status, iconColor, icon) = _resolveHistory(peer.status);
+    final time = _formatTime(peer.lastSeen);
+    return _logRow(
+      icon: icon,
+      iconColor: iconColor,
+      title: '${peer.id} — $status',
+      subtitle: peer.message.isNotEmpty ? peer.message : '',
+      time: time,
+      isAlert: peer.status == 'need_help',
+    );
+  }
+
+  (String, Color, IconData) _resolveHistory(String status) {
+    switch (status) {
+      case 'safe':
+        return ('Online', AegisColors.neonGreen, Icons.sensors_rounded);
+      case 'need_help':
+        return ('SOS', AegisColors.sosRed, Icons.warning_amber_rounded);
+      case 'have_resources':
+        return ('Resources', const Color(0xFF8B5CF6), Icons.library_books_rounded);
+      case 'busy':
+        return ('Busy', AegisColors.orange, Icons.brightness_1_rounded);
+      default:
+        return (status, AegisColors.textSecondary, Icons.sensors_rounded);
+    }
   }
 
   Widget _logRow({
@@ -421,9 +432,9 @@ class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.08),
+              color: iconColor.withValues(alpha: 0.08),
               shape: BoxShape.circle,
-              border: Border.all(color: iconColor.withOpacity(0.15), width: 1),
+              border: Border.all(color: iconColor.withValues(alpha: 0.15), width: 1),
             ),
             child: Center(
               child: Icon(icon, color: iconColor, size: 16),
@@ -476,7 +487,7 @@ class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 18),
       height: 0.5,
-      color: AegisColors.border1.withOpacity(0.5),
+      color: AegisColors.border1.withValues(alpha: 0.5),
     );
   }
 }

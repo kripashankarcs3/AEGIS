@@ -45,7 +45,7 @@ class _PulseDotState extends State<PulseDot> with SingleTickerProviderStateMixin
   late Animation<double> _a;
   @override void initState() { super.initState(); _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200)); if (widget.animate) _c.repeat(reverse: true); else _c.value = 1.0; _a = Tween<double>(begin: 0.3, end: 1.0).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOutSine)); }
   @override void dispose() { _c.dispose(); super.dispose(); }
-  @override Widget build(BuildContext context) => AnimatedBuilder(animation: _a, builder: (_, child) => Transform.scale(scale: _a.value, child: Container(width: widget.size, height: widget.size, decoration: BoxDecoration(color: widget.color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: widget.color.withOpacity(0.5 * _a.value), blurRadius: 8, spreadRadius: 2)]))));
+  @override Widget build(BuildContext context) => AnimatedBuilder(animation: _a, builder: (_, child) => Transform.scale(scale: _a.value, child: Container(width: widget.size, height: widget.size, decoration: BoxDecoration(color: widget.color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: widget.color.withValues(alpha: 0.5 * _a.value), blurRadius: 8, spreadRadius: 2)]))));
 }
 
 class StaggeredFadeIn extends StatefulWidget {
@@ -66,7 +66,7 @@ class RadarSweepPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final c = Offset(size.width / 2, size.height / 2); final r = min(size.width, size.height) / 2;
-    final p = Paint()..shader = SweepGradient(center: Alignment.center, startAngle: progress.value, endAngle: progress.value + sweepAngle, colors: [AegisColors.electricCyan.withOpacity(0), AegisColors.electricCyan.withOpacity(0.12), AegisColors.electricBlue.withOpacity(0.06), AegisColors.electricCyan.withOpacity(0)]).createShader(Rect.fromCircle(center: c, radius: r));
+    final p = Paint()..shader = SweepGradient(center: Alignment.center, startAngle: progress.value, endAngle: progress.value + sweepAngle, colors: [AegisColors.electricCyan.withValues(alpha: 0), AegisColors.electricCyan.withValues(alpha: 0.12), AegisColors.electricBlue.withValues(alpha: 0.06), AegisColors.electricCyan.withValues(alpha: 0)]).createShader(Rect.fromCircle(center: c, radius: r));
     canvas.drawArc(Rect.fromCircle(center: c, radius: r), progress.value, sweepAngle, true, p);
   }
   @override bool shouldRepaint(covariant RadarSweepPainter old) => true;
@@ -87,7 +87,7 @@ class _AnimatedRadarSweepWidgetState extends State<AnimatedRadarSweepWidget> wit
 class GlowContainer extends StatelessWidget {
   final Widget child; final Color color; final double blur; final double spread;
   const GlowContainer({super.key, required this.child, required this.color, this.blur = 20, this.spread = 2});
-  @override Widget build(BuildContext context) => Container(decoration: BoxDecoration(boxShadow: [BoxShadow(color: color.withOpacity(0.3), blurRadius: blur, spreadRadius: spread), BoxShadow(color: color.withOpacity(0.1), blurRadius: blur * 2, spreadRadius: spread * 0.5)]), child: child);
+  @override Widget build(BuildContext context) => Container(decoration: BoxDecoration(boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: blur, spreadRadius: spread), BoxShadow(color: color.withValues(alpha: 0.1), blurRadius: blur * 2, spreadRadius: spread * 0.5)]), child: child);
 }
 
 class GlassCard extends StatelessWidget {
@@ -102,7 +102,7 @@ class ScanningLinesPainter extends CustomPainter {
   ScanningLinesPainter({this.progress = 0.0});
   @override
   void paint(Canvas canvas, Size size) {
-    final p = Paint()..shader = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, AegisColors.neonGreen.withOpacity(0.06), Colors.transparent], stops: [(progress - 0.08).clamp(0.0, 1.0), progress.clamp(0.0, 1.0), (progress + 0.08).clamp(0.0, 1.0)]).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    final p = Paint()..shader = LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, AegisColors.neonGreen.withValues(alpha: 0.06), Colors.transparent], stops: [(progress - 0.08).clamp(0.0, 1.0), progress.clamp(0.0, 1.0), (progress + 0.08).clamp(0.0, 1.0)]).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), p);
   }
   @override bool shouldRepaint(covariant ScanningLinesPainter old) => old.progress != progress;
@@ -111,7 +111,7 @@ class ScanningLinesPainter extends CustomPainter {
 class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final p = Paint()..color = AegisColors.border1.withOpacity(0.12)..strokeWidth = 0.3;
+    final p = Paint()..color = AegisColors.border1.withValues(alpha: 0.12)..strokeWidth = 0.3;
     const step = 24.0;
     for (double x = 0; x <= size.width; x += step) canvas.drawLine(Offset(x, 0), Offset(x, size.height), p);
     for (double y = 0; y <= size.height; y += step) canvas.drawLine(Offset(0, y), Offset(size.width, y), p);

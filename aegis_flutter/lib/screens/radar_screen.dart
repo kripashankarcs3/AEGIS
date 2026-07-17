@@ -4,19 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
 import '../constants/aegis_animations.dart';
-import '../models/signal_packet.dart';
 import '../models/survivor_node.dart';
 import '../models/survivor_node_model.dart';
 import '../widgets/radar_painter.dart';
 import '../widgets/mesh_stats_bar.dart';
+import '../widgets/node_popup_card.dart';
 import '../providers/theme_provider.dart';
 import '../providers/mesh_provider.dart';
 import '../providers/survivor_provider.dart';
 import '../providers/identity_provider.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
-import 'sos_incoming_overlay.dart';
-import '../widgets/node_popup_card.dart';
 import 'chat_conversation_screen.dart';
 
 class RadarScreen extends ConsumerStatefulWidget {
@@ -59,6 +57,8 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
       String myId, Map<String, SurvivorNodeModel> survivors) {
     final nodes = <SurvivorNode>[];
     final rng = Random(myId.hashCode);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    const staleThreshold = 120000; // 2 minutes
 
     // User at center
     nodes.add(SurvivorNode(
@@ -70,8 +70,10 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
       dy: 0.0,
     ));
 
-    // Peers distributed radially
-    final peers = survivors.values.where((n) => n.id != myId).toList();
+    // Only show peers seen within the last 2 minutes
+    final peers = survivors.values
+        .where((n) => n.id != myId && now - n.lastSeen <= staleThreshold)
+        .toList();
     for (int i = 0; i < peers.length; i++) {
       final angle = (2 * pi * i) / peers.length + rng.nextDouble() * 0.15;
       final dist = 0.35 + rng.nextDouble() * 0.4;
@@ -230,7 +232,7 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
           border: Border.all(
               color: AegisColors.isLight
                   ? const Color(0xFFDDD6FE)
-                  : AegisColors.violet.withOpacity(0.15),
+                  : AegisColors.violet.withValues(alpha: 0.15),
               width: 1.5),
         ),
         child: const Center(
@@ -258,11 +260,11 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: AegisColors.neonGreen.withOpacity(0.3 + 0.7 * _dotBlinkController.value),
+                  color: AegisColors.neonGreen.withValues(alpha: 0.3 + 0.7 * _dotBlinkController.value),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AegisColors.neonGreen.withOpacity(0.2 * _dotBlinkController.value),
+                      color: AegisColors.neonGreen.withValues(alpha: 0.2 * _dotBlinkController.value),
                       blurRadius: 6,
                       spreadRadius: 1,
                     ),
@@ -284,10 +286,10 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: AegisColors.electricBlue.withOpacity(0.08),
+            color: AegisColors.electricBlue.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-                color: AegisColors.electricBlue.withOpacity(0.2), width: 0.5),
+                color: AegisColors.electricBlue.withValues(alpha: 0.2), width: 0.5),
           ),
           child: Text(
             '$peerCount Nodes',
@@ -350,7 +352,7 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              AegisColors.neonGreen.withOpacity(0.5 + 0.3 * sin(_pulseAnimation.value * pi * 2)),
+                              AegisColors.neonGreen.withValues(alpha: 0.5 + 0.3 * sin(_pulseAnimation.value * pi * 2)),
                             ),
                           ),
                         ),
@@ -360,7 +362,7 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: AegisColors.textSecondary.withOpacity(0.6 + 0.4 * sin(_pulseAnimation.value * pi * 2)),
+                            color: AegisColors.textSecondary.withValues(alpha: 0.6 + 0.4 * sin(_pulseAnimation.value * pi * 2)),
                           ),
                         ),
                       ],
@@ -381,21 +383,20 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                     onTap: () {
                       if (node.isUser) return;
                       if (isSos) {
-                        final dummyPacket = SignalPacket(
-                          id:
-                              DateTime.now().millisecondsSinceEpoch.toString(),
-                          from: node.id,
-                          to: 'broadcast',
-                          type: PacketType.sos,
-                          payload: 'Emergency assistance needed!',
-                          ttl: 5,
-                          hopCount: node.hops,
-                          path: [node.id],
-                          timestamp: DateTime.now(),
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          isScrollControlled: true,
+                          builder: (_) => NodePopupCard(
+                            nodeId: node.id,
+                            onOpenChat: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (_) => ChatConversationScreen(
+                                      nodeId: node.id)));
+                            },
+                          ),
                         );
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => SosIncomingOverlayScreen(
-                                packet: dummyPacket)));
                       } else {
                         showModalBottomSheet(
                           context: context,
@@ -431,19 +432,19 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                                       ? AegisColors.primaryGradient
                                       : LinearGradient(colors: [
                                           node.color,
-                                          node.color.withOpacity(0.8)
+                                          node.color.withValues(alpha: 0.8)
                                         ]),
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: isSos
-                                        ? AegisColors.sosRed.withOpacity(0.5 + 0.5 * sosPulse)
-                                        : Colors.white.withOpacity(0.9),
+                                        ? AegisColors.sosRed.withValues(alpha: 0.5 + 0.5 * sosPulse)
+                                        : Colors.white.withValues(alpha: 0.9),
                                     width: node.isUser ? 2.5 : (isSos ? 2.0 + sosPulse : 1.5),
                                   ),
                                   boxShadow: isSos
                                       ? [
                                           BoxShadow(
-                                            color: AegisColors.sosRed.withOpacity(0.2 + 0.4 * sosPulse),
+                                            color: AegisColors.sosRed.withValues(alpha: 0.2 + 0.4 * sosPulse),
                                             blurRadius: 12 + 12 * sosPulse,
                                             spreadRadius: 3 + 5 * sosPulse,
                                           ),
@@ -451,8 +452,8 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                                       : [
                                           BoxShadow(
                                             color: node.isUser
-                                                ? AegisColors.electricBlue.withOpacity(0.3 + 0.2 * sin(_pulseAnimation.value * pi * 2))
-                                                : node.color.withOpacity(0.25),
+                                                ? AegisColors.electricBlue.withValues(alpha: 0.3 + 0.2 * sin(_pulseAnimation.value * pi * 2))
+                                                : node.color.withValues(alpha: 0.25),
                                             blurRadius: node.isUser ? 10 + 6 * sin(_pulseAnimation.value * pi * 2) : 8,
                                             spreadRadius: node.isUser ? 2 + 2 * sin(_pulseAnimation.value * pi * 2) : 1,
                                           ),
@@ -606,7 +607,7 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 15),
@@ -648,10 +649,10 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: AegisColors.sosRed.withOpacity(0.1),
+                  color: AegisColors.sosRed.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                   border: Border.all(
-                      color: AegisColors.sosRed.withOpacity(0.2), width: 1),
+                      color: AegisColors.sosRed.withValues(alpha: 0.2), width: 1),
                 ),
                 child: Icon(Icons.wifi_off_rounded,
                     color: AegisColors.sosRed, size: 26),
@@ -705,7 +706,7 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                  color: c.withOpacity(0.4), blurRadius: 6, spreadRadius: 1)
+                  color: c.withValues(alpha: 0.4), blurRadius: 6, spreadRadius: 1)
             ],
           ),
         ),

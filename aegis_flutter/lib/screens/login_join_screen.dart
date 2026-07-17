@@ -260,7 +260,7 @@ colors: [
                           label: 'Continue with Phone',
                           icon: Icons.phone_outlined,
                           glowBreathe: _glowBreatheController,
-                          onTap: () => _navigateToMainShell(context),
+                          onTap: () => _continueWithPhone(context),
                         ),
                       ),
                     ),
@@ -371,6 +371,10 @@ colors: [
       (route) => false,
     );
   }
+
+  void _continueWithPhone(BuildContext context) {
+    _navigateToMainShell(context);
+  }
 }
 
 class FuturisticGradientButton extends StatefulWidget {
@@ -443,7 +447,7 @@ class _FuturisticGradientButtonState extends State<FuturisticGradientButton> wit
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF256DFF).withOpacity(0.24 * breatheScale),
+                    color: const Color(0xFF256DFF).withValues(alpha: 0.24 * breatheScale),
                     blurRadius: 55.0 * breatheScale,
                     spreadRadius: 1.0,
                   ),
@@ -462,9 +466,9 @@ class _FuturisticGradientButtonState extends State<FuturisticGradientButton> wit
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            Colors.white.withOpacity(0.0),
-                            Colors.white.withOpacity(0.35),
-                            Colors.white.withOpacity(0.0),
+                            Colors.white.withValues(alpha: 0.0),
+                            Colors.white.withValues(alpha: 0.35),
+                            Colors.white.withValues(alpha: 0.0),
                           ],
                         ),
                       ),
@@ -575,7 +579,7 @@ class _FuturisticGlassButtonState extends State<FuturisticGlassButton> with Sing
                   boxShadow: widget.hasGlow
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF256DFF).withOpacity(_isHovered ? 0.08 : 0.05), // soft glow
+                            color: const Color(0xFF256DFF).withValues(alpha: _isHovered ? 0.08 : 0.05), // soft glow
                             blurRadius: 25.0,
                             spreadRadius: 1.0,
                           ),

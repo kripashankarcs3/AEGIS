@@ -176,10 +176,10 @@ class IdentityScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: AegisColors.neonGreen.withOpacity(0.08),
+                            color: AegisColors.neonGreen.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                                color: AegisColors.neonGreen.withOpacity(0.2),
+                                color: AegisColors.neonGreen.withValues(alpha: 0.2),
                                 width: 0.5),
                           ),
                           child: Text(
@@ -210,7 +210,7 @@ class IdentityScreen extends ConsumerWidget {
           const SizedBox(height: 20),
           Container(
             height: 0.5,
-            color: AegisColors.border1.withOpacity(0.5),
+            color: AegisColors.border1.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Row(
@@ -489,7 +489,7 @@ class IdentityScreen extends ConsumerWidget {
         border: Border.all(
           color: AegisColors.isLight
               ? const Color(0xFFDDD6FE)
-              : AegisColors.violet.withOpacity(0.15),
+              : AegisColors.violet.withValues(alpha: 0.15),
           width: 0.5,
         ),
       ),
@@ -523,7 +523,7 @@ class IdentityScreen extends ConsumerWidget {
                   'Your SIG-ID is derived from your public key. It is your unique identity in the mesh network.',
                   style: TextStyle(
                     color: AegisColors.isLight
-                        ? const Color(0xFF6D28D9).withOpacity(0.85)
+                        ? const Color(0xFF6D28D9).withValues(alpha: 0.85)
                         : AegisColors.textSecondary,
                     fontSize: 12,
                     height: 1.4,
@@ -542,7 +542,7 @@ class IdentityScreen extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 18),
       height: 0.5,
-      color: AegisColors.border1.withOpacity(0.5),
+      color: AegisColors.border1.withValues(alpha: 0.5),
     );
   }
 }

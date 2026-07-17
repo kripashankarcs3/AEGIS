@@ -45,8 +45,8 @@ class AegisColorsLight {
 
   // Shadows
   static List<BoxShadow> glow({Color color = electricBlue, double radius = 20, double spread = 2}) => [
-    BoxShadow(color: color.withOpacity(0.2), blurRadius: radius, spreadRadius: spread),
-    BoxShadow(color: color.withOpacity(0.1), blurRadius: radius * 2, spreadRadius: spread * 0.5),
+    BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: radius, spreadRadius: spread),
+    BoxShadow(color: color.withValues(alpha: 0.1), blurRadius: radius * 2, spreadRadius: spread * 0.5),
   ];
 
   static List<BoxShadow> get glowBlue => glow(color: electricBlue);
@@ -55,13 +55,13 @@ class AegisColorsLight {
   static List<BoxShadow> get glowPurple => glow(color: violet, radius: 24);
 
   static List<BoxShadow> get cardShadow => [
-    BoxShadow(color: Color(0xFF0F172A).withOpacity(0.08), blurRadius: 24, offset: const Offset(0, 8), spreadRadius: -4),
-    BoxShadow(color: Color(0xFF0F172A).withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4)),
+    BoxShadow(color: Color(0xFF0F172A).withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 8), spreadRadius: -4),
+    BoxShadow(color: Color(0xFF0F172A).withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4)),
   ];
 
   static List<BoxShadow> get cardShadowElevated => [
-    BoxShadow(color: Color(0xFF0F172A).withOpacity(0.1), blurRadius: 32, offset: const Offset(0, 12), spreadRadius: -8),
-    BoxShadow(color: Color(0xFF0088FF).withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 6)),
+    BoxShadow(color: Color(0xFF0F172A).withValues(alpha: 0.1), blurRadius: 32, offset: const Offset(0, 12), spreadRadius: -8),
+    BoxShadow(color: Color(0xFF0088FF).withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 6)),
   ];
 
   // Gradients

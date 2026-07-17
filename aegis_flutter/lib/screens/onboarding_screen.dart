@@ -276,7 +276,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                                         style: TextStyle(
                                           fontSize: 42.0,
                                           fontWeight: FontWeight.w800,
-                                          color: Colors.white.withOpacity(0.2),
+                                          color: Colors.white.withValues(alpha: 0.2),
                                           fontFamily: 'SF Pro Display',
                                           letterSpacing: 0.5,
                                         ),
@@ -457,7 +457,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF256DFF).withOpacity(0.12),
+            color: const Color(0xFF256DFF).withValues(alpha: 0.12),
             blurRadius: 40.0,
             spreadRadius: -2.0,
           ),
@@ -507,12 +507,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
               color: AegisColors.surface0,
               shape: BoxShape.circle,
               border: Border.all(
-                color: const Color(0xFF7B3EFF).withOpacity(0.5), // Purple outline
+                color: const Color(0xFF7B3EFF).withValues(alpha: 0.5), // Purple outline
                 width: 1.2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF7B3EFF).withOpacity(0.2),
+                  color: const Color(0xFF7B3EFF).withValues(alpha: 0.2),
                   blurRadius: 10.0,
                 ),
               ],
@@ -718,15 +718,15 @@ class _FuturisticOrbitalGraphicState extends State<FuturisticOrbitalGraphic> wit
               width: 52.0,
               height: 52.0,
               decoration: BoxDecoration(
-                color: const Color(0xFF09111F).withOpacity(0.85), // Glass card container
+                color: const Color(0xFF09111F).withValues(alpha: 0.85), // Glass card container
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: const Color(0xFF256DFF).withOpacity(0.4),
+                  color: const Color(0xFF256DFF).withValues(alpha: 0.4),
                   width: 1.2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF256DFF).withOpacity(0.20 * widget.glowScaleValue),
+                    color: const Color(0xFF256DFF).withValues(alpha: 0.20 * widget.glowScaleValue),
                     blurRadius: 14.0 * widget.glowScaleValue,
                     spreadRadius: 1.0,
                   ),
@@ -782,7 +782,7 @@ class OrbitalBackdropPainter extends CustomPainter {
         ).createShader(rect)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.2
-        ..color = const Color(0xFF256DFF).withOpacity(0.12);
+        ..color = const Color(0xFF256DFF).withValues(alpha: 0.12);
       
       canvas.drawOval(rect, ringPaint);
     }
@@ -791,7 +791,7 @@ class OrbitalBackdropPainter extends CustomPainter {
     if (nodePositions.length < 6) return;
 
     final linePaint = Paint()
-      ..color = const Color(0xFF256DFF).withOpacity(0.35)
+      ..color = const Color(0xFF256DFF).withValues(alpha: 0.35)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
 
@@ -827,7 +827,7 @@ class OrbitalBackdropPainter extends CustomPainter {
             ..style = PaintingStyle.fill;
           
           final glowPaint = Paint()
-            ..color = const Color(0xFF27D8FF).withOpacity(0.6)
+            ..color = const Color(0xFF27D8FF).withValues(alpha: 0.6)
             ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5.0);
           
           canvas.drawCircle(tangent.position, 6.0, glowPaint);
@@ -940,7 +940,7 @@ class _FuturisticButtonState extends State<FuturisticButton> with TickerProvider
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF256DFF).withOpacity(0.25 * glowScale),
+                        color: const Color(0xFF256DFF).withValues(alpha: 0.25 * glowScale),
                                         blurRadius: 30.0 * glowScale,
                         spreadRadius: 1.0,
                       ),
@@ -958,9 +958,9 @@ class _FuturisticButtonState extends State<FuturisticButton> with TickerProvider
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.35),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(alpha: 0.0),
+                                Colors.white.withValues(alpha: 0.35),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
                             ),
                           ),

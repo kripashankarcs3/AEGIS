@@ -91,12 +91,12 @@ class _SosBroadcastCardState extends State<SosBroadcastCard>
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
                 color:
-                    AegisColors.sosRed.withOpacity(0.2 + 0.15 * _glowA.value),
+                    AegisColors.sosRed.withValues(alpha: 0.2 + 0.15 * _glowA.value),
                 width: 1),
             boxShadow: [
               BoxShadow(
                   color: AegisColors.sosRed
-                      .withOpacity(0.04 + 0.06 * _glowA.value),
+                      .withValues(alpha: 0.04 + 0.06 * _glowA.value),
                   blurRadius: 32,
                   spreadRadius: 8)
             ],
@@ -107,10 +107,10 @@ class _SosBroadcastCardState extends State<SosBroadcastCard>
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                      color: AegisColors.sosRed.withOpacity(0.15),
+                      color: AegisColors.sosRed.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                       border: Border.all(
-                          color: AegisColors.sosRed.withOpacity(0.25),
+                          color: AegisColors.sosRed.withValues(alpha: 0.25),
                           width: 1)),
                   child: const Center(
                       child: Icon(Icons.campaign_rounded,
@@ -148,12 +148,12 @@ class _SosBroadcastCardState extends State<SosBroadcastCard>
                         shape: BoxShape.circle,
                         border: Border.all(
                             color: AegisColors.sosRed
-                                .withOpacity(_glowA.value * 0.5),
+                                .withValues(alpha: _glowA.value * 0.5),
                             width: 4),
                         boxShadow: [
                           BoxShadow(
                               color: AegisColors.sosRed
-                                  .withOpacity(0.1 + 0.1 * _glowA.value),
+                                  .withValues(alpha: 0.1 + 0.1 * _glowA.value),
                               blurRadius: 40,
                               spreadRadius: 4)
                         ])),
@@ -164,7 +164,7 @@ class _SosBroadcastCardState extends State<SosBroadcastCard>
                         value: _holdProgress,
                         strokeWidth: 4,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            AegisColors.sosRed.withOpacity(0.6)),
+                            AegisColors.sosRed.withValues(alpha: 0.6)),
                         backgroundColor: Colors.transparent)),
                 Container(
                   width: 128,
@@ -176,7 +176,7 @@ class _SosBroadcastCardState extends State<SosBroadcastCard>
                           stops: [0.6, 1.0]),
                       boxShadow: [
                         BoxShadow(
-                            color: AegisColors.sosRed.withOpacity(0.3),
+                            color: AegisColors.sosRed.withValues(alpha: 0.3),
                             blurRadius: 24,
                             spreadRadius: 4)
                       ]),
@@ -186,7 +186,7 @@ class _SosBroadcastCardState extends State<SosBroadcastCard>
                         Text('HOLD TO\nSEND',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.8,
@@ -207,10 +207,10 @@ class _SosBroadcastCardState extends State<SosBroadcastCard>
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                   color: AegisColors.sosRed
-                      .withOpacity(AegisColors.isLight ? 0.04 : 0.08),
+                      .withValues(alpha: AegisColors.isLight ? 0.04 : 0.08),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                      color: AegisColors.sosRed.withOpacity(0.15), width: 0.5)),
+                      color: AegisColors.sosRed.withValues(alpha: 0.15), width: 0.5)),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Icon(Icons.lock_outline_rounded,
                     color: AegisColors.textSecondary, size: 13),

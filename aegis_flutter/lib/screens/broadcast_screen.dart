@@ -16,6 +16,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
   int _selectedAudience = 1;
   int _selectedPriority = 2;
   final TextEditingController _messageController = TextEditingController();
+  int _charCount = 0;
 
   final List<Map<String, String>> _audiences = [
     {'title': 'Everyone', 'sub': 'All nodes in range'},
@@ -24,6 +25,16 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
     {'title': 'Rescue Teams', 'sub': 'Only rescue nodes'},
     {'title': 'Shelter Leaders', 'sub': 'Only shelter nodes'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _messageController.addListener(() {
+      setState(() {
+        _charCount = _messageController.text.length;
+      });
+    });
+  }
 
   @override
   void dispose() {
@@ -46,8 +57,8 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
     final packet = SignalPacket(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       from: sigId,
-      to: 'broadcast',
-      type: PacketType.status,
+      to: 'ALL',
+      type: PacketType.chat,
       payload: message,
       ttl: 8,
       hopCount: 0,
@@ -103,7 +114,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF1E1B4B),
                     borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: AegisColors.violet.withOpacity(0.3), width: 1.0),
+                    border: Border.all(color: AegisColors.violet.withValues(alpha: 0.3), width: 1.0),
                   ),
                   child: Row(
                     children: [
@@ -136,7 +147,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
                         width: 38.0,
                         height: 38.0,
                         decoration: BoxDecoration(
-                          color: AegisColors.violet.withOpacity(0.2),
+                          color: AegisColors.violet.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -212,7 +223,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
                         ),
                       ),
                       Text(
-                        '62/200',
+                        '$_charCount/200',
                         style: TextStyle(color: AegisColors.textMuted, fontSize: 10.0),
                       ),
                     ],
@@ -247,7 +258,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
                     borderRadius: BorderRadius.circular(6.0),
                     boxShadow: [
                       BoxShadow(
-                        color: AegisColors.violet.withOpacity(0.3),
+                        color: AegisColors.violet.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -378,7 +389,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
           ),
           height: 38.0,
           decoration: BoxDecoration(
-            color: isSelected ? AegisColors.sosRed.withOpacity(0.08) : Colors.transparent,
+            color: isSelected ? AegisColors.sosRed.withValues(alpha: 0.08) : Colors.transparent,
             borderRadius: BorderRadius.circular(6.0),
             border: Border.all(color: strokeColor, width: 1.2),
           ),

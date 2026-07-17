@@ -27,8 +27,8 @@ class NetworkScanPainter extends CustomPainter {
     final g = Paint()
       ..shader = RadialGradient(
         colors: [
-          AegisColors.electricBlue.withOpacity(0.04 + 0.02 * sin(pulseValue * pi * 2)),
-          AegisColors.violet.withOpacity(0.02 * sin(pulseValue * pi * 2 + 1)),
+          AegisColors.electricBlue.withValues(alpha: 0.04 + 0.02 * sin(pulseValue * pi * 2)),
+          AegisColors.violet.withValues(alpha: 0.02 * sin(pulseValue * pi * 2 + 1)),
           Colors.transparent,
         ],
         stops: [0.2, 0.6, 1.0],
@@ -40,7 +40,7 @@ class NetworkScanPainter extends CustomPainter {
     for (int i = 0; i < 3; i++) {
       final r = maxR * (0.33 * (i + 1));
       final p = Paint()
-        ..color = AegisColors.electricBlue.withOpacity(0.06 + 0.03 * sin(pulseValue * pi * 2 + i * 1.5))
+        ..color = AegisColors.electricBlue.withValues(alpha: 0.06 + 0.03 * sin(pulseValue * pi * 2 + i * 1.5))
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.2 - i * 0.3;
       canvas.drawCircle(c, r, p);
@@ -56,16 +56,16 @@ class NetworkScanPainter extends CustomPainter {
         endAngle: angle + 0.4,
         colors: [
           Colors.transparent,
-          AegisColors.electricBlue.withOpacity(0.12),
-          AegisColors.violet.withOpacity(0.18),
-          AegisColors.electricBlue.withOpacity(0.12),
+          AegisColors.electricBlue.withValues(alpha: 0.12),
+          AegisColors.violet.withValues(alpha: 0.18),
+          AegisColors.electricBlue.withValues(alpha: 0.12),
           Colors.transparent,
         ],
       ).createShader(Rect.fromCircle(center: c, radius: maxR));
     canvas.drawCircle(c, maxR, sweepPaint);
 
     final linePaint = Paint()
-      ..color = AegisColors.electricBlue.withOpacity(0.15 + 0.08 * sin(pulseValue * pi * 2))
+      ..color = AegisColors.electricBlue.withValues(alpha: 0.15 + 0.08 * sin(pulseValue * pi * 2))
       ..strokeWidth = 2.0
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3);
     canvas.drawLine(c, Offset(c.dx + cos(angle) * maxR, c.dy + sin(angle) * maxR), linePaint);
@@ -78,8 +78,8 @@ class NetworkScanPainter extends CustomPainter {
       final d = 0.4 + 0.2 * sin(pulseValue * pi * 2 + i * 2);
       final pos = Offset(c.dx + cos(a) * maxR * d, c.dy + sin(a) * maxR * d);
       final dotPulse = 0.5 + 0.5 * sin(pulseValue * pi * 2 + i * 3);
-      canvas.drawCircle(pos, 3 + dotPulse * 2, Paint()..color = AegisColors.neonGreen.withOpacity(0.3 + 0.7 * dotPulse));
-      canvas.drawCircle(pos, 5 + dotPulse * 3, Paint()..color = AegisColors.neonGreen.withOpacity(0.1 * dotPulse)..maskFilter = MaskFilter.blur(BlurStyle.normal, 4));
+      canvas.drawCircle(pos, 3 + dotPulse * 2, Paint()..color = AegisColors.neonGreen.withValues(alpha: 0.3 + 0.7 * dotPulse));
+      canvas.drawCircle(pos, 5 + dotPulse * 3, Paint()..color = AegisColors.neonGreen.withValues(alpha: 0.1 * dotPulse)..maskFilter = MaskFilter.blur(BlurStyle.normal, 4));
     }
   }
 
@@ -155,7 +155,7 @@ class _NetworkScanScreenState extends ConsumerState<NetworkScanScreen>
                   peers.isEmpty ? 'Searching for nearby AEGIS devices...' : '${peers.length} device${peers.length == 1 ? '' : 's'} found',
                   style: TextStyle(
                     fontSize: 13,
-                    color: AegisColors.textSecondary.withOpacity(0.6 + 0.4 * sin(_pulseAnimation.value * pi * 2)),
+                    color: AegisColors.textSecondary.withValues(alpha: 0.6 + 0.4 * sin(_pulseAnimation.value * pi * 2)),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -209,7 +209,7 @@ class _NetworkScanScreenState extends ConsumerState<NetworkScanScreen>
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: AegisColors.neonGreen.withOpacity(0.15),
+                                color: AegisColors.neonGreen.withValues(alpha: 0.15),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(Icons.sensors_rounded, color: AegisColors.neonGreen, size: 16),
@@ -234,7 +234,7 @@ class _NetworkScanScreenState extends ConsumerState<NetworkScanScreen>
                               decoration: BoxDecoration(
                                 color: AegisColors.neonGreen,
                                 shape: BoxShape.circle,
-                                boxShadow: [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.5), blurRadius: 6)],
+                                boxShadow: [BoxShadow(color: AegisColors.neonGreen.withValues(alpha: 0.5), blurRadius: 6)],
                               ),
                             ),
                           ],
@@ -264,7 +264,7 @@ class _NetworkScanScreenState extends ConsumerState<NetworkScanScreen>
           decoration: BoxDecoration(
             gradient: AegisColors.primaryGradient,
             borderRadius: BorderRadius.circular(14),
-            boxShadow: [BoxShadow(color: AegisColors.electricBlue.withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6))],
+            boxShadow: [BoxShadow(color: AegisColors.electricBlue.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -10,6 +10,11 @@ class MeshStatsBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final peerCount = ref.watch(meshPeerCountProvider);
     final packetsRelayed = ref.watch(meshPacketsRelayedProvider);
+    final avgLatency = ref.watch(meshAvgLatencyProvider);
+    final coverage = ref.watch(meshCoverageProvider);
+
+    final latencyStr = avgLatency > 0 ? '${avgLatency}ms' : '--';
+    final coverageStr = coverage > 0 ? '${(coverage * 100).round()}%' : '--';
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -24,11 +29,11 @@ class MeshStatsBar extends ConsumerWidget {
         children: [
           _statCol('$peerCount', 'Nodes'),
           _dividerCol(),
-          _statCol('$packetsRelayed', 'Packets Relayed'),
+          _statCol('$packetsRelayed', 'Relayed'),
           _dividerCol(),
-          _statCol('--', 'Avg Latency'),
+          _statCol(latencyStr, 'Avg Latency'),
           _dividerCol(),
-          _statCol('--', 'Coverage'),
+          _statCol(coverageStr, 'Coverage'),
         ],
       ),
     );
@@ -67,7 +72,7 @@ class MeshStatsBar extends ConsumerWidget {
     return Container(
       width: 0.5,
       height: 32,
-      color: AegisColors.border1.withOpacity(0.5),
+      color: AegisColors.border1.withValues(alpha: 0.5),
     );
   }
 }

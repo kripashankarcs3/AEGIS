@@ -29,7 +29,6 @@ class HelpSupportScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            // 1. Support banner core card
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
@@ -43,10 +42,10 @@ class HelpSupportScreen extends StatelessWidget {
                     width: 44.0,
                     height: 44.0,
                     decoration: BoxDecoration(
-                      color: AegisColors.neonGreen.withOpacity(0.08),
+                      color: AegisColors.neonGreen.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AegisColors.neonGreen.withOpacity(0.3),
+                        color: AegisColors.neonGreen.withValues(alpha: 0.3),
                         width: 1.0,
                       ),
                     ),
@@ -87,8 +86,6 @@ class HelpSupportScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 24.0),
-
-            // 2. Help Center Section
             Text(
               'Help Center',
               style: TextStyle(
@@ -111,25 +108,26 @@ class HelpSupportScreen extends StatelessWidget {
                     icon: Icons.help_outline_rounded,
                     title: 'FAQs',
                     subtitle: 'Frequently asked questions',
+                    onTap: () => _showComingSoon(context, 'FAQs'),
                   ),
                   _buildDivider(),
                   _buildSupportTile(
                     icon: Icons.menu_book_rounded,
                     title: 'User Guide',
                     subtitle: 'Learn how to use AEGIS',
+                    onTap: () => _showComingSoon(context, 'User Guide'),
                   ),
                   _buildDivider(),
                   _buildSupportTile(
                     icon: Icons.play_circle_outline_rounded,
                     title: 'Video Tutorials',
                     subtitle: 'Watch step-by-step guides',
+                    onTap: () => _showComingSoon(context, 'Video Tutorials'),
                   ),
                 ],
               ),
             ),
             SizedBox(height: 24.0),
-
-            // 3. Contact Support Section
             Text(
               'Contact Support',
               style: TextStyle(
@@ -152,18 +150,21 @@ class HelpSupportScreen extends StatelessWidget {
                     icon: Icons.bug_report_outlined,
                     title: 'Report an Issue',
                     subtitle: 'Let us know what went wrong',
+                    onTap: () => _showComingSoon(context, 'Report an Issue'),
                   ),
                   _buildDivider(),
                   _buildSupportTile(
                     icon: Icons.mail_outline_rounded,
                     title: 'Email Support',
                     subtitle: 'support@aegis.app',
+                    onTap: () => _showComingSoon(context, 'Email Support'),
                   ),
                   _buildDivider(),
                   _buildSupportTile(
                     icon: Icons.description_outlined,
                     title: 'Send Logs',
                     subtitle: 'Share logs for better support',
+                    onTap: () => _showComingSoon(context, 'Send Logs'),
                   ),
                 ],
               ),
@@ -174,45 +175,58 @@ class HelpSupportScreen extends StatelessWidget {
     );
   }
 
+  void _showComingSoon(BuildContext context, String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$feature — coming soon'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   Widget _buildSupportTile({
     required IconData icon,
     required String title,
     required String subtitle,
+    required VoidCallback onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: AegisColors.textSecondary, size: 18.0),
-              SizedBox(width: 14.0),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: AegisColors.textPrimary,
-                      fontSize: 13.0,
-                      fontWeight: FontWeight.bold,
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: AegisColors.textSecondary, size: 18.0),
+                SizedBox(width: 14.0),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: AegisColors.textPrimary,
+                        fontSize: 13.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 3.0),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: AegisColors.textSecondary,
-                      fontSize: 11.0,
+                    SizedBox(height: 3.0),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: AegisColors.textSecondary,
+                        fontSize: 11.0,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Icon(Icons.chevron_right, size: 14.0, color: AegisColors.textMuted),
-        ],
+                  ],
+                ),
+              ],
+            ),
+            Icon(Icons.chevron_right, size: 14.0, color: AegisColors.textMuted),
+          ],
+        ),
       ),
     );
   }

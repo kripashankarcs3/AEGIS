@@ -1,14 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'dart:ui';
 import '../constants/aegis_colors.dart';
 import '../providers/survivor_provider.dart';
+import '../providers/mesh_provider.dart';
+import '../providers/identity_provider.dart';
+import '../models/signal_packet.dart';
 
-class ShareFileScreen extends ConsumerWidget {
+class ShareFileScreen extends ConsumerStatefulWidget {
   const ShareFileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ShareFileScreen> createState() => _ShareFileScreenState();
+}
+
+class _ShareFileScreenState extends ConsumerState<ShareFileScreen> {
+  XFile? _selectedFile;
+
+  Future<void> _pickFile() async {
+    final picker = ImagePicker();
+    final XFile? picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+    );
+    if (picked != null) {
+      setState(() => _selectedFile = picked);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Selected: ${picked.name}'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _sendFile(String peerId) async {
+    if (_selectedFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a file first'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final sigId = ref.read(sigIdProvider);
+
+    final packet = SignalPacket(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      from: sigId,
+      to: peerId,
+      type: PacketType.chat,
+      payload: '📎 File shared: ${_selectedFile!.name}',
+      ttl: 5,
+      hopCount: 0,
+      path: [sigId],
+      timestamp: DateTime.now(),
+    );
+
+    await ref.read(meshProvider.notifier).sendPacket(packet);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('File sent to $peerId'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
@@ -40,60 +108,71 @@ class ShareFileScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Dashed Border Upload Area
               CustomPaint(
                 painter: DashedBorderPainter(),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 40.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.add_to_photos_rounded,
-                        color: AegisColors.textSecondary,
-                        size: 34.0,
-                      ),
-                      SizedBox(height: 12.0),
-                      Text(
-                        'Drag & drop file here',
-                        style: TextStyle(
-                          color: AegisColors.textPrimary,
-                          fontSize: 13.0,
-                          fontWeight: FontWeight.bold,
+                child: GestureDetector(
+                  onTap: _pickFile,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 40.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          _selectedFile != null
+                              ? Icons.check_circle_outline_rounded
+                              : Icons.add_to_photos_rounded,
+                          color: _selectedFile != null
+                              ? AegisColors.neonGreen
+                              : AegisColors.textSecondary,
+                          size: 34.0,
                         ),
-                      ),
-                      SizedBox(height: 6.0),
-                      Text(
-                        'or',
-                        style: TextStyle(
-                          color: AegisColors.textMuted,
-                          fontSize: 11.0,
-                        ),
-                      ),
-                      SizedBox(height: 14.0),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                        decoration: BoxDecoration(
-                          color: AegisColors.violet.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6.0),
-                        ),
-                        child: Text(
-                          'Choose File',
+                        SizedBox(height: 12.0),
+                        Text(
+                          _selectedFile != null
+                              ? _selectedFile!.name
+                              : 'Drag & drop file here',
                           style: TextStyle(
-                            color: AegisColors.violet,
-                            fontSize: 12.0,
+                            color: AegisColors.textPrimary,
+                            fontSize: 13.0,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 6.0),
+                        Text(
+                          _selectedFile != null
+                              ? 'Tap to change file'
+                              : 'or',
+                          style: TextStyle(
+                            color: AegisColors.textMuted,
+                            fontSize: 11.0,
+                          ),
+                        ),
+                        SizedBox(height: 14.0),
+                        GestureDetector(
+                          onTap: _pickFile,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                            decoration: BoxDecoration(
+                              color: AegisColors.violet.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6.0),
+                            ),
+                            child: Text(
+                              _selectedFile != null ? 'Change File' : 'Choose File',
+                              style: TextStyle(
+                                color: AegisColors.violet,
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
               SizedBox(height: 24.0),
-
-              // 2. Nearby Devices Title
               Text(
                 'Nearby Devices',
                 style: TextStyle(
@@ -103,8 +182,6 @@ class ShareFileScreen extends ConsumerWidget {
                 ),
               ),
               SizedBox(height: 12.0),
-
-              // 3. List of Nearby Devices
               Expanded(
                 child: _buildPeerList(ref),
               ),
@@ -123,12 +200,11 @@ class ShareFileScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              // Device circular avatar
               Container(
                 width: 36.0,
                 height: 36.0,
                 decoration: BoxDecoration(
-                  color: AegisColors.neonGreen.withOpacity(0.15),
+                  color: AegisColors.neonGreen.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -138,7 +214,6 @@ class ShareFileScreen extends ConsumerWidget {
                 ),
               ),
               SizedBox(width: 14.0),
-              // Device Details info
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -162,20 +237,31 @@ class ShareFileScreen extends ConsumerWidget {
               ),
             ],
           ),
-          // Purple Circle Send/Arrow icon button
-          Container(
-            width: 32.0,
-            height: 32.0,
-            decoration: BoxDecoration(
-              color: AegisColors.violet.withOpacity(0.1).withOpacity(0.3),
-              shape: BoxShape.circle,
-              border: Border.all(color: AegisColors.violet.withOpacity(0.4), width: 1.0),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.send_rounded,
-                color: AegisColors.violet,
-                size: 14.0,
+          GestureDetector(
+            onTap: () => _sendFile(nodeId),
+            child: Container(
+              width: 32.0,
+              height: 32.0,
+              decoration: BoxDecoration(
+                color: _selectedFile != null
+                    ? AegisColors.violet.withValues(alpha: 0.15)
+                    : AegisColors.violet.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: _selectedFile != null
+                      ? AegisColors.violet
+                      : AegisColors.violet.withValues(alpha: 0.2),
+                  width: 1.0,
+                ),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.send_rounded,
+                  color: _selectedFile != null
+                      ? AegisColors.violet
+                      : AegisColors.violet.withValues(alpha: 0.3),
+                  size: 14.0,
+                ),
               ),
             ),
           ),
@@ -237,11 +323,10 @@ class DashedBorderPainter extends CustomPainter {
     );
 
     final Path path = Path()..addRRect(rrect);
-    
-    // Draw dashed path
+
     const double dashWidth = 5.0;
     const double dashSpace = 4.0;
-    
+
     double distance = 0.0;
     for (final PathMetric metric in path.computeMetrics()) {
       while (distance < metric.length) {
