@@ -34,13 +34,14 @@ class ResourceManager {
     }
   }
 
-  Future<void> broadcastResource(ResourceItem item) async {
+  Future<bool> broadcastResource(ResourceItem item) async {
     final packet = SignalPacket(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       from: _selfId,
       to: 'ALL',
       type: PacketType.resource,
-      payload: '{"title":"${item.title}","detail":"${item.detail}","type":"${item.type.name}"}',
+      payload:
+          '{"title":"${item.title}","detail":"${item.detail}","type":"${item.type.name}"}',
       ttl: 5,
       hopCount: 0,
       path: [_selfId],
@@ -48,7 +49,7 @@ class ResourceManager {
       category: item.category.name,
     );
 
-    await _meshRouter.sendPacket(packet);
+    return await _meshRouter.sendPacket(packet);
   }
 
   /// Handle an incoming resource packet: add a synthetic ResourceItem entry.

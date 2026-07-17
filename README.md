@@ -226,19 +226,26 @@ Every device within mesh range:
 
 | Component | Technology |
 |-----------|------------|
-| Framework | Flutter (Android) |
-| State Management | Riverpod (StateNotifier) |
-| Transport 1 — WiFi Direct | `nearby_connections` (Google Nearby) |
-| Transport 2 — Bluetooth LE | `flutter_blue_plus` |
-| Transport 3 — mDNS | `multicast_dns` |
+| Framework | Flutter (Android) — v2.0.0 |
+| State Management | Riverpod (StateNotifier) `flutter_riverpod ^2.5.1` |
+| Navigation | `go_router ^12.0.0` |
+| Transport 1 — WiFi Direct | `nearby_connections ^4.0.0` (Google Nearby) |
+| Transport 2 — Bluetooth LE | `flutter_blue_plus ^1.31.15` |
+| Transport 3 — mDNS | `multicast_dns ^0.3.2+4` |
 | Transport 4 — Direct TCP | `dart:io` ServerSocket / Socket |
-| Storage | Hive (offline-first NoSQL) |
-| Cryptography | Ed25519 keypair (`cryptography` package) |
-| Location | `geolocator` |
-| Notifications | `flutter_local_notifications` |
-| QR Generate | `qr_flutter` |
-| QR Scan | `mobile_scanner` |
-| Network Info | `network_info_plus` |
+| Transport 5 — WiFi LAN | `wifi_lan_service.dart` (direct LAN TCP) |
+| Storage | Hive `^2.2.3` (offline-first NoSQL) |
+| Cryptography | Ed25519 keypair (`cryptography ^2.7.0`) |
+| Location | `geolocator ^10.1.0` |
+| Audio / Alarm | `audioplayers ^5.2.1` |
+| Notifications | `flutter_local_notifications ^18.0.1` |
+| QR Generate | `qr_flutter ^4.1.0` |
+| QR Scan | `mobile_scanner ^3.5.7` |
+| Network Info | `network_info_plus ^6.0.0` |
+| Permissions | `permission_handler ^11.3.1` |
+| Image Picker | `image_picker ^1.0.7` (profile photos) |
+| HTTP | `http ^1.2.1` |
+| Utilities | `uuid ^4.4.0`, `path_provider ^2.1.2` |
 
 ---
 
@@ -259,6 +266,18 @@ Every device within mesh range:
 ```
 aegis_flutter/
 ├── lib/
+│   ├── main.dart                  ← App entry point
+│   ├── app.dart                   ← Root widget, router setup
+│   │
+│   ├── constants/
+│   │   ├── aegis_animations.dart  ← Shared animation constants
+│   │   ├── aegis_colors.dart      ← Color palette
+│   │   ├── aegis_colors_light.dart← Light theme color tokens
+│   │   └── aegis_styles.dart      ← Text styles, spacing constants
+│   │
+│   ├── theme/
+│   │   └── aegis_theme.dart       ← ThemeData (iOS-style light theme)
+│   │
 │   ├── core/
 │   │   ├── mesh_router.dart       ← Multi-hop routing, dedup, TTL
 │   │   ├── identity_manager.dart  ← Ed25519 keypair, SIG-ID generation
@@ -274,18 +293,74 @@ aegis_flutter/
 │   │   ├── transport_manager.dart ← Orchestrates all transports
 │   │   ├── nearby_service.dart    ← WiFi Direct (Nearby Connections)
 │   │   ├── bluetooth_service.dart ← BLE advertise + scan + GATT
-│   │   └── direct_tcp_service.dart← TCP socket server + client
+│   │   ├── direct_tcp_service.dart← QR-initiated TCP socket server/client
+│   │   └── wifi_lan_service.dart  ← LAN-based TCP transport
 │   │
 │   ├── providers/
 │   │   ├── mesh_provider.dart     ← Central mesh coordinator
 │   │   ├── chat_provider.dart     ← Per-peer chat state
 │   │   ├── survivor_provider.dart ← All known peers state
-│   │   └── identity_provider.dart ← Local identity state
+│   │   ├── identity_provider.dart ← Local identity state
+│   │   ├── mesh_send_provider.dart← Message send logic / status
+│   │   ├── network_provider.dart  ← Network connectivity state
+│   │   └── theme_provider.dart    ← Theme mode state
 │   │
-│   ├── screens/                   ← All UI screens
-│   ├── models/                    ← SignalPacket, SurvivorNode, etc.
-│   ├── services/                  ← Storage, notifications, background
-│   └── widgets/                   ← Radar painter, SOS banner, cards
+│   ├── models/
+│   │   ├── signal_packet.dart     ← Core mesh packet model
+│   │   ├── chat_message.dart      ← Chat message model
+│   │   ├── survivor_node.dart     ← Peer node (runtime)
+│   │   ├── survivor_node_model.dart← Peer node (Hive storage)
+│   │   ├── peer_address.dart      ← Peer IP/port address
+│   │   ├── resource_item.dart     ← Resource item (runtime)
+│   │   └── resource_model.dart    ← Resource model (Hive storage)
+│   │
+│   ├── services/
+│   │   ├── storage_service.dart   ← Hive read/write (plain Maps)
+│   │   ├── notification_service.dart ← Local notifications
+│   │   ├── background_service.dart← Background task management
+│   │   └── signaling_service.dart ← Signaling coordination
+│   │
+│   ├── screens/
+│   │   ├── splash_screen.dart     ← Launch → meshProvider.start()
+│   │   ├── onboarding_screen.dart ← First-run onboarding
+│   │   ├── login_join_screen.dart ← Identity setup / join mesh
+│   │   ├── main_shell.dart        ← Root nav shell (bottom nav)
+│   │   ├── radar_screen.dart      ← Live mesh radar / peer map
+│   │   ├── chat_screen.dart       ← Peer list / chat inbox
+│   │   ├── chat_conversation_screen.dart ← Per-peer conversation
+│   │   ├── sos_screen.dart        ← SOS send UI (hold button)
+│   │   ├── sos_incoming_overlay.dart ← Full-screen SOS alert
+│   │   ├── resource_feed_screen.dart ← Share/request resources
+│   │   ├── network_map_screen.dart← Mesh topology visualization
+│   │   ├── network_scan_screen.dart← Active scan / discovery UI
+│   │   ├── devices_network_screen.dart ← Connected device list
+│   │   ├── identity_screen.dart   ← SIG-ID + QR code display
+│   │   ├── qr_scanner_screen.dart ← QR scan for TCP connect
+│   │   ├── broadcast_screen.dart  ← Broadcast message to all peers
+│   │   ├── notifications_screen.dart ← In-app notification feed
+│   │   ├── emergency_contacts_screen.dart ← Offline contact storage
+│   │   ├── node_details_screen.dart ← Selected peer detail view
+│   │   ├── status_history_screen.dart ← Survivor status log
+│   │   ├── profile_screen.dart    ← Local user profile
+│   │   ├── settings_screen.dart   ← App settings
+│   │   ├── auto_sync_screen.dart  ← Auto-sync configuration
+│   │   ├── battery_saver_screen.dart ← Battery saver settings
+│   │   ├── share_file_screen.dart ← File sharing UI
+│   │   ├── voice_message_screen.dart ← Voice message recording
+│   │   ├── language_screen.dart   ← Language selection
+│   │   ├── help_support_screen.dart ← Help & support
+│   │   └── about_screen.dart      ← About AEGIS
+│   │
+│   └── widgets/
+│       ├── radar_painter.dart     ← CustomPainter for radar UI
+│       ├── sos_banner.dart        ← SOS notification banner
+│       ├── resource_card.dart     ← Resource feed item card
+│       ├── mesh_stats_bar.dart    ← Live mesh stats header bar
+│       └── node_popup_card.dart   ← Peer node popup on radar tap
+│
+├── assets/
+│   ├── sounds/                    ← SOS alarm audio files
+│   └── images/logo.png
 │
 ├── android/
 │   ├── app/src/main/
@@ -309,6 +384,11 @@ flutter run
 - Grant permissions on first launch: Location, Nearby Devices, Bluetooth
 
 **No server needed. No backend. No internet.**
+
+**App Entry Flow:**
+```
+SplashScreen → meshProvider.start() → OnboardingScreen (first run) → LoginJoinScreen → MainShell
+```
 
 ---
 

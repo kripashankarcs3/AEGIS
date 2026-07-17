@@ -14,7 +14,9 @@ class TransportManager {
   Function(SignalPacket packet)? onPacketReceived;
 
   bool get isConnected =>
-      _nearby.isConnected || _bluetooth.isConnected || (_tcpDirect?.isConnected ?? false);
+      _nearby.isConnected ||
+      _bluetooth.isConnected ||
+      (_tcpDirect?.isConnected ?? false);
 
   TransportManager({
     required NearbyService nearby,
@@ -82,35 +84,39 @@ class TransportManager {
       });
     }
 
-    debugPrint('✅ [Transport] All transports initialized. isConnected=$isConnected');
+    debugPrint(
+        '✅ [Transport] All transports initialized. isConnected=$isConnected');
   }
 
   bool hasDirectTcp(String sigId) => _tcpDirect?.hasPeer(sigId) ?? false;
 
-  Future<void> sendPacket(SignalPacket packet, {String? directPeerId}) async {
+  Future<bool> sendPacket(SignalPacket packet, {String? directPeerId}) async {
     final targetId = directPeerId ??
         (packet.to != 'broadcast' && packet.to != 'ALL' ? packet.to : null);
-    if (targetId != null && _tcpDirect != null && _tcpDirect!.hasPeer(targetId)) {
+    if (targetId != null &&
+        _tcpDirect != null &&
+        _tcpDirect!.hasPeer(targetId)) {
       await _tcpDirect!.send(packet, peerSigId: targetId);
-      return;
+      return true;
     }
 
     if (_nearby.isConnected) {
-      await _nearby.send(packet, targetPeerId: targetId);
-      return;
+      final sent = await _nearby.send(packet, targetPeerId: targetId);
+      if (sent) return true;
     }
 
     if (_bluetooth.isConnected) {
-      await _bluetooth.send(packet);
-      return;
+      final sent = await _bluetooth.send(packet);
+      if (sent) return true;
     }
 
     if (_tcpDirect != null && _tcpDirect!.isConnected) {
       await _tcpDirect!.send(packet);
-      return;
+      return true;
     }
 
     debugPrint('No transport available');
+    return false;
   }
 
   Future<void> dispose() async {

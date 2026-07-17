@@ -214,9 +214,10 @@ class MeshNotifier extends StateNotifier<MeshState> {
       _addActivity('🔵 BLE peer discovered: $peerSigId');
     };
 
-    // When BLE connects to a new peer, immediately broadcast
+    // When a Nearby or BLE peer connects, immediately broadcast
     // a status packet so the remote side sees us as a node.
-    _bluetooth.onNewPeerConnected = () {
+    // (BLE is peer-discovery only — actual connections go through Nearby.)
+    _nearby.onNewPeerConnected = () {
       final pkt = SignalPacket(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         from: myId,
@@ -229,7 +230,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
         timestamp: DateTime.now(),
       );
       _router.sendPacket(pkt);
-      debugPrint('📤 BLE: Sent immediate status after peer connect');
+      debugPrint('📤 Nearby: Sent immediate status after peer connect');
     };
 
     // SOSHandler uses constructor injection (meshRouter + selfId)
@@ -289,7 +290,9 @@ class MeshNotifier extends StateNotifier<MeshState> {
           NotificationService.instance.showSosNotification(
             from: p.from,
             category: p.category ?? 'Emergency',
-            message: p.payload.isNotEmpty ? p.payload : 'Emergency assistance needed!',
+            message: p.payload.isNotEmpty
+                ? p.payload
+                : 'Emergency assistance needed!',
           );
         }
       }
@@ -436,7 +439,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
   }
 
   /// Send a typed packet directly (used by ChatProvider).
-  Future<void> sendPacket(SignalPacket packet) => _router.sendPacket(packet);
+  Future<bool> sendPacket(SignalPacket packet) => _router.sendPacket(packet);
 
   List<int> _hexToBytes(String hex) {
     final clean = hex.replaceAll(' ', '');

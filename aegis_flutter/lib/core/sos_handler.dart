@@ -20,7 +20,7 @@ class SOSHandler {
       _lastSentAt == null ||
       DateTime.now().difference(_lastSentAt!).inSeconds >= 60;
 
-  Future<void> sendSOS({
+  Future<bool> sendSOS({
     required double latitude,
     required double longitude,
     String message = 'Emergency!',
@@ -41,8 +41,11 @@ class SOSHandler {
       category: category,
     );
 
-    await _meshRouter.sendPacket(packet);
-    _lastSentAt = DateTime.now();
+    final sent = await _meshRouter.sendPacket(packet);
+    if (sent) {
+      _lastSentAt = DateTime.now();
+    }
+    return sent;
   }
 
   /// Handle an incoming SOS packet: persist to storage log.
