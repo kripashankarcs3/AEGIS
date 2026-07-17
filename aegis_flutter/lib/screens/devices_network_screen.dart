@@ -51,7 +51,7 @@ class DevicesNetworkScreen extends ConsumerWidget {
             margin: const EdgeInsets.only(right: 14),
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: AegisColors.electricBlue.withOpacity(0.1),
+              color: AegisColors.electricBlue.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: IconButton(
@@ -80,7 +80,7 @@ class DevicesNetworkScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _summaryItem('Connected', '${devices.length}', AegisColors.neonGreen, textPrimary),
-                  _summaryItem('Hops Avg', devices.isEmpty ? '0' : '1.8', AegisColors.electricBlue, textPrimary),
+                  _summaryItem('Hops Avg', devices.isEmpty ? '0' : '${(5 - devices.map((d) => d.signalStrength).reduce((a, b) => a + b) / devices.length).clamp(1, 4).toStringAsFixed(1)}', AegisColors.electricBlue, textPrimary),
                   _summaryItem('Signal', devices.isNotEmpty ? 'Good' : 'None', AegisColors.amber, textPrimary),
                 ],
               ),
@@ -127,7 +127,7 @@ class DevicesNetworkScreen extends ConsumerWidget {
                               Container(
                                 width: 40, height: 40,
                                 decoration: BoxDecoration(
-                                  color: statusColor.withOpacity(0.12),
+                                  color: statusColor.withValues(alpha: 0.12),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(Icons.hub_rounded, color: statusColor, size: 20),
@@ -144,7 +144,7 @@ class DevicesNetworkScreen extends ConsumerWidget {
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                           decoration: BoxDecoration(
-                                            color: statusColor.withOpacity(0.12),
+                                            color: statusColor.withValues(alpha: 0.12),
                                             borderRadius: BorderRadius.circular(6),
                                           ),
                                           child: Text(status, style: TextStyle(color: statusColor, fontSize: 9, fontWeight: FontWeight.w800)),

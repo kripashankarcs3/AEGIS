@@ -149,13 +149,13 @@ class NodeDetailsScreen extends ConsumerWidget {
                             color: (isOffline
                                     ? AegisColors.textMuted
                                     : AegisColors.neonGreen)
-                                .withOpacity(0.08),
+                                .withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                                 color: (isOffline
                                         ? AegisColors.textMuted
                                         : AegisColors.neonGreen)
-                                    .withOpacity(0.2),
+                                    .withValues(alpha: 0.2),
                                 width: 0.5),
                           ),
                           child: Text(
@@ -173,7 +173,11 @@ class NodeDetailsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      isOffline ? 'Disconnected' : '2 hops away • via SIG-B2C1',
+                      isOffline
+                          ? 'Disconnected'
+                          : survivor != null && survivor.signalStrength > 0
+                              ? '${5 - survivor.signalStrength} hop(s) away'
+                              : 'Nearby',
                       style: TextStyle(
                         fontSize: 12,
                         color: AegisColors.textSecondary,
@@ -186,7 +190,7 @@ class NodeDetailsScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 20),
-          Container(height: 0.5, color: AegisColors.border1.withOpacity(0.5)),
+          Container(height: 0.5, color: AegisColors.border1.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -491,7 +495,7 @@ class NodeDetailsScreen extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 18),
       height: 0.5,
-      color: AegisColors.border1.withOpacity(0.5),
+      color: AegisColors.border1.withValues(alpha: 0.5),
     );
   }
 }

@@ -15,7 +15,7 @@ class ResourceCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AegisColors.isLight ? item.lightBgColor : AegisColors.cardBg,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5),
+        border: Border.all(color: AegisColors.border1.withValues(alpha: 0.4), width: 0.5),
         boxShadow: AegisColors.cardShadow,
       ),
       child: ClipRRect(
@@ -26,7 +26,7 @@ class ResourceCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                Container(width: 44, height: 44, decoration: BoxDecoration(color: item.color.withOpacity(0.12), shape: BoxShape.circle, border: Border.all(color: item.color.withOpacity(0.2), width: 1)), child: Icon(item.icon, color: item.color, size: 20)),
+                Container(width: 44, height: 44, decoration: BoxDecoration(color: item.color.withValues(alpha: 0.12), shape: BoxShape.circle, border: Border.all(color: item.color.withValues(alpha: 0.2), width: 1)), child: Icon(item.icon, color: item.color, size: 20)),
                 SizedBox(width: 14),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(item.title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AegisColors.textPrimary, letterSpacing: -0.2)),

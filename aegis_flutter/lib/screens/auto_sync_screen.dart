@@ -62,10 +62,10 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                         width: 44.0,
                         height: 44.0,
                         decoration: BoxDecoration(
-                          color: AegisColors.neonGreen.withOpacity(0.08),
+                          color: AegisColors.neonGreen.withValues(alpha: 0.08),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AegisColors.neonGreen.withOpacity(0.3),
+                            color: AegisColors.neonGreen.withValues(alpha: 0.3),
                             width: 1.0,
                           ),
                         ),
@@ -102,7 +102,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                                         _autoSync = val;
                                       });
                                     },
-                                    activeColor: Colors.white,
+                                    activeThumbColor: Colors.white,
                                     activeTrackColor: AegisColors.neonGreen,
                                     inactiveThumbColor: Colors.grey,
                                     inactiveTrackColor: AegisColors.border1,
@@ -180,7 +180,7 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                                 _syncWhenConnected = val;
                               });
                             },
-                            activeColor: Colors.white,
+                            activeThumbColor: Colors.white,
                             activeTrackColor: AegisColors.neonGreen,
                             inactiveThumbColor: Colors.grey,
                             inactiveTrackColor: AegisColors.border1,

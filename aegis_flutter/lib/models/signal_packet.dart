@@ -101,6 +101,7 @@ class SignalPacket {
       to: json['to'],
       type: PacketType.values.firstWhere(
         (e) => e.name == json['type'],
+        orElse: () => PacketType.status,
       ),
       payload: json['payload'],
       ttl: json['ttl'],

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
@@ -48,8 +49,8 @@ class SurvivorMapPainter extends CustomPainter {
   void _drawGrid(Canvas canvas, Offset c, double maxR) {
     final p = Paint()
       ..color = AegisColors.isLight
-          ? Colors.black.withOpacity(0.06)
-          : const Color(0xFF00E5FF).withOpacity(0.05)
+          ? Colors.black.withValues(alpha: 0.06)
+          : const Color(0xFF00E5FF).withValues(alpha: 0.05)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5;
 
@@ -71,9 +72,9 @@ class SurvivorMapPainter extends CustomPainter {
       final paint = Paint()
         ..color = node.isOnline
             ? AegisColors.neonGreen
-                .withOpacity(AegisColors.isLight ? 0.4 : 0.25)
+                .withValues(alpha: AegisColors.isLight ? 0.4 : 0.25)
             : AegisColors.textMuted
-                .withOpacity(AegisColors.isLight ? 0.3 : 0.15)
+                .withValues(alpha: AegisColors.isLight ? 0.3 : 0.15)
         ..strokeWidth = node.isOnline ? 2.0 : 1.0;
 
       if (node.isOnline) {
@@ -359,16 +360,16 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen>
                                       ? AegisColors.primaryGradient
                                       : LinearGradient(colors: [
                                           n.color,
-                                          n.color.withOpacity(0.8)
+                                          n.color.withValues(alpha: 0.8)
                                         ]),
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: Colors.white.withValues(alpha: 0.9),
                                     width: n.isUser ? 2.5 : 1.5,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: n.color.withOpacity(0.25),
+                                      color: n.color.withValues(alpha: 0.25),
                                       blurRadius: 8,
                                       spreadRadius: 1,
                                     )
@@ -432,6 +433,7 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen>
 
   Widget _healthCard() {
     final health = ref.watch(meshNetworkHealthProvider);
+    final count = ref.watch(meshPeerCountProvider);
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -451,11 +453,11 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen>
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: AegisColors.textSecondary)),
-              Text(peerCount > 0 ? 'Good' : 'Idle',
+              Text(count > 0 ? 'Good' : 'Idle',
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
-                      color: peerCount > 0
+                      color: count > 0
                           ? AegisColors.neonGreen
                           : AegisColors.textMuted)),
             ],
@@ -542,7 +544,7 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen>
     return Container(
       width: 0.5,
       height: 32,
-      color: AegisColors.border1.withOpacity(0.5),
+      color: AegisColors.border1.withValues(alpha: 0.5),
     );
   }
 }

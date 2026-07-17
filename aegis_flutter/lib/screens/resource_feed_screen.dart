@@ -138,7 +138,7 @@ class _ResourceFeedScreenState extends ConsumerState<ResourceFeedScreen> {
           boxShadow: sel
               ? [
                   BoxShadow(
-                      color: AegisColors.violet.withOpacity(0.25),
+                      color: AegisColors.violet.withValues(alpha: 0.25),
                       blurRadius: 12,
                       spreadRadius: 1)
                 ]
@@ -173,16 +173,16 @@ class _ResourceFeedScreenState extends ConsumerState<ResourceFeedScreen> {
         height: 50,
         decoration: BoxDecoration(
           color: AegisColors.isLight
-              ? AegisColors.neonGreen.withOpacity(0.08)
+              ? AegisColors.neonGreen.withValues(alpha: 0.08)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-              color: AegisColors.neonGreen.withOpacity(0.3), width: 0.5),
+              color: AegisColors.neonGreen.withValues(alpha: 0.3), width: 0.5),
           boxShadow: AegisColors.isLight
               ? null
               : [
                   BoxShadow(
-                      color: AegisColors.neonGreen.withOpacity(0.08),
+                      color: AegisColors.neonGreen.withValues(alpha: 0.08),
                       blurRadius: 16,
                       offset: const Offset(0, 6))
                 ],
@@ -313,7 +313,7 @@ class _PostResourceBottomSheetState
                 Text('Share what you have or need',
                     style: TextStyle(
                         fontSize: 12,
-                        color: AegisColors.textSecondary.withOpacity(0.8))),
+                        color: AegisColors.textSecondary.withValues(alpha: 0.8))),
               ]),
               GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
@@ -335,7 +335,7 @@ class _PostResourceBottomSheetState
                 style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: AegisColors.textMuted.withOpacity(0.8),
+                    color: AegisColors.textMuted.withValues(alpha: 0.8),
                     letterSpacing: 1.0)),
             SizedBox(height: 12),
             GridView.builder(
@@ -358,15 +358,15 @@ class _PostResourceBottomSheetState
                         decoration: BoxDecoration(
                           gradient: sel
                               ? LinearGradient(colors: [
-                                  (cat['color'] as Color).withOpacity(0.15),
-                                  (cat['color'] as Color).withOpacity(0.05)
+                                  (cat['color'] as Color).withValues(alpha: 0.15),
+                                  (cat['color'] as Color).withValues(alpha: 0.05)
                                 ])
                               : null,
                           color: sel ? null : AegisColors.surface2,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                               color: sel
-                                  ? (cat['color'] as Color).withOpacity(0.5)
+                                  ? (cat['color'] as Color).withValues(alpha: 0.5)
                                   : AegisColors.border1,
                               width: sel ? 1.5 : 0.5),
                         ),
@@ -390,12 +390,12 @@ class _PostResourceBottomSheetState
                   style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: AegisColors.textMuted.withOpacity(0.8),
+                      color: AegisColors.textMuted.withValues(alpha: 0.8),
                       letterSpacing: 1.0)),
               Text('$_charCount/100',
                   style: TextStyle(
                       fontSize: 10,
-                      color: AegisColors.textMuted.withOpacity(0.6))),
+                      color: AegisColors.textMuted.withValues(alpha: 0.6))),
             ]),
             SizedBox(height: 10),
             Container(
@@ -431,7 +431,7 @@ class _PostResourceBottomSheetState
                   style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: AegisColors.textMuted.withOpacity(0.8),
+                      color: AegisColors.textMuted.withValues(alpha: 0.8),
                       letterSpacing: 1.0)),
             ]),
             SizedBox(height: 12),
@@ -441,7 +441,7 @@ class _PostResourceBottomSheetState
                   color: AegisColors.surface2,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                      color: AegisColors.border1.withOpacity(0.4), width: 0.5)),
+                      color: AegisColors.border1.withValues(alpha: 0.4), width: 0.5)),
               child: Row(children: [
                 Container(
                     width: 4,
@@ -474,18 +474,18 @@ class _PostResourceBottomSheetState
                       Row(mainAxisSize: MainAxisSize.min, children: [
                         Text('To: All',
                             style: TextStyle(
-                                color: AegisColors.neonGreen.withOpacity(0.8),
+                                color: AegisColors.neonGreen.withValues(alpha: 0.8),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700)),
                         SizedBox(width: 4),
                         Icon(Icons.signal_cellular_alt_rounded,
-                            color: AegisColors.neonGreen.withOpacity(0.8),
+                            color: AegisColors.neonGreen.withValues(alpha: 0.8),
                             size: 14),
                       ]),
                       SizedBox(height: 4),
                       Text('Broadcast to network',
                           style: TextStyle(
-                              color: AegisColors.textMuted.withOpacity(0.6),
+                              color: AegisColors.textMuted.withValues(alpha: 0.6),
                               fontSize: 9)),
                     ]),
               ]),
@@ -517,7 +517,7 @@ class _PostResourceBottomSheetState
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                            color: AegisColors.violet.withOpacity(0.3),
+                            color: AegisColors.violet.withValues(alpha: 0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 6))
                       ]),
@@ -551,7 +551,7 @@ class _PostResourceBottomSheetState
             boxShadow: sel
                 ? [
                     BoxShadow(
-                        color: AegisColors.violet.withOpacity(0.2),
+                        color: AegisColors.violet.withValues(alpha: 0.2),
                         blurRadius: 12,
                         spreadRadius: 1)
                   ]

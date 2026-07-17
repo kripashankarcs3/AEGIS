@@ -10,6 +10,7 @@ class MessageQueue {
   Future<void> Function(String peerId, SignalPacket packet) sendToPeer = (_, __) async {};
 
   void start() {
+    if (_running) return;
     _running = true;
     _retryTimer = Timer.periodic(const Duration(seconds: 10), (_) => _retryAll());
   }

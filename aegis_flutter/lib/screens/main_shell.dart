@@ -41,9 +41,9 @@ class _MainShellState extends ConsumerState<MainShell>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final mySigId = ref.read(sigIdProvider);
       ref.read(meshProvider.notifier).sosAlertStream.listen((packet) {
         if (!mounted) return;
+        final mySigId = ref.read(sigIdProvider);
         if (packet.from == mySigId) return;
         Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => SosIncomingOverlayScreen(packet: packet),
@@ -143,18 +143,18 @@ class _MainShellState extends ConsumerState<MainShell>
             boxShadow: AegisColors.isLight
                 ? [
                     BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 16,
                         offset: const Offset(0, 4))
                   ]
                 : [
                     BoxShadow(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                         blurRadius: 40,
                         offset: const Offset(0, 12),
                         spreadRadius: -8),
                     BoxShadow(
-                        color: AegisColors.electricBlue.withOpacity(0.08),
+                        color: AegisColors.electricBlue.withValues(alpha: 0.08),
                         blurRadius: 20,
                         offset: const Offset(0, 4)),
                   ],
@@ -169,8 +169,8 @@ class _MainShellState extends ConsumerState<MainShell>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AegisColors.cardBg.withOpacity(0.92),
-                      AegisColors.surface1.withOpacity(0.92)
+                      AegisColors.cardBg.withValues(alpha: 0.92),
+                      AegisColors.surface1.withValues(alpha: 0.92)
                     ],
                   ),
                   border: Border.all(
@@ -223,7 +223,7 @@ class _MainShellState extends ConsumerState<MainShell>
                         decoration:
                             BoxDecoration(shape: BoxShape.circle, boxShadow: [
                           BoxShadow(
-                              color: AegisColors.electricBlue.withOpacity(0.15),
+                              color: AegisColors.electricBlue.withValues(alpha: 0.15),
                               blurRadius: 12,
                               spreadRadius: 2)
                         ]),
@@ -268,19 +268,19 @@ class _MainShellState extends ConsumerState<MainShell>
                   boxShadow: [
                     BoxShadow(
                         color: AegisColors.sosRed
-                            .withOpacity(_glowAnim.value * 0.5),
+                            .withValues(alpha: _glowAnim.value * 0.5),
                         blurRadius: 20 + 10 * sin(_sosPulse.value * pi),
                         spreadRadius: 3 + 2 * sin(_sosPulse.value * pi)),
                     BoxShadow(
-                        color: AegisColors.sosRed.withOpacity(0.2),
+                        color: AegisColors.sosRed.withValues(alpha: 0.2),
                         blurRadius: 40,
                         spreadRadius: 6),
                   ],
                   border: sel
                       ? Border.all(
-                          color: Colors.white.withOpacity(0.8), width: 2.5)
+                          color: Colors.white.withValues(alpha: 0.8), width: 2.5)
                       : Border.all(
-                          color: Colors.white.withOpacity(0.15), width: 1),
+                          color: Colors.white.withValues(alpha: 0.15), width: 1),
                 ),
                 child: Transform.scale(
                   scale: sel ? 1.0 : _sosScale.value,
@@ -293,7 +293,7 @@ class _MainShellState extends ConsumerState<MainShell>
                             letterSpacing: 0.8,
                             shadows: [
                               Shadow(
-                                  color: Colors.white.withOpacity(0.3),
+                                  color: Colors.white.withValues(alpha: 0.3),
                                   blurRadius: 8)
                             ])),
                   ),

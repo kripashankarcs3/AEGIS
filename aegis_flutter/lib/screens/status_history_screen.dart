@@ -91,10 +91,10 @@ class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: AegisColors.neonGreen.withOpacity(0.08),
+              color: AegisColors.neonGreen.withValues(alpha: 0.08),
               shape: BoxShape.circle,
               border: Border.all(
-                  color: AegisColors.neonGreen.withOpacity(0.15), width: 1),
+                  color: AegisColors.neonGreen.withValues(alpha: 0.15), width: 1),
             ),
             child: Center(
               child: Icon(Icons.shield_outlined,
@@ -121,10 +121,10 @@ class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AegisColors.neonGreen.withOpacity(0.08),
+                        color: AegisColors.neonGreen.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                            color: AegisColors.neonGreen.withOpacity(0.2),
+                            color: AegisColors.neonGreen.withValues(alpha: 0.2),
                             width: 0.5),
                       ),
                       child: Text(
@@ -432,9 +432,9 @@ class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.08),
+              color: iconColor.withValues(alpha: 0.08),
               shape: BoxShape.circle,
-              border: Border.all(color: iconColor.withOpacity(0.15), width: 1),
+              border: Border.all(color: iconColor.withValues(alpha: 0.15), width: 1),
             ),
             child: Center(
               child: Icon(icon, color: iconColor, size: 16),
@@ -487,7 +487,7 @@ class _StatusHistoryScreenState extends ConsumerState<StatusHistoryScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 18),
       height: 0.5,
-      color: AegisColors.border1.withOpacity(0.5),
+      color: AegisColors.border1.withValues(alpha: 0.5),
     );
   }
 }

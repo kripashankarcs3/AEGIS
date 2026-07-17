@@ -24,6 +24,7 @@ class SOSHandler {
     required double latitude,
     required double longitude,
     String message = 'Emergency!',
+    String category = 'Other',
   }) async {
     final packet = SignalPacket(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -37,6 +38,7 @@ class SOSHandler {
       timestamp: DateTime.now(),
       latitude: latitude,
       longitude: longitude,
+      category: category,
     );
 
     await _meshRouter.sendPacket(packet);

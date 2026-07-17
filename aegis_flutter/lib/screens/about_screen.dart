@@ -53,7 +53,7 @@ class AboutScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
-                          color: AegisColors.neonGreen.withOpacity(0.15),
+                          color: AegisColors.neonGreen.withValues(alpha: 0.15),
                           blurRadius: 20,
                           spreadRadius: 2,
                         ),
@@ -94,7 +94,7 @@ class AboutScreen extends StatelessWidget {
                       color: const Color(0xFF042F1A),
                       borderRadius: BorderRadius.circular(4.0),
                       border: Border.all(
-                        color: AegisColors.neonGreen.withOpacity(0.25),
+                        color: AegisColors.neonGreen.withValues(alpha: 0.25),
                         width: 1.0,
                       ),
                     ),

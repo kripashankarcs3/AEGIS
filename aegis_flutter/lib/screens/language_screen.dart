@@ -59,10 +59,10 @@ class _LanguageScreenState extends State<LanguageScreen> {
                           width: 56.0,
                           height: 56.0,
                           decoration: BoxDecoration(
-                            color: AegisColors.neonGreen.withOpacity(0.08),
+                            color: AegisColors.neonGreen.withValues(alpha: 0.08),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: AegisColors.neonGreen.withOpacity(0.3),
+                              color: AegisColors.neonGreen.withValues(alpha: 0.3),
                               width: 1.0,
                             ),
                           ),
@@ -206,7 +206,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                     borderRadius: BorderRadius.circular(6.0),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF047857).withOpacity(0.25),
+                        color: const Color(0xFF047857).withValues(alpha: 0.25),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),

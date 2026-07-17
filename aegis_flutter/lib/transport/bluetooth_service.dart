@@ -110,7 +110,6 @@ class BluetoothService {
     debugPrint('📡 BLE: Scan cycle starting...');
     try {
       await fbp.FlutterBluePlus.startScan(
-        withServices: [fbp.Guid(aegisServiceUuid)],
         timeout: const Duration(seconds: 6),
         androidUsesFineLocation: true,
       );

@@ -223,7 +223,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: green.withOpacity(0.12),
+        color: green.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -402,9 +402,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: Container(
         height: 52,
         decoration: BoxDecoration(
-          color: AegisColors.sosRed.withOpacity(0.08),
+          color: AegisColors.sosRed.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AegisColors.sosRed.withOpacity(0.3)),
+          border: Border.all(color: AegisColors.sosRed.withValues(alpha: 0.3)),
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,

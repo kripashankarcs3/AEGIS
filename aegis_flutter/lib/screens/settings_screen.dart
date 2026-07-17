@@ -1,7 +1,7 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
+import '../services/storage_service.dart';
 import '../providers/theme_provider.dart';
 import '../providers/identity_provider.dart';
 import '../providers/mesh_provider.dart';
@@ -25,6 +25,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _lockApp = true;
 
   @override
+  void initState() {
+    super.initState();
+    _autoConnect = StorageService.getSetting('setting_auto_connect') ?? true;
+    _backgroundDiscovery = StorageService.getSetting('setting_bg_discovery') ?? true;
+    _relayThroughMe = StorageService.getSetting('setting_relay') ?? true;
+    _lockApp = StorageService.getSetting('setting_lock_app') ?? true;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final themeProvider = ThemeProviderWidget.of(context);
     return Scaffold(
@@ -36,7 +45,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         leading: Container(
           margin: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
           decoration: BoxDecoration(
-            color: AegisColors.cardBg.withOpacity(0.5),
+            color: AegisColors.cardBg.withValues(alpha: 0.5),
             shape: BoxShape.circle,
             border: Border.all(
               color: AegisColors.border1,
@@ -192,21 +201,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 icon: Icons.wifi_protected_setup_rounded,
                 label: 'Auto Connect',
                 value: _autoConnect,
-                onChanged: (v) => setState(() => _autoConnect = v),
+                onChanged: (v) {
+                  setState(() => _autoConnect = v);
+                  StorageService.setSetting('setting_auto_connect', v);
+                },
               ),
               _buildDivider(),
               _buildToggleRow(
                 icon: Icons.track_changes_rounded,
                 label: 'Background Discovery',
                 value: _backgroundDiscovery,
-                onChanged: (v) => setState(() => _backgroundDiscovery = v),
+                onChanged: (v) {
+                  setState(() => _backgroundDiscovery = v);
+                  StorageService.setSetting('setting_bg_discovery', v);
+                },
               ),
               _buildDivider(),
               _buildToggleRow(
                 icon: Icons.alt_route_rounded,
                 label: 'Relay Through Me',
                 value: _relayThroughMe,
-                onChanged: (v) => setState(() => _relayThroughMe = v),
+                onChanged: (v) {
+                  setState(() => _relayThroughMe = v);
+                  StorageService.setSetting('setting_relay', v);
+                },
                 sublabel: 'Allow other nodes to relay via this device',
               ),
             ]),
@@ -229,14 +247,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 icon: Icons.lock_outline_rounded,
                 label: 'Lock App',
                 value: _lockApp,
-                onChanged: (v) => setState(() => _lockApp = v),
+                onChanged: (v) {
+                  setState(() => _lockApp = v);
+                  StorageService.setSetting('setting_lock_app', v);
+                },
               ),
             ]),
             SizedBox(height: 120.0),
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
@@ -271,7 +291,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Container(
                   width: 44, height: 44,
                   decoration: BoxDecoration(
-                    color: AegisColors.neonGreen.withOpacity(0.1),
+                    color: AegisColors.neonGreen.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.sensors_outlined, color: AegisColors.neonGreen, size: 22),
@@ -330,7 +350,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Container(
                   width: 44, height: 44,
                   decoration: BoxDecoration(
-                    color: AegisColors.amber.withOpacity(0.1),
+                    color: AegisColors.amber.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.portable_wifi_off_outlined, color: AegisColors.amber, size: 22),
@@ -426,7 +446,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     icon,
                     color: selected
                         ? const Color(0xFF256DFF)
-                        : Colors.white.withOpacity(0.7),
+                        : Colors.white.withValues(alpha: 0.7),
                     size: 16,
                   ),
                 ),
@@ -450,7 +470,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 border: Border.all(
                   color: selected
                       ? const Color(0xFF256DFF)
-                      : Colors.white.withOpacity(0.2),
+                      : Colors.white.withValues(alpha: 0.2),
                   width: selected ? 2.0 : 1.5,
                 ),
                 color: selected
@@ -620,142 +640,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return Container(
       height: 1.0,
       color: AegisColors.border1,
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      height: 70,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.6),
-            blurRadius: 40,
-            offset: const Offset(0, 12),
-            spreadRadius: -8,
-          ),
-          BoxShadow(
-            color: const Color(0xFF256DFF).withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF09111F).withOpacity(0.92),
-                  const Color(0xFF08080E).withOpacity(0.92),
-                ],
-              ),
-              border: Border.all(
-                color: AegisColors.border1,
-                width: 0.5,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildNavItem(context, 'Radar', Icons.radar_rounded),
-                _buildNavItem(context, 'Chats', Icons.chat_bubble_outline_rounded),
-                _buildSosFab(context),
-                _buildNavItem(context, 'Resources', Icons.library_books_outlined),
-                _buildNavItem(context, 'Map', Icons.map_outlined),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(BuildContext context, String label, IconData icon) {
-    return Expanded(
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).pop();
-        },
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: AegisColors.textSecondary,
-              size: 22,
-            ),
-            SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
-                color: AegisColors.textSecondary,
-                fontSize: 9.5,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSosFab(BuildContext context) {
-    return Expanded(
-      child: Center(
-        child: GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-          child: Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFFFF0030),
-                  Color(0xFF8B0000),
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFFF0030).withOpacity(0.4),
-                  blurRadius: 15,
-                  spreadRadius: 2,
-                ),
-              ],
-              border: Border.all(
-                color: AegisColors.border2.withOpacity(0.3),
-                width: 1,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                'SOS',
-                style: TextStyle(
-                  color: AegisColors.textPrimary,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 13,
-                  letterSpacing: 0.8,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

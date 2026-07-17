@@ -285,7 +285,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             children: [
               Container(
                 width: 48, height: 48,
-                decoration: BoxDecoration(gradient: LinearGradient(colors: [avatarColor.withOpacity(0.2), avatarColor.withOpacity(0.05)]), shape: BoxShape.circle, border: Border.all(color: avatarColor.withOpacity(urgent ? 0.5 : 0.2), width: urgent ? 1.5 : 1), boxShadow: urgent ? [BoxShadow(color: avatarColor.withOpacity(0.3), blurRadius: 12, spreadRadius: 2)] : null),
+                decoration: BoxDecoration(gradient: LinearGradient(colors: [avatarColor.withValues(alpha: 0.2), avatarColor.withValues(alpha: 0.05)]), shape: BoxShape.circle, border: Border.all(color: avatarColor.withValues(alpha: urgent ? 0.5 : 0.2), width: urgent ? 1.5 : 1), boxShadow: urgent ? [BoxShadow(color: avatarColor.withValues(alpha: 0.3), blurRadius: 12, spreadRadius: 2)] : null),
                 child: Icon(Icons.person_rounded, color: avatarColor, size: 24),
               ),
               if (dot)
@@ -313,7 +313,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: badgeColor!.withOpacity(AegisColors.isLight ? 0.12 : 0.2),
+                        color: badgeColor!.withValues(alpha: AegisColors.isLight ? 0.12 : 0.2),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -327,7 +327,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ]),
               SizedBox(height: 6),
               Row(children: [
-                Expanded(child: Text(subtitle, style: TextStyle(fontSize: 13, color: AegisColors.textSecondary.withOpacity(0.8), fontWeight: urgent ? FontWeight.w600 : FontWeight.w400), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                Expanded(child: Text(subtitle, style: TextStyle(fontSize: 13, color: AegisColors.textSecondary.withValues(alpha: 0.8), fontWeight: urgent ? FontWeight.w600 : FontWeight.w400), maxLines: 1, overflow: TextOverflow.ellipsis)),
                 if (unread > 0)
                   Container(
                     width: 24, height: 24,
@@ -343,7 +343,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _divider() {
-    return Container(margin: const EdgeInsets.only(left: 62), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
+    return Container(margin: const EdgeInsets.only(left: 62), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withValues(alpha: 0.3), Colors.transparent])));
   }
 
   Widget _sheet() {
@@ -370,7 +370,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
         child: Row(children: [
-          Container(width: 40, height: 40, decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.2), width: 0.5)), child: Icon(icon, color: color, size: 20)),
+          Container(width: 40, height: 40, decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.2), width: 0.5)), child: Icon(icon, color: color, size: 20)),
           SizedBox(width: 14),
           Text(label, style: TextStyle(color: AegisColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
         ]),
@@ -379,7 +379,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _sheetDivider() {
-    return Container(margin: const EdgeInsets.symmetric(horizontal: 4), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
+    return Container(margin: const EdgeInsets.symmetric(horizontal: 4), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withValues(alpha: 0.3), Colors.transparent])));
   }
 
   void _showChatOptions(String nodeId) {
@@ -393,9 +393,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
             SizedBox(height: 20),
-            _sheetOpt(Icons.delete_outline_rounded, 'Delete Chat', AegisColors.sosRed, () {
+            _sheetOpt(Icons.delete_outline_rounded, 'Delete Chat', AegisColors.sosRed, () async {
               Navigator.of(context).pop();
               ref.read(survivorProvider.notifier).removeSurvivor(nodeId);
+              await StorageService.deleteChatHistory(nodeId);
             }),
             SizedBox(height: 4),
             _sheetDivider(),

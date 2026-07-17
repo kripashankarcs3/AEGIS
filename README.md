@@ -12,14 +12,14 @@ Every existing communication app — WhatsApp, Telegram, Signal — dies the mom
 
 **AEGIS solves this.**
 
-The core insight: smartphones already have 3 radios — WiFi, WiFi Direct, and Bluetooth. AEGIS uses all 3 simultaneously to form a **self-healing mesh network** between devices, with no internet, no server, and no configuration required.
+The core insight: smartphones already have 3 radios — WiFi, WiFi Direct, and Bluetooth. AEGIS uses all 3 simultaneously to form a **self-healing mesh network** between devices, with **no internet, no server, and no configuration required.**
 
 When you open AEGIS, your phone automatically:
 1. Discovers nearby AEGIS devices (within seconds)
-2. Forms a cryptographic identity (SIG-XXXX) derived from an Ed25519 keypair
+2. Forms a cryptographic identity (`SIG-XXXX`) derived from an Ed25519 keypair
 3. Joins the mesh — your device becomes both a communicator and a relay node
 
-A message from Device A can travel **A → B → C → D** through intermediate devices, even if A and D are 600 meters apart and cannot directly see each other. The more devices, the larger the network.
+A message from Device A can travel **A → B → C → D** through intermediate devices, even if A and D are 600 meters apart and cannot directly see each other.
 
 ---
 
@@ -40,26 +40,112 @@ With AEGIS:     Phone A ──── (mesh) ──── Phone B  ✅  No intern
 
 ---
 
-## How It Works
+## 📡 How Devices Connect — All 4 Methods
 
-### Transport Layer (3 Radios Simultaneously)
+AEGIS uses **4 different ways** to find and connect to nearby devices. All run simultaneously — whichever works first is used.
 
+### Method 1: WiFi Direct (Nearby Connections)
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    AEGIS Transport                       │
-│                                                          │
-│  WiFi LAN ──────── Same hotspot ──────── ~100m, Fast    │
-│  (mDNS)                                                  │
-│                                                          │
-│  WiFi Direct ───── No shared WiFi ────── ~200m, Fast    │
-│  (Nearby Connections)                                    │
-│                                                          │
-│  Bluetooth LE ──── No WiFi needed ────── ~30m, Slow     │
-│  (BLE fallback)                                          │
-└─────────────────────────────────────────────────────────┘
+Requirements : WiFi hardware ON (no router needed)
+Range        : ~100–200 meters
+Speed        : Fast
+How it works : Uses Google's Nearby Connections API with P2P_CLUSTER strategy.
+               Devices advertise and discover each other directly over WiFi Direct
+               without any router, hotspot, or internet.
+
+When it works: Both devices have WiFi turned on (even in airplane mode with WiFi on)
+When it fails: WiFi hardware off, or Location permission denied
 ```
 
-App automatically picks the best available transport. All 3 run simultaneously — first delivery wins, duplicates discarded.
+### Method 2: Bluetooth LE (BLE Fallback)
+```
+Requirements : Bluetooth ON
+Range        : ~10–30 meters
+Speed        : Slower
+How it works : Device advertises its SIG-ID as BLE service data. Scanner picks it up,
+               reads the SIG-ID from advertisement, shows peer on radar.
+               Then connects via GATT for full data transfer.
+
+When it works: Bluetooth on — no WiFi, no internet, no router needed at all
+When it fails: Bluetooth off, or BLUETOOTH_SCAN/ADVERTISE permission denied
+               Note: BLE advertising stops if app is fully killed
+```
+
+### Method 3: Same WiFi / Hotspot (mDNS)
+```
+Requirements : Both devices on SAME WiFi network or hotspot
+Range        : Limited to LAN (~100m)
+Speed        : Fastest (direct TCP)
+How it works : mDNS (multicast DNS) service discovery on local network.
+               Devices announce themselves as _aegis._tcp.local
+               NOTE: Currently mDNS only discovers peers, direct TCP connection
+               requires QR scan after discovery.
+
+When it works: Both on same WiFi router OR one shares hotspot and other joins it
+When it fails: Different networks, or Android firewall blocks multicast
+```
+
+### Method 4: QR Code Direct TCP
+```
+Requirements : Both devices on same WiFi/LAN (to know each other's IP)
+Range        : Same LAN
+Speed        : Fastest
+How it works : Open Identity Screen → Show QR code.
+               Other device scans QR → gets SIG-ID + IP + port → connects via TCP socket.
+               This always works as long as devices can reach each other's IP.
+
+When it works: Same WiFi, or one device is hotspot
+When it fails: Different subnets, no shared network
+```
+
+---
+
+## 🔄 Discovery Decision Flow
+
+```
+App starts → All 4 methods run simultaneously
+
+Method 1 (WiFi Direct)  ──→ Peer found? ──→ Connect, exchange packets
+Method 2 (BLE)          ──→ Peer found? ──→ Connect, exchange packets  
+Method 3 (mDNS)         ──→ Peer found? ──→ Use QR for TCP
+Method 4 (QR TCP)       ──→ Manual scan ──→ Connect directly
+
+First successful connection wins.
+All methods keep running — if one drops, others take over.
+```
+
+### Which method to use for demo?
+
+| Scenario | Best Method |
+|----------|------------|
+| No WiFi, no router | BLE (Bluetooth on) |
+| WiFi on but no router | WiFi Direct (Nearby) |
+| Same hotspot/router | mDNS + QR TCP |
+| Guaranteed connection | QR Code scan |
+
+---
+
+## 🏗 How It Works — Core Architecture
+
+### Transport Layer (3 Radios + 1 Manual)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      AEGIS Transport                             │
+│                                                                  │
+│  WiFi Direct ──── No router needed ───── ~200m, Fast           │
+│  (Nearby Connections — Google P2P)                               │
+│                                                                  │
+│  Bluetooth LE ─── No WiFi needed ──────── ~30m, Fallback       │
+│  (BLE GATT)                                                      │
+│                                                                  │
+│  WiFi LAN ─────── Same hotspot/router ─── ~100m, Fast          │
+│  (mDNS discovery → TCP)                                          │
+│                                                                  │
+│  QR Direct TCP ── Manual scan ────────── Same LAN, Reliable    │
+│  (TCP Socket from Identity Screen)                               │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ### Mesh Routing (How Messages Travel)
 
@@ -78,7 +164,6 @@ Message from A to C:
   B forwards to all its peers (except A)
   C receives, checks: "Is this for me? Yes."
   C delivers to chat service
-  C sends ACK back to A via same mesh
 ```
 
 **Loop Prevention:** Every packet has a unique ID. Each device caches seen IDs — duplicates are instantly dropped.
@@ -100,80 +185,118 @@ No accounts. No servers. No registration.
 ### SOS Emergency Flow
 
 ```
+User selects category (Medical/Fire/Water/Trapped/Other)
 User holds SOS button (3 seconds)
     ↓
-App gets GPS coordinates (5s timeout)
+App gets GPS coordinates (8s timeout, falls back to last known)
     ↓
-Creates SOS packet: {type: sos, category: Medical, gps: {lat, lng}, ttl: 15}
+Creates SOS packet: {type: sos, category: Medical, lat: X, lng: Y, ttl: 10}
     ↓
 Floods to ALL nearby nodes simultaneously
     ↓
-Every device within mesh range receives it
-    ↓
-Full-screen red alert overlay shown
-Audio alarm + vibration triggered
+Every device within mesh range:
+  - Shows full-screen red alert overlay
+  - Displays sender SIG-ID, location, category, hop count
+  - Audio alarm + vibration triggered
+  - Can open chat directly from overlay
 ```
-
-### QR Code Direct Connect
-
-When WiFi Direct and mDNS both fail, devices can connect by scanning each other's QR code from the Identity screen. The QR encodes `SIG-ID + IP + port` for direct TCP connection.
 
 ---
 
-## Key Features
+## ✨ Key Features
 
 | Feature | Description |
 |---------|-------------|
 | **Zero Infrastructure** | No internet, no server, no accounts required |
-| **3-Layer Transport** | WiFi LAN (mDNS) + WiFi Direct (Nearby Connections) + Bluetooth LE |
-| **Mesh Relay** | Messages hop through intermediate devices — up to 200m range per hop |
+| **4-Layer Transport** | WiFi Direct + BLE + mDNS + QR TCP |
+| **Mesh Relay** | Messages hop through intermediate devices — multi-hop range |
 | **Encrypted Identity** | Ed25519 keypair — permanent, device-local, cryptographic |
-| **SOS Alerts** | Emergency broadcast to all nearby nodes with GPS coordinates |
+| **SOS Alerts** | Emergency broadcast with category + GPS to all nearby nodes |
 | **Status Beacon** | Periodic survivor status (Safe / Need Help / Have Resources) |
 | **Resource Feed** | Share and request resources (water, food, medicine, shelter) |
-| **Network Map** | Live visualization of mesh topology with real peer data |
+| **Network Map** | Live visualization of mesh topology |
 | **Offline-First** | All data stored locally with Hive — zero cloud dependency |
 | **QR Connect** | Scan peer QR code to connect directly via TCP |
+| **Chat History** | Messages persist across app restarts |
+| **Emergency Contacts** | Store offline contacts for crisis situations |
 
 ---
 
-## Tech Stack
+## 🛠 Tech Stack
 
 | Component | Technology |
 |-----------|------------|
-| Framework | Flutter (Android + iOS) |
-| State Management | Riverpod |
-| Transport Layer 1 | `multicast_dns` — mDNS/Bonjour discovery |
-| Transport Layer 2 | `nearby_connections` — WiFi Direct (Google Nearby) |
-| Transport Layer 3 | `flutter_blue_plus` — Bluetooth LE |
-| Direct Connect | TCP Socket (via QR code scan) |
-| Storage | Hive (local NoSQL, offline-first) |
+| Framework | Flutter (Android) |
+| State Management | Riverpod (StateNotifier) |
+| Transport 1 — WiFi Direct | `nearby_connections` (Google Nearby) |
+| Transport 2 — Bluetooth LE | `flutter_blue_plus` |
+| Transport 3 — mDNS | `multicast_dns` |
+| Transport 4 — Direct TCP | `dart:io` ServerSocket / Socket |
+| Storage | Hive (offline-first NoSQL) |
 | Cryptography | Ed25519 keypair (`cryptography` package) |
-| Notifications | `flutter_local_notifications` |
 | Location | `geolocator` |
+| Notifications | `flutter_local_notifications` |
+| QR Generate | `qr_flutter` |
+| QR Scan | `mobile_scanner` |
+| Network Info | `network_info_plus` |
 
 ---
 
-## Project Structure
+## 📦 Packet Types
+
+| Type | TTL | Mode | Purpose |
+|------|-----|------|---------|
+| `chat` | 10 | Unicast | Direct message to specific SIG-ID |
+| `ack` | 5 | Unicast | Delivery receipt |
+| `sos` | 10 | Broadcast | Emergency alert with GPS + category |
+| `status` | 5 | Broadcast | Heartbeat — survivor radar updates |
+| `resource` | 5 | Broadcast | Offer/request broadcast |
+
+---
+
+## 📁 Project Structure
 
 ```
 aegis_flutter/
 ├── lib/
-│   ├── core/          ← Mesh router, crypto, identity, SOS, beacons
-│   ├── transport/     ← Nearby, Bluetooth, mDNS, Direct TCP
-│   ├── providers/     ← Riverpod state (mesh, chat, identity, survivors)
-│   ├── screens/       ← All UI screens
-│   ├── models/        ← SignalPacket, SurvivorNode, ResourceItem
-│   ├── services/      ← Storage (Hive), notifications, background
-│   └── widgets/       ← Radar painter, SOS banner, resource card
+│   ├── core/
+│   │   ├── mesh_router.dart       ← Multi-hop routing, dedup, TTL
+│   │   ├── identity_manager.dart  ← Ed25519 keypair, SIG-ID generation
+│   │   ├── sos_handler.dart       ← SOS send/receive/log
+│   │   ├── status_beacon.dart     ← Periodic status broadcast
+│   │   ├── resource_manager.dart  ← Resource share/receive
+│   │   ├── peer_manager.dart      ← Active peer tracking
+│   │   ├── message_queue.dart     ← Offline retry queue
+│   │   ├── crypto_service.dart    ← Ed25519 sign/verify
+│   │   └── mdns_discovery.dart    ← mDNS service lookup
+│   │
+│   ├── transport/
+│   │   ├── transport_manager.dart ← Orchestrates all transports
+│   │   ├── nearby_service.dart    ← WiFi Direct (Nearby Connections)
+│   │   ├── bluetooth_service.dart ← BLE advertise + scan + GATT
+│   │   └── direct_tcp_service.dart← TCP socket server + client
+│   │
+│   ├── providers/
+│   │   ├── mesh_provider.dart     ← Central mesh coordinator
+│   │   ├── chat_provider.dart     ← Per-peer chat state
+│   │   ├── survivor_provider.dart ← All known peers state
+│   │   └── identity_provider.dart ← Local identity state
+│   │
+│   ├── screens/                   ← All UI screens
+│   ├── models/                    ← SignalPacket, SurvivorNode, etc.
+│   ├── services/                  ← Storage, notifications, background
+│   └── widgets/                   ← Radar painter, SOS banner, cards
+│
 ├── android/
-│   └── app/src/main/  ← AndroidManifest (permissions), MainActivity (multicast lock)
+│   ├── app/src/main/
+│   │   ├── AndroidManifest.xml    ← All permissions
+│   │   └── kotlin/.../MainActivity.kt ← BLE advertising, multicast lock
 └── pubspec.yaml
 ```
 
 ---
 
-## Running the App
+## 🚀 Running the App
 
 ```bash
 cd aegis_flutter
@@ -182,19 +305,81 @@ flutter run
 ```
 
 **Requirements:**
-- Android device (API 21+)
-- Grant: Location, Nearby Devices, Bluetooth permissions on first launch
+- Android device (API 21+), not emulator
+- Grant permissions on first launch: Location, Nearby Devices, Bluetooth
+
+**No server needed. No backend. No internet.**
 
 ---
 
-## Demo Script (3 minutes)
+## 🎬 Demo Script (3 minutes)
 
-1. **Open AEGIS on 2+ Android devices** — SIG-ID auto-generated, no signup
-2. **Radar screen** — devices discover each other within seconds, appear as nodes
-3. **Send a chat message** — delivered via mesh relay, hop count shown
-4. **Trigger SOS** — hold button 3 seconds — all devices receive red alert instantly
-5. **Post a resource** — appears in all devices' resource feed in real-time
-6. **Network Map** — live topology showing all connected nodes and relay paths
+### Setup
+- 2 Android phones with AEGIS installed
+- No internet required — airplane mode works if WiFi/BT on
+
+### Steps
+
+1. **Open AEGIS on both phones**
+   - Each device auto-generates a SIG-ID (e.g., SIG-7F3A)
+   - No signup, no account needed
+
+2. **Watch radar screen** — within ~15 seconds, both devices appear as nodes
+
+3. **Send a chat message** from Device A to Device B
+   - Message delivered via mesh relay
+   - Shows hop count and delivery status
+
+4. **Trigger SOS on Device A**
+   - Select category (e.g., Medical), hold button 3 seconds
+   - Device B shows red full-screen alert with location and category
+   - Device A shows "SOS Sent" confirmation
+
+5. **Post a resource on Device A**
+   - Tap Resources → "Offer Resource" → select Water
+   - Device B sees it in real-time resource feed
+
+6. **Show QR Connect**
+   - Open Identity screen on Device A → show QR
+   - Scan with Device B → instant TCP connection
+
+---
+
+## ⚙️ Android Permissions Explained
+
+| Permission | Why Needed |
+|------------|------------|
+| `ACCESS_FINE_LOCATION` | Required by Android for WiFi Direct + BLE scan |
+| `NEARBY_WIFI_DEVICES` | Required for Nearby Connections (Android 13+) |
+| `BLUETOOTH_SCAN` | BLE scanning |
+| `BLUETOOTH_ADVERTISE` | BLE advertising (so others find us) |
+| `BLUETOOTH_CONNECT` | GATT connection after discovery |
+| `CHANGE_WIFI_MULTICAST_STATE` | Required for mDNS multicast |
+| `CAMERA` | QR code scanning |
+| `POST_NOTIFICATIONS` | SOS + chat notifications |
+
+---
+
+## 🧪 Troubleshooting
+
+### Devices not finding each other
+1. **Check permissions** — Location must be ON (not just allowed, but GPS enabled on Android)
+2. **WiFi Direct**: Make sure WiFi is on (router not needed, just hardware)
+3. **BLE**: Make sure Bluetooth is on, and app is in foreground
+4. **QR fallback**: Use QR scan if auto-discovery fails — guaranteed connection
+
+### BLE not detecting
+- Both devices must have Bluetooth on
+- Keep app in foreground during discovery
+- Give it ~15 seconds for first scan cycle to complete
+
+### Nearby Connections failing
+- Location permission must be ALWAYS or WHILE USING
+- On Android 12+, "Nearby devices" permission must be granted
+
+### Messages not delivering
+- Check both devices show each other in radar
+- Try QR scan to establish direct connection first
 
 ---
 
@@ -202,9 +387,9 @@ flutter run
 
 **AEGIS — Build.IT '26**
 - Mesh routing + cryptography + transport integration
-- UI/UX screens + animations  
+- UI/UX screens + animations
 - Transport layers + Android platform configuration
 
 ---
 
-*Minimum Viable Demo: 2 Android devices on same hotspot → open AEGIS → chat without internet.*
+*Minimum Viable Demo: 2 Android devices → open AEGIS → both detect each other → chat without internet.*

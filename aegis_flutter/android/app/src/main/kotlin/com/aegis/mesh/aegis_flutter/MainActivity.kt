@@ -51,6 +51,12 @@ class MainActivity : FlutterActivity() {
     override fun onStop() {
         super.onStop()
         releaseMulticastLock()
+        // Do NOT stop BLE advertising on stop — app may be in background
+        // Advertising continues so nearby devices can still discover us
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         stopBleAdvertising()
     }
 
@@ -81,7 +87,7 @@ class MainActivity : FlutterActivity() {
             }
 
             val settings = AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_POWER)
+                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
                 .setConnectable(true)
                 .build()

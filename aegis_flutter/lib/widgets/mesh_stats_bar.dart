@@ -72,7 +72,7 @@ class MeshStatsBar extends ConsumerWidget {
     return Container(
       width: 0.5,
       height: 32,
-      color: AegisColors.border1.withOpacity(0.5),
+      color: AegisColors.border1.withValues(alpha: 0.5),
     );
   }
 }

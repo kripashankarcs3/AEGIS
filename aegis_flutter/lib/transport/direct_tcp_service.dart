@@ -164,6 +164,55 @@ class DirectTcpService {
 
   bool hasPeer(String sigId) => _connections.containsKey(sigId);
 
+  /// Connect to a peer by IP:port without knowing SIG-ID in advance.
+  /// Extracts the SIG-ID from the remote handshake and registers the connection.
+  /// Returns the remote SIG-ID on success, or null on failure.
+  Future<String?> connectToAddress(String ip, int port) async {
+    for (final entry in _connections.entries) {
+      try {
+        if (entry.value.remoteAddress.address == ip) return entry.key;
+      } catch (_) {}
+    }
+
+    try {
+      final socket = await Socket.connect(ip, port,
+          timeout: const Duration(seconds: 5));
+      _sendHandshake(socket);
+
+      final completer = Completer<String?>();
+      final buffer = <int>[];
+      String? peerSigId;
+
+      socket.listen(
+        (data) {
+          buffer.addAll(data);
+          _processBuffer(buffer, socket, (id) {
+            if (!completer.isCompleted) {
+              peerSigId = id;
+              _connections[id] = socket;
+              completer.complete(id);
+              debugPrint('🔌 DirectTCP: Connected via mDNS to $id at $ip:$port');
+            }
+          }, peerSigId);
+        },
+        onDone: () {
+          if (peerSigId != null) _onDisconnected(peerSigId!);
+          if (!completer.isCompleted) completer.complete(null);
+        },
+        onError: (e) {
+          debugPrint('❌ DirectTCP: mDNS socket error at $ip:$port: $e');
+          if (peerSigId != null) _onDisconnected(peerSigId!);
+          if (!completer.isCompleted) completer.complete(null);
+        },
+      );
+
+      return completer.future.timeout(const Duration(seconds: 5));
+    } catch (e) {
+      debugPrint('❌ DirectTCP: Failed mDNS connect to $ip:$port: $e');
+      return null;
+    }
+  }
+
   Future<void> send(SignalPacket packet, {String? peerSigId}) async {
     final json = jsonEncode(packet.toJson());
 

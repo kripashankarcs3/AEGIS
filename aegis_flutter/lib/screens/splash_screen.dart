@@ -31,7 +31,7 @@ class LogoShieldPainter extends CustomPainter {
 
     // 1. Outer blue bloom (glowing shadow) - Opacity 20%, Blue #256DFF
     final bloomPaint = Paint()
-      ..color = const Color(0xFF256DFF).withOpacity(0.20)
+      ..color = const Color(0xFF256DFF).withValues(alpha: 0.20)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 6.0 * glowFactor
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 12.0 * glowFactor);
@@ -52,7 +52,7 @@ class LogoShieldPainter extends CustomPainter {
 
     // Subtle glossy specular layer inside shield
     final specularPaint = Paint()
-      ..color = Colors.white.withOpacity(0.04)
+      ..color = Colors.white.withValues(alpha: 0.04)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, specularPaint);
 
@@ -79,7 +79,7 @@ class LogoShieldPainter extends CustomPainter {
     highlightPath.quadraticBezierTo(w * 0.08, h * 0.25, w * 0.11, h * 0.40);
 
     final highlightPaint = Paint()
-      ..color = Colors.white.withOpacity(0.25)
+      ..color = Colors.white.withValues(alpha: 0.25)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
     canvas.drawPath(highlightPath, highlightPaint);
@@ -109,12 +109,12 @@ class MeshGlobePainter extends CustomPainter {
 
     // 1. Double ambient glow layers behind horizon
     final glowPaint1 = Paint()
-      ..color = const Color(0xFF256DFF).withOpacity(0.22)
+      ..color = const Color(0xFF256DFF).withValues(alpha: 0.22)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 35.0);
     canvas.drawCircle(center, radius, glowPaint1);
 
     final glowPaint2 = Paint()
-      ..color = const Color(0xFF27D8FF).withOpacity(0.12)
+      ..color = const Color(0xFF27D8FF).withValues(alpha: 0.12)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12.0);
     canvas.drawCircle(center, radius, glowPaint2);
 
@@ -124,7 +124,7 @@ class MeshGlobePainter extends CustomPainter {
     final double sweepAngle = startAngle + (endAngle - startAngle) * sweepValue;
 
     final sweepPaint = Paint()
-      ..color = const Color(0xFF27D8FF).withOpacity(0.35)
+      ..color = const Color(0xFF27D8FF).withValues(alpha: 0.35)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14.0);
 
     final Offset sweepPoint = Offset(
@@ -135,14 +135,14 @@ class MeshGlobePainter extends CustomPainter {
 
     // 3. Main glowing arc outline (planet horizon)
     final arcPaint = Paint()
-      ..color = const Color(0xFF256DFF).withOpacity(0.65)
+      ..color = const Color(0xFF256DFF).withValues(alpha: 0.65)
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
     canvas.drawCircle(center, radius, arcPaint);
 
     // Specular highlight outline
     final arcHighlight = Paint()
-      ..color = const Color(0xFF27D8FF).withOpacity(0.8)
+      ..color = const Color(0xFF27D8FF).withValues(alpha: 0.8)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
     canvas.drawCircle(center, radius - 0.5, arcHighlight);
@@ -150,7 +150,7 @@ class MeshGlobePainter extends CustomPainter {
     // 4. Latitude concentric curves
     final gridPaint = Paint()
       ..color = const Color(0xFF256DFF)
-          .withOpacity(0.12 + (pulseValue * 0.05)) // Soft pulsing
+          .withValues(alpha: 0.12 + (pulseValue * 0.05)) // Soft pulsing
       ..strokeWidth = 0.9
       ..style = PaintingStyle.stroke;
 
@@ -199,7 +199,7 @@ class MeshGlobePainter extends CustomPainter {
 
     // Draw connecting lines between close points
     final lineConnPaint = Paint()
-      ..color = const Color(0xFF256DFF).withOpacity(0.18 + (pulseValue * 0.06))
+      ..color = const Color(0xFF256DFF).withValues(alpha: 0.18 + (pulseValue * 0.06))
       ..strokeWidth = 0.7;
 
     for (int i = 0; i < points.length; i++) {
@@ -224,13 +224,13 @@ class MeshGlobePainter extends CustomPainter {
               : Colors.white); // Cyan and White
 
       final Paint dotPaint = Paint()
-        ..color = color.withOpacity(0.4 + (blinkFactor * 0.5));
+        ..color = color.withValues(alpha: 0.4 + (blinkFactor * 0.5));
       canvas.drawCircle(points[i], size, dotPaint);
 
       // Add a tiny halo glow around orange and cyan points
       if (i % 3 == 0) {
         final Paint haloPaint = Paint()
-          ..color = color.withOpacity(0.15 * blinkFactor)
+          ..color = color.withValues(alpha: 0.15 * blinkFactor)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.0);
         canvas.drawCircle(points[i], size * 3.5, haloPaint);
       }
@@ -265,7 +265,7 @@ class StarsBackgroundPainter extends CustomPainter {
           Colors.transparent,
         ],
       ).createShader(rect)
-      ..color = const Color(0xFF256DFF).withOpacity(0.04);
+      ..color = const Color(0xFF256DFF).withValues(alpha: 0.04);
     canvas.drawRect(rect, glowPaint);
 
     // 2. Draw tiny blue particles & very small stars with floating animation
@@ -299,7 +299,7 @@ class StarsBackgroundPainter extends CustomPainter {
 
       final Paint paint = Paint()
         ..color = color
-            .withOpacity(opacity * 0.08); // Ensure overall opacity is under 8%!
+            .withValues(alpha: opacity * 0.08); // Ensure overall opacity is under 8%!
       canvas.drawCircle(Offset(x, y), radius, paint);
     }
   }
@@ -509,7 +509,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                                 boxShadow: [
                                   // Outer blue bloom shadow
                                   BoxShadow(
-                                    color: const Color(0xFF256DFF).withOpacity(
+                                    color: const Color(0xFF256DFF).withValues(alpha: 
                                         0.20 * (breatheVal - 1.0 + 1.0)),
                                     blurRadius: 24.0 * breatheVal,
                                     spreadRadius: 1.0,

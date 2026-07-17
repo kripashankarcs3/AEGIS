@@ -122,10 +122,10 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                     width: 40.0,
                     height: 40.0,
                     decoration: BoxDecoration(
-                      color: AegisColors.neonGreen.withOpacity(0.08),
+                      color: AegisColors.neonGreen.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AegisColors.neonGreen.withOpacity(0.3),
+                        color: AegisColors.neonGreen.withValues(alpha: 0.3),
                         width: 1.0,
                       ),
                     ),
@@ -170,7 +170,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                           _batterySaverMode = val;
                         });
                       },
-                      activeColor: Colors.white,
+                      activeThumbColor: Colors.white,
                       activeTrackColor: AegisColors.neonGreen,
                       inactiveThumbColor: Colors.grey,
                       inactiveTrackColor: AegisColors.border1,

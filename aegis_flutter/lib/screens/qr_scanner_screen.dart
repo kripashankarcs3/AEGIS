@@ -127,7 +127,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                     width: 260,
                     height: 260,
                     decoration: BoxDecoration(
-                      border: Border.all(color: AegisColors.electricBlue.withOpacity(0.6), width: 2),
+                      border: Border.all(color: AegisColors.electricBlue.withValues(alpha: 0.6), width: 2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Column(
@@ -135,7 +135,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                       children: [
                         Icon(
                           Icons.qr_code_scanner,
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           size: 64,
                         ),
                       ],
@@ -150,7 +150,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.9),
+                        color: Colors.red.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -183,7 +183,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Colors.black.withOpacity(0), Colors.black],
+                colors: [Colors.black.withValues(alpha: 0), Colors.black],
               ),
             ),
             child: Column(
@@ -192,7 +192,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                   'Point camera at another AEGIS device\'s QR code',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     height: 1.4,
@@ -213,7 +213,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                       child: Text(
                         'Cancel',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),

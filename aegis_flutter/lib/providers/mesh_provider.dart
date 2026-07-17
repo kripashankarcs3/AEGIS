@@ -285,6 +285,13 @@ class MeshNotifier extends StateNotifier<MeshState> {
         _addActivity('🆘 SOS from ${p.from}');
         _sosAlertStreamController.add(p);
         await _sosHandler.onIncoming(p);
+        if (p.from != myId) {
+          NotificationService.instance.showSosNotification(
+            from: p.from,
+            category: p.category ?? 'Emergency',
+            message: p.payload.isNotEmpty ? p.payload : 'Emergency assistance needed!',
+          );
+        }
       }
       ..onStatusReceived = (p) async {
         _addActivity('📡 Status update from ${p.from}');
@@ -361,8 +368,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
       debugPrint('⚠️ Direct TCP server error: $e');
     }
 
-    // 8. Start background timers (and message queue retry)
-    _messageQueue.start();
+    // 8. Start background timers (and message queue retry — via BackgroundService)
     _backgroundService.start();
 
     // 8b. Periodically cleanup stale + update network health

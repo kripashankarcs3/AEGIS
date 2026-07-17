@@ -6,13 +6,11 @@ import '../providers/survivor_provider.dart';
 class NodePopupCard extends ConsumerWidget {
   final String nodeId;
   final VoidCallback onOpenChat;
-  final VoidCallback? onSendSos;
 
   const NodePopupCard(
       {super.key,
       required this.nodeId,
-      required this.onOpenChat,
-      this.onSendSos});
+      required this.onOpenChat});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -79,12 +77,12 @@ class NodePopupCard extends ConsumerWidget {
                   height: 64,
                   decoration: BoxDecoration(
                       gradient: LinearGradient(colors: [
-                        AegisColors.violet.withOpacity(0.2),
-                        AegisColors.violet.withOpacity(0.05)
+                        AegisColors.violet.withValues(alpha: 0.2),
+                        AegisColors.violet.withValues(alpha: 0.05)
                       ]),
                       shape: BoxShape.circle,
                       border: Border.all(
-                          color: AegisColors.violet.withOpacity(0.2),
+                          color: AegisColors.violet.withValues(alpha: 0.2),
                           width: 1.5)),
                   child: Center(
                       child: Icon(Icons.person_rounded,
@@ -101,10 +99,10 @@ class NodePopupCard extends ConsumerWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                        color: statusColor.withOpacity(0.2), width: 0.5)),
+                        color: statusColor.withValues(alpha: 0.2), width: 0.5)),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Container(
                       width: 6,
@@ -112,7 +110,7 @@ class NodePopupCard extends ConsumerWidget {
                       decoration: BoxDecoration(
                           color: statusColor, shape: BoxShape.circle)),
                   SizedBox(width: 6),
-                  Text("$status  •  ${isOnline ? '1 hop away' : 'Offline'}",
+                  Text("$status  •  ${isOnline ? '${5 - (node?.signalStrength ?? 1)} hop(s) away' : 'Offline'}",
                       style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -126,7 +124,7 @@ class NodePopupCard extends ConsumerWidget {
                   color: AegisColors.surface2,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                      color: AegisColors.border1.withOpacity(0.4), width: 0.5)),
+                      color: AegisColors.border1.withValues(alpha: 0.4), width: 0.5)),
               child: Column(children: [
                 _row(Icons.access_time_rounded, 'Last Seen',
                     value: lastSeenStr),
@@ -165,7 +163,7 @@ class NodePopupCard extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                            color: AegisColors.violet.withOpacity(0.3),
+                            color: AegisColors.violet.withValues(alpha: 0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 6))
                       ]),
@@ -173,7 +171,7 @@ class NodePopupCard extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.chat_bubble_outline_rounded,
-                            color: Colors.white.withOpacity(0.9), size: 18),
+                            color: Colors.white.withValues(alpha: 0.9), size: 18),
                         SizedBox(width: 10),
                         Text('OPEN CHAT',
                             style: TextStyle(
@@ -183,33 +181,7 @@ class NodePopupCard extends ConsumerWidget {
                                 letterSpacing: 0.3)),
                       ])),
             ),
-            SizedBox(height: 12),
-            GestureDetector(
-              onTap: onSendSos ?? () {},
-              child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                          color: AegisColors.sosRed.withOpacity(0.4),
-                          width: 1)),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.notifications_active_outlined,
-                            color: AegisColors.sosRed.withOpacity(0.9),
-                            size: 18),
-                        SizedBox(width: 10),
-                        Text('SEND SOS',
-                            style: TextStyle(
-                                color: AegisColors.sosRed.withOpacity(0.9),
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                                letterSpacing: 0.3)),
-                      ])),
-            ),
+
           ]),
     );
   }
@@ -263,7 +235,7 @@ class NodePopupCard extends ConsumerWidget {
                 end: Alignment.centerRight,
                 colors: [
               Colors.transparent,
-              AegisColors.border1.withOpacity(0.4),
+              AegisColors.border1.withValues(alpha: 0.4),
               Colors.transparent
             ])));
   }

@@ -113,7 +113,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
-        backgroundColor: AegisColors.surface0.withOpacity(0.95),
+        backgroundColor: AegisColors.surface0.withValues(alpha: 0.95),
         elevation: 0,
         leading: Container(
           margin: const EdgeInsets.all(4),
@@ -126,7 +126,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
             decoration: BoxDecoration(
               gradient: isOnline ? AegisColors.greenGradient : LinearGradient(colors: [AegisColors.textMuted, AegisColors.textDim]),
               shape: BoxShape.circle,
-              boxShadow: isOnline ? [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.3), blurRadius: 8, spreadRadius: 1)] : null,
+              boxShadow: isOnline ? [BoxShadow(color: AegisColors.neonGreen.withValues(alpha: 0.3), blurRadius: 8, spreadRadius: 1)] : null,
             ),
             child: Center(child: Icon(Icons.person_rounded, color: Colors.white, size: 18)),
           ),
@@ -239,7 +239,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
       child: Center(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-          decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(12), border: Border.all(color: AegisColors.border1.withOpacity(0.3), width: 0.5)),
+          decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(12), border: Border.all(color: AegisColors.border1.withValues(alpha: 0.3), width: 0.5)),
           child: Text(_formatDate(dt), style: TextStyle(color: AegisColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
         ),
       ),
@@ -252,7 +252,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
       child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
         Container(
           width: 28, height: 28,
-          decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.violet.withOpacity(0.3), AegisColors.violet.withOpacity(0.1)]), shape: BoxShape.circle),
+          decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.violet.withValues(alpha: 0.3), AegisColors.violet.withValues(alpha: 0.1)]), shape: BoxShape.circle),
           child: Center(child: Icon(Icons.person_rounded, size: 14, color: AegisColors.violet)),
         ),
         SizedBox(width: 8),
@@ -261,11 +261,11 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
             onLongPress: () => _copyMessage(entry.text),
             child: Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AegisColors.isLight ? const Color(0xFFF3F4F6) : AegisColors.surface2, borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomLeft: Radius.circular(4), bottomRight: Radius.circular(20)), border: Border.all(color: AegisColors.border1.withOpacity(0.2), width: 0.5)),
+              decoration: BoxDecoration(color: AegisColors.isLight ? const Color(0xFFF3F4F6) : AegisColors.surface2, borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomLeft: Radius.circular(4), bottomRight: Radius.circular(20)), border: Border.all(color: AegisColors.border1.withValues(alpha: 0.2), width: 0.5)),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
                 Text(entry.text, style: AegisStyles.message),
                 SizedBox(height: 6),
-                Align(alignment: Alignment.bottomRight, child: Text(time, style: AegisStyles.timestamp.copyWith(color: AegisColors.textSecondary.withOpacity(0.8)))),
+                Align(alignment: Alignment.bottomRight, child: Text(time, style: AegisStyles.timestamp.copyWith(color: AegisColors.textSecondary.withValues(alpha: 0.8)))),
               ]),
             ),
           ),
@@ -288,13 +288,13 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
               decoration: BoxDecoration(
                 color: AegisColors.isLight ? const Color(0xFFDCFCE7) : const Color(0xFF064E3B),
                 borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(4)),
-                border: Border.all(color: AegisColors.isLight ? const Color(0xFFA7F3D0).withOpacity(0.5) : AegisColors.neonGreen.withOpacity(0.15), width: 0.5),
+                border: Border.all(color: AegisColors.isLight ? const Color(0xFFA7F3D0).withValues(alpha: 0.5) : AegisColors.neonGreen.withValues(alpha: 0.15), width: 0.5),
               ),
               child: Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
                 Text(entry.text, style: AegisStyles.message.copyWith(color: AegisColors.isLight ? const Color(0xFF111827) : Colors.white)),
                 SizedBox(height: 6),
                 Row(mainAxisSize: MainAxisSize.min, children: [
-                  Text(time, style: AegisStyles.timestamp.copyWith(color: AegisColors.isLight ? const Color(0xFF047857) : Colors.white.withOpacity(0.6))),
+                  Text(time, style: AegisStyles.timestamp.copyWith(color: AegisColors.isLight ? const Color(0xFF047857) : Colors.white.withValues(alpha: 0.6))),
                   SizedBox(width: 4),
                   if (isSending)
                     SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 1.5, color: AegisColors.isLight ? const Color(0xFF047857) : Colors.white60)),
@@ -318,7 +318,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
             onLongPress: () => _copyMessage(entry.text),
             child: Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AegisColors.isLight ? AegisColors.warning.withOpacity(0.08) : const Color(0xFF2D1F10), borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(4)), border: Border.all(color: AegisColors.warning.withOpacity(0.3), width: 0.5)),
+              decoration: BoxDecoration(color: AegisColors.isLight ? AegisColors.warning.withValues(alpha: 0.08) : const Color(0xFF2D1F10), borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(4)), border: Border.all(color: AegisColors.warning.withValues(alpha: 0.3), width: 0.5)),
               child: Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
                 Text(entry.text, style: AegisStyles.message),
                 SizedBox(height: 6),
@@ -341,9 +341,9 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: AegisColors.isLight ? AegisColors.surface0 : const Color(0xFF1E1710), borderRadius: BorderRadius.circular(14), border: Border.all(color: AegisColors.warning.withOpacity(0.25), width: 0.5)),
+      decoration: BoxDecoration(color: AegisColors.isLight ? AegisColors.surface0 : const Color(0xFF1E1710), borderRadius: BorderRadius.circular(14), border: Border.all(color: AegisColors.warning.withValues(alpha: 0.25), width: 0.5)),
       child: Row(children: [
-        Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.warning.withOpacity(0.15), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.access_time_rounded, color: AegisColors.warning, size: 18)),
+        Container(width: 36, height: 36, decoration: BoxDecoration(color: AegisColors.warning.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.access_time_rounded, color: AegisColors.warning, size: 18)),
         SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
           Text('Queued Message', style: TextStyle(color: AegisColors.textPrimary, fontWeight: FontWeight.w700, fontSize: 13)),
@@ -359,13 +359,13 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
       decoration: BoxDecoration(
         color: const Color(0xFF08080E),
-        border: Border(top: BorderSide(color: AegisColors.border1.withOpacity(0.2), width: 0.5)),
+        border: Border(top: BorderSide(color: AegisColors.border1.withValues(alpha: 0.2), width: 0.5)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
         Expanded(
           child: Container(
             constraints: const BoxConstraints(minHeight: 46, maxHeight: 120),
-            decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withOpacity(0.4), width: 0.5)),
+            decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(20), border: Border.all(color: AegisColors.border1.withValues(alpha: 0.4), width: 0.5)),
             padding: const EdgeInsets.only(left: 14, right: 4),
             child: Row(children: [
               Expanded(child: TextField(
@@ -379,7 +379,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
               )),
               GestureDetector(
                 onTap: () => showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (_) => _attachSheet()),
-                child: Container(width: 36, height: 36, margin: const EdgeInsets.only(bottom: 6), decoration: BoxDecoration(color: AegisColors.border1.withOpacity(0.3), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.attach_file_rounded, color: AegisColors.textMuted, size: 18)),
+                child: Container(width: 36, height: 36, margin: const EdgeInsets.only(bottom: 6), decoration: BoxDecoration(color: AegisColors.border1.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.attach_file_rounded, color: AegisColors.textMuted, size: 18)),
               ),
             ]),
           ),
@@ -393,7 +393,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
             decoration: BoxDecoration(
               gradient: _messageController.text.trim().isEmpty ? LinearGradient(colors: [AegisColors.textMuted, AegisColors.textDim]) : AegisColors.greenGradient,
               shape: BoxShape.circle,
-              boxShadow: _messageController.text.trim().isEmpty ? null : [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.3), blurRadius: 12, spreadRadius: 1)],
+              boxShadow: _messageController.text.trim().isEmpty ? null : [BoxShadow(color: AegisColors.neonGreen.withValues(alpha: 0.3), blurRadius: 12, spreadRadius: 1)],
             ),
             child: Icon(Icons.send_rounded, color: _messageController.text.trim().isEmpty ? AegisColors.textDim : AegisColors.textPrimary, size: 20),
           ),
@@ -424,7 +424,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
     return InkWell(
       onTap: onTap, borderRadius: BorderRadius.circular(14),
       child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12), child: Row(children: [
-        Container(width: 40, height: 40, decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.2), width: 0.5)), child: Icon(icon, color: color, size: 20)),
+        Container(width: 40, height: 40, decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.2), width: 0.5)), child: Icon(icon, color: color, size: 20)),
         SizedBox(width: 14),
         Text(label, style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
       ])),
@@ -432,6 +432,6 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
   }
 
   Widget _sheetDivider() {
-    return Container(margin: const EdgeInsets.symmetric(horizontal: 4), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withOpacity(0.3), Colors.transparent])));
+    return Container(margin: const EdgeInsets.symmetric(horizontal: 4), height: 0.5, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Colors.transparent, AegisColors.border1.withValues(alpha: 0.3), Colors.transparent])));
   }
 }

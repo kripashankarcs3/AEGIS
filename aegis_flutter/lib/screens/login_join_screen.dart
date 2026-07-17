@@ -373,35 +373,7 @@ colors: [
   }
 
   void _continueWithPhone(BuildContext context) {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AegisColors.cardBg,
-        title: const Text('Enter your name'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Your name or callsign',
-          ),
-          style: TextStyle(color: AegisColors.textPrimary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              _navigateToMainShell(context);
-            },
-            child: const Text('Continue'),
-          ),
-        ],
-      ),
-    );
+    _navigateToMainShell(context);
   }
 }
 
@@ -475,7 +447,7 @@ class _FuturisticGradientButtonState extends State<FuturisticGradientButton> wit
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF256DFF).withOpacity(0.24 * breatheScale),
+                    color: const Color(0xFF256DFF).withValues(alpha: 0.24 * breatheScale),
                     blurRadius: 55.0 * breatheScale,
                     spreadRadius: 1.0,
                   ),
@@ -494,9 +466,9 @@ class _FuturisticGradientButtonState extends State<FuturisticGradientButton> wit
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            Colors.white.withOpacity(0.0),
-                            Colors.white.withOpacity(0.35),
-                            Colors.white.withOpacity(0.0),
+                            Colors.white.withValues(alpha: 0.0),
+                            Colors.white.withValues(alpha: 0.35),
+                            Colors.white.withValues(alpha: 0.0),
                           ],
                         ),
                       ),
@@ -607,7 +579,7 @@ class _FuturisticGlassButtonState extends State<FuturisticGlassButton> with Sing
                   boxShadow: widget.hasGlow
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF256DFF).withOpacity(_isHovered ? 0.08 : 0.05), // soft glow
+                            color: const Color(0xFF256DFF).withValues(alpha: _isHovered ? 0.08 : 0.05), // soft glow
                             blurRadius: 25.0,
                             spreadRadius: 1.0,
                           ),

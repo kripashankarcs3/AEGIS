@@ -66,8 +66,8 @@ class AegisColors {
   // GLOWS SHADOWS
   // ═══════════════════════════════════════════════
   static List<BoxShadow> glow({Color color = electricBlue, double radius = 20, double spread = 2}) => [
-    BoxShadow(color: color.withOpacity(0.3), blurRadius: radius, spreadRadius: spread),
-    BoxShadow(color: color.withOpacity(0.15), blurRadius: radius * 2, spreadRadius: spread * 0.5),
+    BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: radius, spreadRadius: spread),
+    BoxShadow(color: color.withValues(alpha: 0.15), blurRadius: radius * 2, spreadRadius: spread * 0.5),
   ];
 
   static List<BoxShadow> get glowBlue => glow(color: electricBlue);
@@ -78,15 +78,15 @@ class AegisColors {
   static List<BoxShadow> get cardShadow => _isLight
       ? AegisColorsLight.cardShadow
       : [
-          BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 24, offset: const Offset(0, 8), spreadRadius: -4),
-          BoxShadow(color: electricBlue.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 24, offset: const Offset(0, 8), spreadRadius: -4),
+          BoxShadow(color: electricBlue.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4)),
         ];
 
   static List<BoxShadow> get cardShadowElevated => _isLight
       ? AegisColorsLight.cardShadowElevated
       : [
-          BoxShadow(color: Colors.black.withOpacity(0.6), blurRadius: 32, offset: const Offset(0, 12), spreadRadius: -8),
-          BoxShadow(color: electricBlue.withOpacity(0.06), blurRadius: 16, offset: const Offset(0, 6)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.6), blurRadius: 32, offset: const Offset(0, 12), spreadRadius: -8),
+          BoxShadow(color: electricBlue.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 6)),
         ];
 
   // ═══════════════════════════════════════════════

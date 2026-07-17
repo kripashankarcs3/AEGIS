@@ -50,14 +50,13 @@ class _ShareFileScreenState extends ConsumerState<ShareFileScreen> {
     }
 
     final sigId = ref.read(sigIdProvider);
-    final bytes = await _selectedFile!.readAsBytes();
 
     final packet = SignalPacket(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       from: sigId,
       to: peerId,
-      type: PacketType.resource,
-      payload: 'file:${_selectedFile!.name}:${bytes.length}',
+      type: PacketType.chat,
+      payload: '📎 File shared: ${_selectedFile!.name}',
       ttl: 5,
       hopCount: 0,
       path: [sigId],
@@ -155,7 +154,7 @@ class _ShareFileScreenState extends ConsumerState<ShareFileScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
                             decoration: BoxDecoration(
-                              color: AegisColors.violet.withOpacity(0.1),
+                              color: AegisColors.violet.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6.0),
                             ),
                             child: Text(
@@ -205,7 +204,7 @@ class _ShareFileScreenState extends ConsumerState<ShareFileScreen> {
                 width: 36.0,
                 height: 36.0,
                 decoration: BoxDecoration(
-                  color: AegisColors.neonGreen.withOpacity(0.15),
+                  color: AegisColors.neonGreen.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -245,13 +244,13 @@ class _ShareFileScreenState extends ConsumerState<ShareFileScreen> {
               height: 32.0,
               decoration: BoxDecoration(
                 color: _selectedFile != null
-                    ? AegisColors.violet.withOpacity(0.15)
-                    : AegisColors.violet.withOpacity(0.05),
+                    ? AegisColors.violet.withValues(alpha: 0.15)
+                    : AegisColors.violet.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: _selectedFile != null
                       ? AegisColors.violet
-                      : AegisColors.violet.withOpacity(0.2),
+                      : AegisColors.violet.withValues(alpha: 0.2),
                   width: 1.0,
                 ),
               ),
@@ -260,7 +259,7 @@ class _ShareFileScreenState extends ConsumerState<ShareFileScreen> {
                   Icons.send_rounded,
                   color: _selectedFile != null
                       ? AegisColors.violet
-                      : AegisColors.violet.withOpacity(0.3),
+                      : AegisColors.violet.withValues(alpha: 0.3),
                   size: 14.0,
                 ),
               ),

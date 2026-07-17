@@ -73,9 +73,7 @@ class _VoiceMessageScreenState extends ConsumerState<VoiceMessageScreen> {
       from: sigId,
       to: peerId,
       type: PacketType.chat,
-      payload: _isRecording
-          ? '[Voice: recording...]'
-          : '[Voice: ${_formatTime(_elapsedSeconds)}]',
+      payload: '🎙 Voice note (${_formatTime(_elapsedSeconds)})',
       ttl: 5,
       hopCount: 0,
       path: [sigId],
@@ -140,7 +138,7 @@ class _VoiceMessageScreenState extends ConsumerState<VoiceMessageScreen> {
                   height: 64.0,
                   alignment: Alignment.center,
                   child: Text(
-                    _isRecording ? '🔴 Recording...' : 'Tap mic to record',
+                    _isRecording ? '🔴 Recording...' : 'Tap mic to send a voice note',
                     style: TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.w500,
@@ -176,7 +174,7 @@ class _VoiceMessageScreenState extends ConsumerState<VoiceMessageScreen> {
                           boxShadow: [
                             BoxShadow(
                               color: (_isRecording ? AegisColors.sosRed : AegisColors.violet)
-                                  .withOpacity(0.4),
+                                  .withValues(alpha: 0.4),
                               blurRadius: 12,
                               spreadRadius: 2,
                             ),
@@ -235,7 +233,7 @@ class _VoiceMessageScreenState extends ConsumerState<VoiceMessageScreen> {
                 width: 36.0,
                 height: 36.0,
                 decoration: BoxDecoration(
-                  color: AegisColors.neonGreen.withOpacity(0.15),
+                  color: AegisColors.neonGreen.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -274,9 +272,9 @@ class _VoiceMessageScreenState extends ConsumerState<VoiceMessageScreen> {
               width: 32.0,
               height: 32.0,
               decoration: BoxDecoration(
-                color: AegisColors.violet.withOpacity(0.1),
+                color: AegisColors.violet.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
-                border: Border.all(color: AegisColors.violet.withOpacity(0.4), width: 1.0),
+                border: Border.all(color: AegisColors.violet.withValues(alpha: 0.4), width: 1.0),
               ),
               child: const Center(
                 child: Icon(
