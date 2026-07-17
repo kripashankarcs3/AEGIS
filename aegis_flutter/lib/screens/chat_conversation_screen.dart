@@ -7,8 +7,6 @@ import '../models/survivor_node_model.dart';
 import '../providers/chat_provider.dart';
 import '../providers/survivor_provider.dart';
 import '../services/storage_service.dart';
-import 'share_file_screen.dart';
-import 'voice_message_screen.dart';
 
 class ChatConversationScreen extends ConsumerStatefulWidget {
   final String nodeId;
@@ -410,11 +408,11 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Center(child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AegisColors.textDim, borderRadius: BorderRadius.circular(3)))),
           SizedBox(height: 20),
-          _sheetOpt(Icons.file_present_rounded, 'Share File', AegisColors.violet, () { Navigator.of(context).pop(); Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShareFileScreen())); }),
+          _sheetOpt(Icons.file_present_rounded, 'Share File', AegisColors.textDim, () { Navigator.of(context).pop(); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('File sharing coming soon'), duration: Duration(seconds: 1))); }),
           SizedBox(height: 4),
           _sheetDivider(),
           SizedBox(height: 4),
-          _sheetOpt(Icons.mic_none_rounded, 'Voice Message', AegisColors.violet, () { Navigator.of(context).pop(); Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VoiceMessageScreen())); }),
+          _sheetOpt(Icons.mic_none_rounded, 'Voice Message', AegisColors.textDim, () { Navigator.of(context).pop(); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Voice messages coming soon'), duration: Duration(seconds: 1))); }),
         ]),
       ),
     );
