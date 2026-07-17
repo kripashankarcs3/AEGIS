@@ -1,13 +1,108 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../providers/survivor_provider.dart';
+import '../providers/mesh_provider.dart';
+import '../providers/identity_provider.dart';
+import '../models/signal_packet.dart';
 
-class VoiceMessageScreen extends ConsumerWidget {
+class VoiceMessageScreen extends ConsumerStatefulWidget {
   const VoiceMessageScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<VoiceMessageScreen> createState() => _VoiceMessageScreenState();
+}
+
+class _VoiceMessageScreenState extends ConsumerState<VoiceMessageScreen> {
+  bool _isRecording = false;
+  Stopwatch _stopwatch = Stopwatch();
+  Timer? _timer;
+  int _elapsedSeconds = 0;
+
+  void _toggleRecording() {
+    if (_isRecording) {
+      _stopwatch.stop();
+      _timer?.cancel();
+      if (mounted) {
+        setState(() {
+          _isRecording = false;
+          _elapsedSeconds = _stopwatch.elapsed.inSeconds;
+        });
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Recording stopped: ${_formatTime(_elapsedSeconds)}'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      _stopwatch = Stopwatch()..start();
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) {
+          setState(() {
+            _elapsedSeconds = _stopwatch.elapsed.inSeconds;
+          });
+        }
+      });
+      setState(() => _isRecording = true);
+    }
+  }
+
+  String _formatTime(int totalSeconds) {
+    final minutes = (totalSeconds ~/ 60).toString().padLeft(2, '0');
+    final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  Future<void> _sendVoice(String peerId) async {
+    if (!_isRecording && _elapsedSeconds == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Record a voice message first'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final sigId = ref.read(sigIdProvider);
+    final packet = SignalPacket(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      from: sigId,
+      to: peerId,
+      type: PacketType.chat,
+      payload: _isRecording
+          ? '[Voice: recording...]'
+          : '[Voice: ${_formatTime(_elapsedSeconds)}]',
+      ttl: 5,
+      hopCount: 0,
+      path: [sigId],
+      timestamp: DateTime.now(),
+    );
+
+    await ref.read(meshProvider.notifier).sendPacket(packet);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Voice sent to $peerId'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _stopwatch.stop();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
@@ -40,37 +135,24 @@ class VoiceMessageScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20.0),
-              // 1. Voice soundwave visualization graphic
               Center(
-                child: SizedBox(
+                child: Container(
                   height: 64.0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _buildWaveBar(14.0),
-                      _buildWaveBar(24.0),
-                      _buildWaveBar(38.0),
-                      _buildWaveBar(20.0),
-                      _buildWaveBar(32.0),
-                      _buildWaveBar(48.0),
-                      _buildWaveBar(64.0),
-                      _buildWaveBar(52.0),
-                      _buildWaveBar(30.0),
-                      _buildWaveBar(42.0),
-                      _buildWaveBar(22.0),
-                      _buildWaveBar(16.0),
-                      _buildWaveBar(26.0),
-                      _buildWaveBar(38.0),
-                    ],
+                  alignment: Alignment.center,
+                  child: Text(
+                    _isRecording ? '🔴 Recording...' : 'Tap mic to record',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: _isRecording ? AegisColors.sosRed : AegisColors.textSecondary,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 12.0),
-              // Time counter details
               Center(
                 child: Text(
-                  '00:12',
+                  _formatTime(_elapsedSeconds),
                   style: TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.bold,
@@ -79,59 +161,49 @@ class VoiceMessageScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 18.0),
-
-              // 2. Microphone record trigger button
               Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Microphone circle
-                    Container(
-                      width: 64.0,
-                      height: 64.0,
-                      decoration: BoxDecoration(
-                        color: AegisColors.violet,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AegisColors.violet.withOpacity(0.4),
-                            blurRadius: 12,
-                            spreadRadius: 2,
+                    GestureDetector(
+                      onTap: _toggleRecording,
+                      child: Container(
+                        width: 64.0,
+                        height: 64.0,
+                        decoration: BoxDecoration(
+                          color: _isRecording ? AegisColors.sosRed : AegisColors.violet,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: (_isRecording ? AegisColors.sosRed : AegisColors.violet)
+                                  .withOpacity(0.4),
+                              blurRadius: 12,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Icon(
+                            _isRecording ? Icons.stop_rounded : Icons.mic_none_rounded,
+                            color: Colors.white,
+                            size: 28.0,
                           ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.mic_none_rounded,
-                          color: Colors.white,
-                          size: 28.0,
                         ),
                       ),
                     ),
                     const SizedBox(height: 16.0),
-                    // Swipe up instruction
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.keyboard_arrow_up_rounded, color: AegisColors.textSecondary, size: 14.0),
-                        SizedBox(width: 4.0),
-                        Text(
-                          'Slide up to cancel',
-                          style: TextStyle(
-                            color: AegisColors.textSecondary,
-                            fontSize: 11.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      _isRecording ? 'Tap to stop' : 'Tap to record',
+                      style: TextStyle(
+                        color: AegisColors.textSecondary,
+                        fontSize: 11.0,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
               ),
               SizedBox(height: 28.0),
-
-              // 3. Nearby Devices list Section
               Text(
                 'Nearby Devices',
                 style: TextStyle(
@@ -151,18 +223,6 @@ class VoiceMessageScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildWaveBar(double height) {
-    return Container(
-      width: 3.5,
-      height: height,
-      margin: const EdgeInsets.symmetric(horizontal: 2.0),
-      decoration: BoxDecoration(
-        color: AegisColors.violet,
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-    );
-  }
-
   Widget _buildVoiceShareDeviceRow(String nodeId, String hops) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
@@ -171,7 +231,6 @@ class VoiceMessageScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              // Avatar circle
               Container(
                 width: 36.0,
                 height: 36.0,
@@ -186,7 +245,6 @@ class VoiceMessageScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 14.0),
-              // Info Details
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -210,20 +268,22 @@ class VoiceMessageScreen extends ConsumerWidget {
               ),
             ],
           ),
-          // Purple circular send icon button
-          Container(
-            width: 32.0,
-            height: 32.0,
-            decoration: BoxDecoration(
-              color: AegisColors.violet.withOpacity(0.1).withOpacity(0.3),
-              shape: BoxShape.circle,
-              border: Border.all(color: AegisColors.violet.withOpacity(0.4), width: 1.0),
-            ),
-            child: const Center(
-              child: Icon(
-                Icons.send_rounded,
-                color: AegisColors.violet,
-                size: 14.0,
+          GestureDetector(
+            onTap: () => _sendVoice(nodeId),
+            child: Container(
+              width: 32.0,
+              height: 32.0,
+              decoration: BoxDecoration(
+                color: AegisColors.violet.withOpacity(0.1),
+                shape: BoxShape.circle,
+                border: Border.all(color: AegisColors.violet.withOpacity(0.4), width: 1.0),
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.send_rounded,
+                  color: AegisColors.violet,
+                  size: 14.0,
+                ),
               ),
             ),
           ),

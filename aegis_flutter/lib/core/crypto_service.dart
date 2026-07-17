@@ -21,16 +21,27 @@ class CryptoService {
     return signature.bytes;
   }
 
-  Future<bool> verifySignature(
+  SimpleKeyPair keyPairFromBytes(
+    List<int> privateKey,
+    List<int> publicKey,
+  ) {
+    return SimpleKeyPairData(
+      privateKey,
+      publicKey: SimplePublicKey(publicKey, type: KeyPairType.ed25519),
+      type: KeyPairType.ed25519,
+    );
+  }
+
+  Future<bool> verifySignatureBytes(
     List<int> message,
-    Signature signature,
-    SimplePublicKey publicKey,
+    List<int> signature,
+    List<int> publicKey,
   ) async {
     return await _ed25519.verify(
       message,
       signature: Signature(
-        signature.bytes,
-        publicKey: publicKey,
+        signature,
+        publicKey: SimplePublicKey(publicKey, type: KeyPairType.ed25519),
       ),
     );
   }

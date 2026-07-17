@@ -8,6 +8,11 @@ class SurvivorNodeModel {
   final List<String> resources;
   final String message;
   final int lastSeen;
+  final int batteryLevel;
+  final int signalStrength;
+  final String deviceName;
+  final String platform;
+  final String appVersion;
 
   const SurvivorNodeModel({
     required this.id,
@@ -17,9 +22,16 @@ class SurvivorNodeModel {
     this.resources = const [],
     this.message = '',
     required this.lastSeen,
+    this.batteryLevel = -1,
+    this.signalStrength = 0,
+    this.deviceName = '',
+    this.platform = '',
+    this.appVersion = '',
   });
 
-  bool get isOffline => DateTime.now().millisecondsSinceEpoch - lastSeen > 60000;
+  bool get hasBattery => batteryLevel >= 0;
+  bool get isOffline =>
+      DateTime.now().millisecondsSinceEpoch - lastSeen > 60000;
 
   Map<String, dynamic> toMap() => {
         'id': id,
@@ -29,9 +41,15 @@ class SurvivorNodeModel {
         'resources': resources,
         'message': message,
         'lastSeen': lastSeen,
+        'batteryLevel': batteryLevel,
+        'signalStrength': signalStrength,
+        'deviceName': deviceName,
+        'platform': platform,
+        'appVersion': appVersion,
       };
 
-  factory SurvivorNodeModel.fromMap(Map<dynamic, dynamic> m) => SurvivorNodeModel(
+  factory SurvivorNodeModel.fromMap(Map<dynamic, dynamic> m) =>
+      SurvivorNodeModel(
         id: m['id'] as String,
         status: m['status'] as String,
         lat: (m['lat'] as num?)?.toDouble(),
@@ -39,6 +57,11 @@ class SurvivorNodeModel {
         resources: List<String>.from(m['resources'] ?? []),
         message: m['message'] as String? ?? '',
         lastSeen: (m['lastSeen'] as num).toInt(),
+        batteryLevel: (m['batteryLevel'] as num?)?.toInt() ?? -1,
+        signalStrength: (m['signalStrength'] as num?)?.toInt() ?? 0,
+        deviceName: m['deviceName'] as String? ?? '',
+        platform: m['platform'] as String? ?? '',
+        appVersion: m['appVersion'] as String? ?? '',
       );
 
   static const _statusMap = <String, NodeStatus>{
@@ -57,7 +80,8 @@ class SurvivorNodeModel {
     NodeStatus.offline: 'offline',
   };
 
-  SurvivorNode toSurvivorNode({double dx = 0.0, double dy = 0.0, int hops = 0, bool isUser = false}) {
+  SurvivorNode toSurvivorNode(
+      {double dx = 0.0, double dy = 0.0, int hops = 0, bool isUser = false}) {
     return SurvivorNode(
       id: id,
       hops: hops,
@@ -68,7 +92,12 @@ class SurvivorNodeModel {
     );
   }
 
-  factory SurvivorNodeModel.fromSurvivorNode(SurvivorNode node, {double? lat, double? lng, List<String>? resources, String? message, int? lastSeen}) {
+  factory SurvivorNodeModel.fromSurvivorNode(SurvivorNode node,
+      {double? lat,
+      double? lng,
+      List<String>? resources,
+      String? message,
+      int? lastSeen}) {
     return SurvivorNodeModel(
       id: node.id,
       status: _reverseStatusMap[node.status] ?? 'offline',

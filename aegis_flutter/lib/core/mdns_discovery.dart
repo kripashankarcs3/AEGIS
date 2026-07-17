@@ -20,6 +20,8 @@ class MdnsDiscovery {
 
   bool get isRunning => _isRunning;
 
+  Timer? _discoveryTimer;
+
   /// Start mDNS
   Future<void> start() async {
     if (_isRunning) return;
@@ -35,6 +37,8 @@ class MdnsDiscovery {
   Future<void> stop() async {
     if (!_isRunning) return;
 
+    _discoveryTimer?.cancel();
+
     _client.stop();
 
     _isRunning = false;
@@ -46,20 +50,29 @@ class MdnsDiscovery {
 
   /// Discover nearby peers
   Future<void> _discover() async {
-    await for (final PtrResourceRecord ptr in _client.lookup<PtrResourceRecord>(
-      ResourceRecordQuery.serverPointer('_aegis._tcp.local'),
-    )) {
-      if (!_discoveredPeers.contains(ptr.domainName)) {
-        _discoveredPeers.add(ptr.domainName);
+    await _runLookup();
+    _discoveryTimer = Timer.periodic(const Duration(seconds: 15), (_) => _runLookup());
+  }
 
-        _peerController.add(
-          List.unmodifiable(_discoveredPeers),
-        );
+  Future<void> _runLookup() async {
+    try {
+      await for (final PtrResourceRecord ptr in _client.lookup<PtrResourceRecord>(
+        ResourceRecordQuery.serverPointer('_aegis._tcp.local'),
+      ).timeout(const Duration(seconds: 5))) {
+        if (!_discoveredPeers.contains(ptr.domainName)) {
+          _discoveredPeers.add(ptr.domainName);
+
+          _peerController.add(
+            List.unmodifiable(_discoveredPeers),
+          );
+        }
       }
-    }
+    } catch (_) {}
   }
 
   void dispose() {
+    _discoveryTimer?.cancel();
+
     _peerController.close();
 
     if (_isRunning) {

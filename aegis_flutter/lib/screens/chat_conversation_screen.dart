@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../constants/aegis_styles.dart';
+import '../models/survivor_node_model.dart';
 import '../providers/chat_provider.dart';
+import '../providers/survivor_provider.dart';
+import '../services/storage_service.dart';
 import 'share_file_screen.dart';
 import 'voice_message_screen.dart';
 
@@ -16,11 +20,43 @@ class ChatConversationScreen extends ConsumerStatefulWidget {
 
 class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen> {
   final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  bool _showScrollDownFab = false;
+  int _prevMsgCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      final maxScroll = _scrollController.position.maxScrollExtent;
+      final currentScroll = _scrollController.position.pixels;
+      final showFab = currentScroll < maxScroll - 120;
+      if (showFab != _showScrollDownFab) {
+        setState(() => _showScrollDownFab = showFab);
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(chatProvider(widget.nodeId).notifier).clearUnread();
+    });
+  }
 
   @override
   void dispose() {
     _messageController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _autoScroll() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    });
   }
 
   void _sendMessage() {
@@ -28,6 +64,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
     if (text.isEmpty) return;
     ref.read(chatProvider(widget.nodeId).notifier).send(text);
     _messageController.clear();
+    _autoScroll();
   }
 
   String _formatTime(DateTime dt) {
@@ -37,143 +74,263 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
     return '$h:$m $ampm';
   }
 
+  String _formatDate(DateTime dt) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final msgDate = DateTime(dt.year, dt.month, dt.day);
+    final diff = today.difference(msgDate).inDays;
+
+    if (diff == 0) return 'Today';
+    if (diff == 1) return 'Yesterday';
+    if (diff < 7) return '${dt.day}/${dt.month}';
+    return '${dt.day}/${dt.month}/${dt.year}';
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  void _copyMessage(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Message copied'), behavior: SnackBarBehavior.floating, duration: Duration(seconds: 1)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bool offline = widget.nodeId == 'SIG-4D2F';
     final messages = ref.watch(chatProvider(widget.nodeId));
-    final showMock = messages.isEmpty;
+    final hasQueued = messages.any((m) => m.isMine && m.status == MessageStatus.queued);
+    final peerData = ref.watch(survivorProvider);
+    final peerStatus = peerData[widget.nodeId] ?? SurvivorNodeModel(id: widget.nodeId, status: 'unknown', lastSeen: 0);
+    final isOnline = !peerStatus.isOffline && peerStatus.lastSeen > DateTime.now().millisecondsSinceEpoch - 120000;
+
+    if (messages.length != _prevMsgCount && _prevMsgCount > 0 && messages.length > _prevMsgCount) {
+      _autoScroll();
+    }
+    _prevMsgCount = messages.length;
 
     return Scaffold(
       backgroundColor: AegisColors.background,
       appBar: AppBar(
         backgroundColor: AegisColors.surface0.withOpacity(0.95),
         elevation: 0,
-        leading: Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)),
-          child: IconButton(icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary, size: 20), onPressed: () => Navigator.of(context).pop())),
+        leading: Container(
+          margin: const EdgeInsets.all(4),
+          decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)),
+          child: IconButton(icon: Icon(Icons.arrow_back, color: AegisColors.textPrimary, size: 20), onPressed: () => Navigator.of(context).pop()),
+        ),
         title: Row(children: [
-          Container(width: 36, height: 36, decoration: BoxDecoration(gradient: offline ? LinearGradient(colors: [AegisColors.textMuted, AegisColors.textDim]) : AegisColors.greenGradient, shape: BoxShape.circle, boxShadow: offline ? null : [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.3), blurRadius: 8, spreadRadius: 1)]), child: Center(child: Icon(Icons.person_rounded, color: Colors.white, size: 18))),
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              gradient: isOnline ? AegisColors.greenGradient : LinearGradient(colors: [AegisColors.textMuted, AegisColors.textDim]),
+              shape: BoxShape.circle,
+              boxShadow: isOnline ? [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.3), blurRadius: 8, spreadRadius: 1)] : null,
+            ),
+            child: Center(child: Icon(Icons.person_rounded, color: Colors.white, size: 18)),
+          ),
           SizedBox(width: 12),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(widget.nodeId, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AegisColors.textPrimary, letterSpacing: -0.2)),
             SizedBox(height: 2),
             Row(mainAxisSize: MainAxisSize.min, children: [
-              Container(width: 6, height: 6, decoration: BoxDecoration(color: offline ? AegisColors.textMuted : AegisColors.neonGreen, shape: BoxShape.circle)),
+              Container(width: 6, height: 6, decoration: BoxDecoration(color: isOnline ? AegisColors.neonGreen : AegisColors.textMuted, shape: BoxShape.circle)),
               SizedBox(width: 6),
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Text(offline ? 'Offline' : 'Online', style: TextStyle(fontSize: 11, color: offline ? AegisColors.textSecondary : AegisColors.neonGreen, fontWeight: FontWeight.w700)),
-                if (!offline)
-                  Text('  •  2 hops away', style: TextStyle(fontSize: 11, color: AegisColors.textSecondary, fontWeight: FontWeight.w500)),
-              ]),
+              Text(isOnline ? 'Online' : 'Offline', style: TextStyle(fontSize: 11, color: isOnline ? AegisColors.neonGreen : AegisColors.textMuted, fontWeight: FontWeight.w700)),
             ]),
           ]),
         ]),
         actions: [
-          Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)),
-            child: IconButton(icon: Icon(Icons.more_vert, color: AegisColors.textPrimary, size: 20), onPressed: () {})),
+          Container(
+            margin: const EdgeInsets.all(4),
+            decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5)),
+            child: PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, color: AegisColors.textPrimary, size: 20),
+              onSelected: (value) {
+                if (value == 'clear') {
+                  StorageService.clearChatHistory(widget.nodeId);
+                } else if (value == 'info') {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Peer: ${widget.nodeId}\nStatus: ${isOnline ? 'Online' : 'Offline'}'), behavior: SnackBarBehavior.floating),
+                  );
+                }
+              },
+              itemBuilder: (_) => [
+                PopupMenuItem(value: 'info', child: Text('Peer Info', style: TextStyle(color: AegisColors.textPrimary))),
+                PopupMenuItem(value: 'clear', child: Text('Clear Chat', style: TextStyle(color: AegisColors.sosRed))),
+              ],
+            ),
+          ),
         ],
       ),
       body: SafeArea(
         child: Column(children: [
           Expanded(
-            child: ListView(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), children: showMock
-              ? (offline
-                  ? [
-                      _incoming('Hello! Are you safe?', '10:18 AM'),
-                      _outgoing("Yes, I'm safe here.", '10:19 AM', green: false),
-                      _incoming('We need medical supplies.', '10:20 AM'),
-                      _queued('I can help. I have some basic medicines.', '10:21 AM'),
-                    ]
-                  : [
-                      _incoming('Are you safe?', '10:21 AM'),
-                      _outgoing('Yes, we are safe.', '10:22 AM'),
-                      _hopPath('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
-                      _incoming('Do you have any medical supplies?', '10:23 AM'),
-                      _outgoing('Yes, we have some basic medications.', '10:24 AM'),
-                      _hopPath('SIG-7F3A → SIG-B2C1 → SIG-8AF3'),
-                      _warning('Can you send bandages?', '10:25 AM'),
-                      _queueInd(),
-                    ])
-              : messages.map((entry) {
-                  final time = _formatTime(entry.timestamp);
-                  if (entry.isMine) {
-                    if (entry.status == MessageStatus.queued) {
-                      return _queued(entry.text, time);
-                    }
-                    return _outgoing(entry.text, time);
-                  }
-                  return _incoming(entry.text, time);
-                }).toList()),
+            child: Stack(children: [
+              messages.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.chat_bubble_outline_rounded, size: 48, color: AegisColors.textMuted),
+                          SizedBox(height: 16),
+                          Text('No messages yet', style: TextStyle(color: AegisColors.textMuted, fontSize: 15, fontWeight: FontWeight.w500)),
+                          SizedBox(height: 8),
+                          Text('Send a message to start the conversation', style: TextStyle(color: AegisColors.textDim, fontSize: 13)),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      itemCount: _buildMessageItems(messages).length,
+                      itemBuilder: (context, index) => _buildMessageItems(messages)[index],
+                    ),
+              if (_showScrollDownFab && messages.isNotEmpty)
+                Positioned(
+                  right: 8, bottom: 8,
+                  child: GestureDetector(
+                    onTap: _autoScroll,
+                    child: Container(
+                      width: 36, height: 36,
+                      decoration: BoxDecoration(color: AegisColors.surface2, shape: BoxShape.circle, border: Border.all(color: AegisColors.border1, width: 0.5), boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)]),
+                      child: Icon(Icons.keyboard_arrow_down_rounded, color: AegisColors.textPrimary, size: 22),
+                    ),
+                  ),
+                ),
+            ]),
           ),
-          if (offline) _offlineBanner(),
+          if (hasQueued) _offlineBanner(),
           _input(),
         ]),
       ),
     );
   }
 
-  Widget _incoming(String text, String time) {
+  List<Widget> _buildMessageItems(List<ChatEntry> messages) {
+    final items = <Widget>[];
+    DateTime? lastDate;
+
+    for (final entry in messages) {
+      final msgDate = entry.timestamp;
+      if (lastDate == null || !_isSameDay(lastDate, msgDate)) {
+        items.add(_dateSeparator(msgDate));
+        lastDate = msgDate;
+      }
+
+      final time = _formatTime(entry.timestamp);
+      if (entry.isMine) {
+        if (entry.status == MessageStatus.queued) {
+          items.add(_queued(entry, time));
+        } else {
+          items.add(_outgoing(entry, time));
+        }
+      } else {
+        items.add(_incoming(entry, time));
+      }
+    }
+    return items;
+  }
+
+  Widget _dateSeparator(DateTime dt) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+          decoration: BoxDecoration(color: AegisColors.surface2, borderRadius: BorderRadius.circular(12), border: Border.all(color: AegisColors.border1.withOpacity(0.3), width: 0.5)),
+          child: Text(_formatDate(dt), style: TextStyle(color: AegisColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
+        ),
+      ),
+    );
+  }
+
+  Widget _incoming(ChatEntry entry, String time) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-        Container(width: 28, height: 28, decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.violet.withOpacity(0.3), AegisColors.violet.withOpacity(0.1)]), shape: BoxShape.circle), child: Center(child: Icon(Icons.person_rounded, size: 14, color: AegisColors.violet))),
+        Container(
+          width: 28, height: 28,
+          decoration: BoxDecoration(gradient: LinearGradient(colors: [AegisColors.violet.withOpacity(0.3), AegisColors.violet.withOpacity(0.1)]), shape: BoxShape.circle),
+          child: Center(child: Icon(Icons.person_rounded, size: 14, color: AegisColors.violet)),
+        ),
         SizedBox(width: 8),
         Flexible(
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(color: AegisColors.isLight ? const Color(0xFFF3F4F6) : AegisColors.surface2, borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomLeft: Radius.circular(4), bottomRight: Radius.circular(20)), border: Border.all(color: AegisColors.border1.withOpacity(0.2), width: 0.5)),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-              Text(text, style: AegisStyles.message),
-              SizedBox(height: 6),
-              Align(alignment: Alignment.bottomRight, child: Text(time, style: AegisStyles.timestamp.copyWith(color: AegisColors.textSecondary.withOpacity(0.8)))),
-            ]),
+          child: GestureDetector(
+            onLongPress: () => _copyMessage(entry.text),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: AegisColors.isLight ? const Color(0xFFF3F4F6) : AegisColors.surface2, borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomLeft: Radius.circular(4), bottomRight: Radius.circular(20)), border: Border.all(color: AegisColors.border1.withOpacity(0.2), width: 0.5)),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                Text(entry.text, style: AegisStyles.message),
+                SizedBox(height: 6),
+                Align(alignment: Alignment.bottomRight, child: Text(time, style: AegisStyles.timestamp.copyWith(color: AegisColors.textSecondary.withOpacity(0.8)))),
+              ]),
+            ),
           ),
         ),
       ]),
     );
   }
 
-  Widget _outgoing(String text, String time, {bool green = true}) {
+  Widget _outgoing(ChatEntry entry, String time) {
+    final isSending = entry.status == MessageStatus.sending;
+    final isSent = entry.status == MessageStatus.sent || entry.status == MessageStatus.delivered;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(crossAxisAlignment: CrossAxisAlignment.end, mainAxisAlignment: MainAxisAlignment.end, children: [
         Flexible(
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(color: AegisColors.isLight ? const Color(0xFFDCFCE7) : const Color(0xFF064E3B), borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(4)), border: Border.all(color: AegisColors.isLight ? const Color(0xFFA7F3D0).withOpacity(0.5) : AegisColors.neonGreen.withOpacity(0.15), width: 0.5)),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
-              Text(text, style: AegisStyles.message.copyWith(color: AegisColors.isLight ? const Color(0xFF111827) : Colors.white)),
-              SizedBox(height: 6),
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Text(time, style: AegisStyles.timestamp.copyWith(color: AegisColors.isLight ? const Color(0xFF047857) : Colors.white.withOpacity(0.6))),
-                SizedBox(width: 4),
-                Icon(Icons.done_all_rounded, color: AegisColors.isLight ? const Color(0xFF10B981) : AegisColors.neonGreen, size: 12),
+          child: GestureDetector(
+            onLongPress: () => _copyMessage(entry.text),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AegisColors.isLight ? const Color(0xFFDCFCE7) : const Color(0xFF064E3B),
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(4)),
+                border: Border.all(color: AegisColors.isLight ? const Color(0xFFA7F3D0).withOpacity(0.5) : AegisColors.neonGreen.withOpacity(0.15), width: 0.5),
+              ),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
+                Text(entry.text, style: AegisStyles.message.copyWith(color: AegisColors.isLight ? const Color(0xFF111827) : Colors.white)),
+                SizedBox(height: 6),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  Text(time, style: AegisStyles.timestamp.copyWith(color: AegisColors.isLight ? const Color(0xFF047857) : Colors.white.withOpacity(0.6))),
+                  SizedBox(width: 4),
+                  if (isSending)
+                    SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 1.5, color: AegisColors.isLight ? const Color(0xFF047857) : Colors.white60)),
+                  if (isSent)
+                    Icon(Icons.done_all_rounded, color: AegisColors.isLight ? const Color(0xFF10B981) : AegisColors.neonGreen, size: 12),
+                ]),
               ]),
-            ]),
+            ),
           ),
         ),
       ]),
     );
   }
 
-  Widget _queued(String text, String time) {
+  Widget _queued(ChatEntry entry, String time) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(crossAxisAlignment: CrossAxisAlignment.end, mainAxisAlignment: MainAxisAlignment.end, children: [
         Flexible(
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(color: AegisColors.isLight ? AegisColors.warning.withOpacity(0.08) : const Color(0xFF2D1F10), borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(4)), border: Border.all(color: AegisColors.warning.withOpacity(0.3), width: 0.5)),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
-              Text(text, style: AegisStyles.message),
-              SizedBox(height: 6),
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Text(time, style: AegisStyles.timestamp),
-                SizedBox(width: 4),
-                Icon(Icons.access_time_rounded, color: AegisColors.warning, size: 11),
+          child: GestureDetector(
+            onLongPress: () => _copyMessage(entry.text),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: AegisColors.isLight ? AegisColors.warning.withOpacity(0.08) : const Color(0xFF2D1F10), borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(4)), border: Border.all(color: AegisColors.warning.withOpacity(0.3), width: 0.5)),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
+                Text(entry.text, style: AegisStyles.message),
+                SizedBox(height: 6),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  Text(time, style: AegisStyles.timestamp),
+                  SizedBox(width: 4),
+                  Icon(Icons.access_time_rounded, color: AegisColors.warning, size: 11),
+                ]),
+                SizedBox(height: 2),
+                Text('Queued', style: TextStyle(color: AegisColors.warning, fontSize: 10, fontWeight: FontWeight.w700)),
               ]),
-              SizedBox(height: 2),
-              Text('Queued', style: TextStyle(color: AegisColors.warning, fontSize: 10, fontWeight: FontWeight.w700)),
-            ]),
+            ),
           ),
         ),
       ]),
@@ -193,63 +350,6 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
           SizedBox(height: 2),
           Text('Will deliver when ${widget.nodeId} comes back online.', style: TextStyle(color: AegisColors.textSecondary, fontSize: 11)),
         ])),
-      ]),
-    );
-  }
-
-  Widget _warning(String text, String time) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-        Container(width: 28, height: 28, decoration: BoxDecoration(color: AegisColors.warning.withOpacity(0.15), shape: BoxShape.circle), child: Center(child: Icon(Icons.warning_amber_rounded, size: 14, color: AegisColors.warning))),
-        SizedBox(width: 8),
-        Flexible(
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(color: AegisColors.isLight ? AegisColors.warning.withOpacity(0.12) : const Color(0xFF451A03).withOpacity(0.6), borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)), border: Border.all(color: AegisColors.warning.withOpacity(0.25), width: 0.5)),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-              Text(text, style: AegisStyles.message),
-              SizedBox(height: 6),
-              Align(alignment: Alignment.bottomRight, child: Text(time, style: AegisStyles.timestamp)),
-            ]),
-          ),
-        ),
-      ]),
-    );
-  }
-
-  Widget _hopPath(String path) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: BoxDecoration(color: AegisColors.neonGreen.withOpacity(0.06), borderRadius: BorderRadius.circular(12), border: Border.all(color: AegisColors.neonGreen.withOpacity(0.12), width: 0.5)),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.check_circle_outline_rounded, color: AegisColors.neonGreen.withOpacity(0.7), size: 12),
-            SizedBox(width: 6),
-            Text('via 2 hops', style: TextStyle(color: AegisColors.neonGreen.withOpacity(0.8), fontSize: 10, fontWeight: FontWeight.w700)),
-            SizedBox(width: 8),
-            Text(path, style: TextStyle(color: AegisColors.textMuted.withOpacity(0.6), fontSize: 9, fontWeight: FontWeight.w500)),
-          ]),
-        ),
-      ]),
-    );
-  }
-
-  Widget _queueInd() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 2, bottom: 10),
-      child: Row(children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(color: AegisColors.warning.withOpacity(0.08), borderRadius: BorderRadius.circular(8)),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.hourglass_empty_rounded, color: AegisColors.warning, size: 14),
-            SizedBox(width: 6),
-            Text('Queued', style: TextStyle(color: AegisColors.warning, fontSize: 11, fontWeight: FontWeight.w700)),
-          ]),
-        ),
       ]),
     );
   }
@@ -275,6 +375,7 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
                 textCapitalization: TextCapitalization.sentences,
                 style: TextStyle(color: Colors.white, fontSize: 15),
                 decoration: InputDecoration(hintText: 'Type a message...', hintStyle: TextStyle(color: AegisColors.textMuted, fontSize: 15), border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 0)),
+                onChanged: (_) => setState(() {}),
               )),
               GestureDetector(
                 onTap: () => showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (_) => _attachSheet()),
@@ -286,10 +387,15 @@ class _ChatConversationScreenState extends ConsumerState<ChatConversationScreen>
         SizedBox(width: 10),
         GestureDetector(
           onTap: _sendMessage,
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
             width: 46, height: 46,
-            decoration: BoxDecoration(gradient: AegisColors.greenGradient, shape: BoxShape.circle, boxShadow: [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.3), blurRadius: 12, spreadRadius: 1)]),
-            child: Icon(Icons.send_rounded, color: AegisColors.textPrimary, size: 20),
+            decoration: BoxDecoration(
+              gradient: _messageController.text.trim().isEmpty ? LinearGradient(colors: [AegisColors.textMuted, AegisColors.textDim]) : AegisColors.greenGradient,
+              shape: BoxShape.circle,
+              boxShadow: _messageController.text.trim().isEmpty ? null : [BoxShadow(color: AegisColors.neonGreen.withOpacity(0.3), blurRadius: 12, spreadRadius: 1)],
+            ),
+            child: Icon(Icons.send_rounded, color: _messageController.text.trim().isEmpty ? AegisColors.textDim : AegisColors.textPrimary, size: 20),
           ),
         ),
       ]),

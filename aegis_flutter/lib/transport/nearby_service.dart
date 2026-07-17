@@ -21,8 +21,8 @@ class NearbyService {
     debugPrint('📢 Nearby: Advertising...');
 
     try {
-      bool success = await _nearby.startAdvertising(
-        _myDeviceId ?? 'AEGIS',
+      await _nearby.startAdvertising(
+        _myDeviceId ?? 'AEGIS-${DateTime.now().millisecondsSinceEpoch}',
         Strategy.P2P_CLUSTER,
         serviceId: 'com.aegis.mesh.aegis_flutter',
         onConnectionInitiated: _onConnectionInitiated,
@@ -30,9 +30,10 @@ class NearbyService {
         onDisconnected: _onDisconnected,
       );
 
-      if (success) debugPrint('✅ Nearby: Advertising');
+      debugPrint('✅ Nearby: Advertising');
     } catch (e) {
       debugPrint('❌ Nearby error: $e');
+      Future.delayed(const Duration(seconds: 2), restart);
     }
   }
 
@@ -41,7 +42,7 @@ class NearbyService {
 
     try {
       await _nearby.startDiscovery(
-        _myDeviceId ?? 'AEGIS',
+        _myDeviceId ?? 'AEGIS-${DateTime.now().millisecondsSinceEpoch}',
         Strategy.P2P_CLUSTER,
         serviceId: 'com.aegis.mesh.aegis_flutter',
         onEndpointFound: _onEndpointFound,
@@ -49,13 +50,14 @@ class NearbyService {
       );
     } catch (e) {
       debugPrint('❌ Nearby discovery: $e');
+      Future.delayed(const Duration(seconds: 2), restart);
     }
   }
 
   void _onEndpointFound(String id, String name, String serviceId) {
     debugPrint('👀 [Nearby] Endpoint found: $name (id=$id, serviceId=$serviceId)');
     _nearby.requestConnection(
-      _myDeviceId ?? 'AEGIS',
+      _myDeviceId ?? 'AEGIS-${DateTime.now().millisecondsSinceEpoch}',
       id,
       onConnectionInitiated: _onConnectionInitiated,
       onConnectionResult: _onConnectionResult,
@@ -103,11 +105,17 @@ class NearbyService {
     }
   }
 
-  Future<void> send(SignalPacket packet) async {
+  Future<void> send(SignalPacket packet, {String? targetPeerId}) async {
     try {
       final json = jsonEncode(packet.toJson());
       final bytes = Uint8List.fromList(utf8.encode(json));
 
+      if (targetPeerId != null && _connectedPeers.containsKey(targetPeerId)) {
+        await _nearby.sendBytesPayload(targetPeerId, bytes);
+        return;
+      }
+
+      // Broadcast to all nearby peers
       for (var peerId in _connectedPeers.keys) {
         await _nearby.sendBytesPayload(peerId, bytes);
       }

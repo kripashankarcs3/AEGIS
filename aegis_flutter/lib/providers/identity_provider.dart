@@ -13,12 +13,14 @@ import '../core/identity_manager.dart';
 class IdentityState {
   final String sigId;
   final String publicKey;
+  final String privateKey;
   final bool isReady;
   final DateTime? createdAt;
 
   const IdentityState({
     this.sigId = 'SIG-????',
     this.publicKey = '',
+    this.privateKey = '',
     this.isReady = false,
     this.createdAt,
   });
@@ -26,12 +28,14 @@ class IdentityState {
   IdentityState copyWith({
     String? sigId,
     String? publicKey,
+    String? privateKey,
     bool? isReady,
     DateTime? createdAt,
   }) =>
       IdentityState(
         sigId: sigId ?? this.sigId,
         publicKey: publicKey ?? this.publicKey,
+        privateKey: privateKey ?? this.privateKey,
         isReady: isReady ?? this.isReady,
         createdAt: createdAt ?? this.createdAt,
       );
@@ -51,12 +55,15 @@ class IdentityNotifier extends StateNotifier<IdentityState> {
     state = state.copyWith(
       sigId: _manager.sigId ?? 'SIG-????',
       publicKey: _manager.publicKey ?? '',
+      privateKey: _manager.privateKey ?? '',
       isReady: true,
       createdAt: _manager.createdAt,
     );
   }
 
   String get sigId => state.sigId;
+  String get publicKey => state.publicKey;
+  String get privateKey => state.privateKey;
 }
 
 // ──────────────────────────────────────────────

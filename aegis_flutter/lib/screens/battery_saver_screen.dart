@@ -59,7 +59,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: CustomPaint(
-                          painter: BatterySaverGaugePainter(percentage: 0.78),
+                          painter: BatterySaverGaugePainter(percentage: 0.0),
                         ),
                       ),
                     ),
@@ -76,7 +76,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                         ),
                         SizedBox(height: 10.0),
                         Text(
-                          '78%',
+                          '--%',
                           style: TextStyle(
                             fontSize: 32.0,
                             fontWeight: FontWeight.w900,
@@ -93,7 +93,7 @@ class _BatterySaverScreenState extends State<BatterySaverScreen> {
                         ),
                         SizedBox(height: 3.0),
                         Text(
-                          '22h 45m',
+                          '--h --m',
                           style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.bold,

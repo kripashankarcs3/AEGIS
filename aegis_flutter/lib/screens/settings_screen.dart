@@ -1,20 +1,24 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../providers/theme_provider.dart';
+import '../providers/identity_provider.dart';
+import '../providers/mesh_provider.dart';
+import '../providers/survivor_provider.dart';
 import 'auto_sync_screen.dart';
 import 'language_screen.dart';
 import 'battery_saver_screen.dart';
 import 'about_screen.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _autoConnect = true;
   bool _backgroundDiscovery = true;
   bool _relayThroughMe = true;
@@ -237,6 +241,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showMeshInfo(BuildContext context) {
+    final sigId = ref.read(identityProvider).sigId;
+    final meshState = ref.read(meshProvider);
+    final peerCount = ref.read(survivorProvider).values.where((n) => n.id != sigId).length;
+    final isConnected = meshState.isConnected;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -272,11 +281,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            _infoRow('Status', 'Connected', AegisColors.neonGreen),
-            _infoRow('Node ID', 'NEXUS_7FA2B3', AegisColors.textPrimary),
-            _infoRow('Peers', '3 active', AegisColors.textPrimary),
+            _infoRow('Status', isConnected ? 'Connected' : 'Disconnected', isConnected ? AegisColors.neonGreen : AegisColors.sosRed),
+            _infoRow('Node ID', sigId, AegisColors.textPrimary),
+            _infoRow('Peers', '$peerCount active', AegisColors.textPrimary),
             _infoRow('Transport', 'WiFi Direct + BLE', AegisColors.textPrimary),
-            _infoRow('IP', '192.168.43.1', AegisColors.textPrimary),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,

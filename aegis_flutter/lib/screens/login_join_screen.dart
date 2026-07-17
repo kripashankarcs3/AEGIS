@@ -260,7 +260,7 @@ colors: [
                           label: 'Continue with Phone',
                           icon: Icons.phone_outlined,
                           glowBreathe: _glowBreatheController,
-                          onTap: () => _navigateToMainShell(context),
+                          onTap: () => _continueWithPhone(context),
                         ),
                       ),
                     ),
@@ -369,6 +369,38 @@ colors: [
         transitionDuration: const Duration(milliseconds: 600),
       ),
       (route) => false,
+    );
+  }
+
+  void _continueWithPhone(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AegisColors.cardBg,
+        title: const Text('Enter your name'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: 'Your name or callsign',
+          ),
+          style: TextStyle(color: AegisColors.textPrimary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _navigateToMainShell(context);
+            },
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
     );
   }
 }

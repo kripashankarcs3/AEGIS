@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
@@ -48,7 +47,9 @@ class SurvivorMapPainter extends CustomPainter {
 
   void _drawGrid(Canvas canvas, Offset c, double maxR) {
     final p = Paint()
-      ..color = AegisColors.isLight ? Colors.black.withOpacity(0.06) : const Color(0xFF00E5FF).withOpacity(0.05)
+      ..color = AegisColors.isLight
+          ? Colors.black.withOpacity(0.06)
+          : const Color(0xFF00E5FF).withOpacity(0.05)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5;
 
@@ -69,8 +70,10 @@ class SurvivorMapPainter extends CustomPainter {
 
       final paint = Paint()
         ..color = node.isOnline
-            ? AegisColors.neonGreen.withOpacity(AegisColors.isLight ? 0.4 : 0.25)
-            : AegisColors.textMuted.withOpacity(AegisColors.isLight ? 0.3 : 0.15)
+            ? AegisColors.neonGreen
+                .withOpacity(AegisColors.isLight ? 0.4 : 0.25)
+            : AegisColors.textMuted
+                .withOpacity(AegisColors.isLight ? 0.3 : 0.15)
         ..strokeWidth = node.isOnline ? 2.0 : 1.0;
 
       if (node.isOnline) {
@@ -93,7 +96,8 @@ class SurvivorMapPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant SurvivorMapPainter old) => old.nodes != nodes || old.pulseValue != pulseValue;
+  bool shouldRepaint(covariant SurvivorMapPainter old) =>
+      old.nodes != nodes || old.pulseValue != pulseValue;
 }
 
 class NetworkMapScreen extends ConsumerStatefulWidget {
@@ -103,11 +107,13 @@ class NetworkMapScreen extends ConsumerStatefulWidget {
   ConsumerState<NetworkMapScreen> createState() => _NetworkMapScreenState();
 }
 
-class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with SingleTickerProviderStateMixin {
+class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _pulse;
   late Animation<double> _pulseA;
 
-  List<MapNodeItem> _buildNodes(String myId, Map<String, SurvivorNodeModel> survivors) {
+  List<MapNodeItem> _buildNodes(
+      String myId, Map<String, SurvivorNodeModel> survivors) {
     final items = <MapNodeItem>[];
     final rng = Random(myId.hashCode);
 
@@ -122,13 +128,16 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
 
     final peers = survivors.values.where((n) => n.id != myId).toList();
     for (int i = 0; i < peers.length; i++) {
-      final angle = (2 * pi * i) / max(peers.length, 1) + rng.nextDouble() * 0.15;
+      final angle =
+          (2 * pi * i) / max(peers.length, 1) + rng.nextDouble() * 0.15;
       final dist = 0.25 + rng.nextDouble() * 0.5;
       final peer = peers[i];
       final isOnline = peer.status == 'safe' || peer.status == 'have_resources';
       items.add(MapNodeItem(
         id: peer.id,
-        subText: isOnline ? '${DateTime.now().millisecondsSinceEpoch - peer.lastSeen > 60000 ? "3" : "1"} hops' : 'Offline',
+        subText: isOnline
+            ? '${DateTime.now().millisecondsSinceEpoch - peer.lastSeen > 60000 ? "3" : "1"} hops'
+            : 'Offline',
         color: isOnline ? AegisColors.neonGreen : AegisColors.textDim,
         dx: cos(angle) * dist,
         dy: sin(angle) * dist,
@@ -142,7 +151,9 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
   @override
   void initState() {
     super.initState();
-    _pulse = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat();
+    _pulse =
+        AnimationController(vsync: this, duration: const Duration(seconds: 3))
+          ..repeat();
     _pulseA = Tween<double>(begin: 0.0, end: 1.0).animate(_pulse);
   }
 
@@ -168,7 +179,8 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StaggeredFadeIn(index: 0, child: _header(peerCount, packetsRelayed)),
+              StaggeredFadeIn(
+                  index: 0, child: _header(peerCount, packetsRelayed)),
               const SizedBox(height: 18),
               StaggeredFadeIn(index: 1, child: _mapWidget(nodes)),
               const SizedBox(height: 18),
@@ -176,7 +188,8 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
               const SizedBox(height: 24),
               StaggeredFadeIn(index: 3, child: _healthCard()),
               const SizedBox(height: 16),
-              StaggeredFadeIn(index: 4, child: _statsCard(peerCount, packetsRelayed)),
+              StaggeredFadeIn(
+                  index: 4, child: _statsCard(peerCount, packetsRelayed)),
             ],
           ),
         ),
@@ -195,11 +208,23 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
             const SizedBox(height: 6),
             Row(
               children: [
-                Text('• $peerCount Nodes Online', style: TextStyle(fontSize: 11, color: AegisColors.neonGreen, fontWeight: FontWeight.bold)),
+                Text('• $peerCount Nodes Online',
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: AegisColors.neonGreen,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(width: 12),
-                Text('• $packetsRelayed Relayed', style: TextStyle(fontSize: 11, color: AegisColors.violet, fontWeight: FontWeight.bold)),
+                Text('• $packetsRelayed Relayed',
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: AegisColors.violet,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(width: 12),
-                Text('• Live', style: TextStyle(fontSize: 11, color: AegisColors.electricBlue, fontWeight: FontWeight.bold)),
+                Text('• Live',
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: AegisColors.electricBlue,
+                        fontWeight: FontWeight.bold)),
               ],
             ),
           ],
@@ -244,11 +269,22 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
       mainAxisSize: MainAxisSize.min,
       children: [
         if (isDotted)
-          Text('...', style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5))
+          Text('...',
+              style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                  letterSpacing: 0.5))
         else
-          Text('—', style: TextStyle(color: color, fontWeight: FontWeight.w800, fontSize: 12)),
+          Text('—',
+              style: TextStyle(
+                  color: color, fontWeight: FontWeight.w800, fontSize: 12)),
         const SizedBox(width: 8),
-        Text(label, style: TextStyle(fontSize: 12, color: AegisColors.textSecondary, fontWeight: FontWeight.w500)),
+        Text(label,
+            style: TextStyle(
+                fontSize: 12,
+                color: AegisColors.textSecondary,
+                fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -268,12 +304,17 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
             ),
             clipBehavior: Clip.antiAlias,
             child: LayoutBuilder(builder: (_, constraints) {
-              final c = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
-              final maxR = min(constraints.maxWidth, constraints.maxHeight) / 2 * 0.82;
+              final c =
+                  Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+              final maxR =
+                  min(constraints.maxWidth, constraints.maxHeight) / 2 * 0.82;
 
               return Stack(
                 children: [
-                  Positioned.fill(child: CustomPaint(painter: SurvivorMapPainter(pulseValue: _pulseA.value, nodes: nodes))),
+                  Positioned.fill(
+                      child: CustomPaint(
+                          painter: SurvivorMapPainter(
+                              pulseValue: _pulseA.value, nodes: nodes))),
                   ...nodes.map((n) {
                     final nx = c.dx + n.dx * maxR;
                     final ny = c.dy + n.dy * maxR;
@@ -285,7 +326,8 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
                       child: GestureDetector(
                         onTap: () {
                           if (n.isUser) {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const IdentityScreen()));
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => const IdentityScreen()));
                           } else {
                             showModalBottomSheet(
                               context: context,
@@ -295,7 +337,9 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
                                 nodeId: n.id,
                                 onOpenChat: () {
                                   Navigator.of(context).pop();
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => ChatConversationScreen(nodeId: n.id)));
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (_) => ChatConversationScreen(
+                                          nodeId: n.id)));
                                 },
                               ),
                             );
@@ -313,7 +357,10 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
                                 decoration: BoxDecoration(
                                   gradient: n.isUser
                                       ? AegisColors.primaryGradient
-                                      : LinearGradient(colors: [n.color, n.color.withOpacity(0.8)]),
+                                      : LinearGradient(colors: [
+                                          n.color,
+                                          n.color.withOpacity(0.8)
+                                        ]),
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: Colors.white.withOpacity(0.9),
@@ -329,7 +376,9 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
                                 ),
                                 child: Center(
                                   child: Icon(
-                                    n.isUser ? Icons.person_rounded : Icons.sensors_rounded,
+                                    n.isUser
+                                        ? Icons.person_rounded
+                                        : Icons.sensors_rounded,
                                     color: Colors.white,
                                     size: n.isUser ? 18 : 14,
                                   ),
@@ -360,7 +409,8 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
                       decoration: BoxDecoration(
                         color: AegisColors.surface2,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AegisColors.border2, width: 0.5),
+                        border:
+                            Border.all(color: AegisColors.border2, width: 0.5),
                       ),
                       child: Center(
                         child: Icon(
@@ -381,8 +431,7 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
   }
 
   Widget _healthCard() {
-    final peerCount = ref.watch(survivorProvider).values.where((n) => n.id != ref.watch(sigIdProvider)).length;
-    final health = peerCount > 0 ? (min(peerCount * 0.1, 1.0).clamp(0.0, 1.0)) : 0.0;
+    final health = ref.watch(meshNetworkHealthProvider);
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -397,8 +446,18 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Network Health', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AegisColors.textSecondary)),
-              Text(peerCount > 0 ? 'Good' : 'Idle', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: peerCount > 0 ? AegisColors.neonGreen : AegisColors.textMuted)),
+              Text('Network Health',
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AegisColors.textSecondary)),
+              Text(peerCount > 0 ? 'Good' : 'Idle',
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: peerCount > 0
+                          ? AegisColors.neonGreen
+                          : AegisColors.textMuted)),
             ],
           ),
           const SizedBox(height: 14),
@@ -407,14 +466,21 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
             child: LinearProgressIndicator(
               value: health,
               minHeight: 8,
-              backgroundColor: AegisColors.isLight ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B),
-              valueColor: AlwaysStoppedAnimation<Color>(health > 0.5 ? AegisColors.neonGreen : AegisColors.orange),
+              backgroundColor: AegisColors.isLight
+                  ? const Color(0xFFE2E8F0)
+                  : const Color(0xFF1E293B),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  health > 0.5 ? AegisColors.neonGreen : AegisColors.orange),
             ),
           ),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
-            child: Text('${(health * 100).round()}%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AegisColors.textSecondary)),
+            child: Text('${(health * 100).round()}%',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AegisColors.textSecondary)),
           ),
         ],
       ),
@@ -422,6 +488,10 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
   }
 
   Widget _statsCard(int peerCount, int packetsRelayed) {
+    final avgLatency = ref.watch(meshAvgLatencyProvider);
+    final coverage = ref.watch(meshCoverageProvider);
+    final latencyStr = avgLatency > 0 ? '${avgLatency}ms' : '--';
+    final coverageStr = coverage > 0 ? '${(coverage * 100).round()}%' : '--';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
       decoration: BoxDecoration(
@@ -435,11 +505,11 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
         children: [
           _statCol('$peerCount', 'Nodes'),
           _dividerCol(),
-          _statCol('$packetsRelayed', 'Packets Relayed'),
+          _statCol('$packetsRelayed', 'Relayed'),
           _dividerCol(),
-          _statCol('--', 'Avg Latency'),
+          _statCol(latencyStr, 'Avg Latency'),
           _dividerCol(),
-          _statCol('--', 'Delivery'),
+          _statCol(coverageStr, 'Coverage'),
         ],
       ),
     );
@@ -450,9 +520,19 @@ class _NetworkMapScreenState extends ConsumerState<NetworkMapScreen> with Single
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AegisColors.textPrimary, letterSpacing: -0.5)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: AegisColors.textPrimary,
+                  letterSpacing: -0.5)),
           const SizedBox(height: 4),
-          Text(label, textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: AegisColors.textSecondary, fontWeight: FontWeight.w500)),
+          Text(label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 10,
+                  color: AegisColors.textSecondary,
+                  fontWeight: FontWeight.w500)),
         ],
       ),
     );

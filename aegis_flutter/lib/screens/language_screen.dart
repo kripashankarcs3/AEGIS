@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../constants/aegis_colors.dart';
 
 class LanguageScreen extends StatefulWidget {
@@ -181,6 +182,20 @@ class _LanguageScreenState extends State<LanguageScreen> {
               padding: const EdgeInsets.all(16.0),
               child: GestureDetector(
                 onTap: () {
+                  final box = Hive.box('settings');
+                  box.put('app_language_index', _selectedLanguageIndex);
+                  box.put(
+                    'app_language_name',
+                    _languages[_selectedLanguageIndex]['name'],
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Language set to ${_languages[_selectedLanguageIndex]['name']}',
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
                   Navigator.of(context).pop();
                 },
                 child: Container(

@@ -16,6 +16,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
   int _selectedAudience = 1;
   int _selectedPriority = 2;
   final TextEditingController _messageController = TextEditingController();
+  int _charCount = 0;
 
   final List<Map<String, String>> _audiences = [
     {'title': 'Everyone', 'sub': 'All nodes in range'},
@@ -24,6 +25,16 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
     {'title': 'Rescue Teams', 'sub': 'Only rescue nodes'},
     {'title': 'Shelter Leaders', 'sub': 'Only shelter nodes'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _messageController.addListener(() {
+      setState(() {
+        _charCount = _messageController.text.length;
+      });
+    });
+  }
 
   @override
   void dispose() {
@@ -212,7 +223,7 @@ class _BroadcastScreenState extends ConsumerState<BroadcastScreen> {
                         ),
                       ),
                       Text(
-                        '62/200',
+                        '$_charCount/200',
                         style: TextStyle(color: AegisColors.textMuted, fontSize: 10.0),
                       ),
                     ],

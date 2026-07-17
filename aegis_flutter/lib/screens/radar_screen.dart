@@ -59,6 +59,8 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
       String myId, Map<String, SurvivorNodeModel> survivors) {
     final nodes = <SurvivorNode>[];
     final rng = Random(myId.hashCode);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    const staleThreshold = 120000; // 2 minutes
 
     // User at center
     nodes.add(SurvivorNode(
@@ -70,8 +72,10 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
       dy: 0.0,
     ));
 
-    // Peers distributed radially
-    final peers = survivors.values.where((n) => n.id != myId).toList();
+    // Only show peers seen within the last 2 minutes
+    final peers = survivors.values
+        .where((n) => n.id != myId && now - n.lastSeen <= staleThreshold)
+        .toList();
     for (int i = 0; i < peers.length; i++) {
       final angle = (2 * pi * i) / peers.length + rng.nextDouble() * 0.15;
       final dist = 0.35 + rng.nextDouble() * 0.4;
@@ -381,21 +385,21 @@ class _RadarScreenState extends ConsumerState<RadarScreen>
                     onTap: () {
                       if (node.isUser) return;
                       if (isSos) {
-                        final dummyPacket = SignalPacket(
-                          id:
-                              DateTime.now().millisecondsSinceEpoch.toString(),
-                          from: node.id,
-                          to: 'broadcast',
-                          type: PacketType.sos,
-                          payload: 'Emergency assistance needed!',
-                          ttl: 5,
-                          hopCount: node.hops,
-                          path: [node.id],
-                          timestamp: DateTime.now(),
-                        );
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => SosIncomingOverlayScreen(
-                                packet: dummyPacket)));
+                                packet: SignalPacket(
+                                  id: DateTime.now()
+                                      .millisecondsSinceEpoch
+                                      .toString(),
+                                  from: node.id,
+                                  to: 'broadcast',
+                                  type: PacketType.sos,
+                                  payload: 'Emergency assistance needed!',
+                                  ttl: 5,
+                                  hopCount: node.hops,
+                                  path: [node.id],
+                                  timestamp: DateTime.now(),
+                                ))));
                       } else {
                         showModalBottomSheet(
                           context: context,

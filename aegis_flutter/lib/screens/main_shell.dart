@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/aegis_colors.dart';
 import '../providers/mesh_provider.dart';
+import '../providers/identity_provider.dart';
 import 'radar_screen.dart';
 import 'chat_screen.dart';
 import 'sos_screen.dart';
@@ -40,12 +41,13 @@ class _MainShellState extends ConsumerState<MainShell>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final mySigId = ref.read(sigIdProvider);
       ref.read(meshProvider.notifier).sosAlertStream.listen((packet) {
-        if (mounted) {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => SosIncomingOverlayScreen(packet: packet),
-          ));
-        }
+        if (!mounted) return;
+        if (packet.from == mySigId) return;
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => SosIncomingOverlayScreen(packet: packet),
+        ));
       });
     });
     _currentIndex = widget.initialTab;

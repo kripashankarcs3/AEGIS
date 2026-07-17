@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import '../models/signal_packet.dart';
@@ -17,6 +19,19 @@ class StatusBeacon {
   FutureOr<void> Function(SignalPacket packet)? broadcastToMesh;
 
   Timer? _timer;
+
+  String _deviceName = '';
+  String _platform = '';
+  String _appVersion = '1.0.0';
+
+  void setDeviceInfo(
+      {String deviceName = '',
+      String platform = '',
+      String appVersion = '1.0.0'}) {
+    _deviceName = deviceName;
+    _platform = platform;
+    _appVersion = appVersion;
+  }
 
   /// Tracks the last-known status of each peer: peerId → payload string.
   final Map<String, String> _peerStatus = {};
@@ -40,12 +55,23 @@ class StatusBeacon {
   }
 
   Future<void> _broadcastStatus() async {
+    final info = {
+      'status': 'ONLINE',
+      'battery': -1,
+      'deviceName':
+          _deviceName.isNotEmpty ? _deviceName : Platform.localHostname,
+      'platform': _platform.isNotEmpty
+          ? _platform
+          : '${Platform.operatingSystem} ${Platform.version}',
+      'appVersion': _appVersion,
+    };
+
     final packet = SignalPacket(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       from: _selfId,
       to: 'ALL',
       type: PacketType.status,
-      payload: 'ONLINE',
+      payload: jsonEncode(info),
       ttl: 5,
       hopCount: 0,
       path: [_selfId],

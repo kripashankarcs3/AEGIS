@@ -44,14 +44,25 @@ class _SosIncomingOverlayScreenState
     final amPm = dt.hour >= 12 ? 'PM' : 'AM';
     final min = dt.minute.toString().padLeft(2, '0');
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     return '$h:$min $amPm  •  ${dt.day} ${months[dt.month - 1]} ${dt.year}';
   }
 
   String _formatLocation(double? lat, double? lng) {
     if (lat == null || lng == null) return 'Location unknown';
+    if (lat == 0.0 && lng == 0.0) return 'Location unavailable';
     final latDir = lat >= 0 ? 'N' : 'S';
     final lngDir = lng >= 0 ? 'E' : 'W';
     return '${lat.abs().toStringAsFixed(4)}° $latDir, ${lng.abs().toStringAsFixed(4)}° $lngDir';
@@ -78,7 +89,8 @@ class _SosIncomingOverlayScreenState
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [

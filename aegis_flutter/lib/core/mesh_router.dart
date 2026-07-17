@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../models/signal_packet.dart';
 import 'message_queue.dart';
 import '../transport/transport_manager.dart';
@@ -12,87 +14,86 @@ class MeshRouter {
   final TransportManager _transportManager;
   final MessageQueue _messageQueue;
 
-  /// The local node's SIG-ID, set by MeshProvider after identity is ready.
-  /// Used to append self to path during relay so the full route is tracked.
   String localSigId = 'SIG-????';
 
-  /// Packet IDs already processed (deduplication cache).
   final Set<String> _processedPackets = {};
-
-  /// Maximum dedup cache size.
   static const int _cacheLimit = 1000;
 
-  // ── Delivery callbacks — wired by MeshProvider ──────────────────────
+  Future<List<int>> Function(List<int> message)? _signCallback;
+  List<int>? _publicKeyBytes;
+
+  void setSignCallback(
+    Future<List<int>> Function(List<int> message) sign,
+    List<int> publicKeyBytes,
+  ) {
+    _signCallback = sign;
+    _publicKeyBytes = publicKeyBytes;
+  }
+
   Future<void> Function(SignalPacket)? onChatReceived;
   Future<void> Function(SignalPacket)? onAckReceived;
   Future<void> Function(SignalPacket)? onSosReceived;
   Future<void> Function(SignalPacket)? onStatusReceived;
   Future<void> Function(SignalPacket)? onResourceReceived;
 
-  // ─────────────────────────────────────────────────────────────────────
-  // Entry point for all incoming packets (from TransportManager).
-  // ─────────────────────────────────────────────────────────────────────
   Future<void> receivePacket(SignalPacket packet) async {
-    // 1. Deduplication check
     if (_processedPackets.contains(packet.id)) return;
 
     _processedPackets.add(packet.id);
     if (_processedPackets.length > _cacheLimit) {
-      _processedPackets.remove(_processedPackets.first);
+      final first = _processedPackets.first;
+      _processedPackets.remove(first);
     }
 
-    // 2. TTL check
     if (packet.ttl <= 0) return;
 
-    // 3. Broadcast packets (sos/status/resource) — deliver locally AND relay
     if (packet.to == 'broadcast' || packet.to == 'ALL') {
       await _deliverPacket(packet);
       await relayPacket(packet);
       return;
     }
 
-    // 4. Unicast — check if WE are the destination
     if (packet.to == localSigId) {
       await _deliverPacket(packet);
       return;
     }
 
-    // 5. Forward to next hop (we are a relay)
     await relayPacket(packet);
   }
 
-  // ─────────────────────────────────────────────────────────────────────
-  // Relay packet to connected peers.
-  // ─────────────────────────────────────────────────────────────────────
   Future<void> relayPacket(SignalPacket packet) async {
-    if (!_transportManager.isConnected) {
-      _messageQueue.enqueue(packet);
-      return;
-    }
-
-    final forwarded = packet.copyWith(
+    var forwarded = packet.copyWith(
       ttl: packet.ttl - 1,
       hopCount: packet.hopCount + 1,
       path: [...packet.path, localSigId],
+      signature: null,
     );
+
+    if (_signCallback != null && _publicKeyBytes != null) {
+      try {
+        final data = _canonicalBytes(forwarded);
+        final sig = await _signCallback!(data);
+        forwarded = forwarded.copyWith(signature: base64Encode(sig));
+      } catch (_) {}
+    }
 
     await _transportManager.sendPacket(forwarded);
   }
 
-  // ─────────────────────────────────────────────────────────────────────
-  // Send a brand-new outgoing packet.
-  // ─────────────────────────────────────────────────────────────────────
   Future<void> sendPacket(SignalPacket packet) async {
-    if (!_transportManager.isConnected) {
-      _messageQueue.enqueue(packet);
-      return;
+    var outgoing = packet;
+
+    if (_signCallback != null && _publicKeyBytes != null) {
+      try {
+        final data = _canonicalBytes(outgoing);
+        final sig = await _signCallback!(data);
+        outgoing = outgoing.copyWith(signature: base64Encode(sig));
+      } catch (_) {}
     }
-    await _transportManager.sendPacket(packet);
+
+    await _transportManager.sendPacket(outgoing);
   }
 
-  // ─────────────────────────────────────────────────────────────────────
-  // Retry packets that were queued while offline.
-  // ─────────────────────────────────────────────────────────────────────
   Future<void> flushQueue() async {
     while (!_messageQueue.isEmpty) {
       final packet = _messageQueue.dequeue();
@@ -101,36 +102,32 @@ class MeshRouter {
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────
-  // Deliver a packet to the appropriate local service.
-  // ─────────────────────────────────────────────────────────────────────
   Future<void> _deliverPacket(SignalPacket packet) async {
     switch (packet.type) {
       case PacketType.chat:
         await onChatReceived?.call(packet);
         break;
-
       case PacketType.ack:
         await onAckReceived?.call(packet);
         break;
-
       case PacketType.sos:
         await onSosReceived?.call(packet);
         break;
-
       case PacketType.status:
         await onStatusReceived?.call(packet);
         break;
-
       case PacketType.resource:
         await onResourceReceived?.call(packet);
         break;
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────
-  // Utilities
-  // ─────────────────────────────────────────────────────────────────────
+  List<int> _canonicalBytes(SignalPacket packet) {
+    return utf8.encode(
+      '${packet.id}|${packet.from}|${packet.to}|${packet.payload}|${packet.timestamp.millisecondsSinceEpoch}',
+    );
+  }
+
   void clearCache() => _processedPackets.clear();
 
   int get processedPacketCount => _processedPackets.length;

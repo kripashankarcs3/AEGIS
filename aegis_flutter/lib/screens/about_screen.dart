@@ -27,7 +27,14 @@ class AboutScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.ios_share_rounded, color: AegisColors.textPrimary),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Share — coming soon'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -35,11 +42,9 @@ class AboutScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
           children: [
-            // 1. Core Shield Logo + Titles
             Center(
               child: Column(
                 children: [
-                  // Logo
                   Container(
                     width: 100.0,
                     height: 100.0,
@@ -63,8 +68,6 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 20.0),
-
-                  // Brand name titles
                   Text(
                     'AEGIS',
                     style: TextStyle(
@@ -85,8 +88,6 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 10.0),
-
-                  // Version badge tag
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.5),
                     decoration: BoxDecoration(
@@ -107,8 +108,6 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16.0),
-
-                  // Platform descriptive pitch
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
@@ -125,8 +124,6 @@ class AboutScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 32.0),
-
-            // 2. Info Details Cards
             Container(
               decoration: BoxDecoration(
                 color: AegisColors.cardBg,
@@ -145,11 +142,32 @@ class AboutScreen extends StatelessWidget {
                     valueColor: AegisColors.neonGreen,
                   ),
                   _buildDivider(),
-                  _buildAboutNavTile('Terms of Service'),
+                  _buildAboutNavTile('Terms of Service', () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Terms of Service — coming soon'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }),
                   _buildDivider(),
-                  _buildAboutNavTile('Privacy Policy'),
+                  _buildAboutNavTile('Privacy Policy', () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Privacy Policy — coming soon'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }),
                   _buildDivider(),
-                  _buildAboutNavTile('Open Source Licenses'),
+                  _buildAboutNavTile('Open Source Licenses', () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Open Source Licenses — coming soon'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
@@ -185,25 +203,28 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAboutNavTile(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: AegisColors.textSecondary,
-              fontSize: 12.5,
+  Widget _buildAboutNavTile(String title, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: AegisColors.textSecondary,
+                fontSize: 12.5,
+              ),
             ),
-          ),
-          Icon(
-            Icons.chevron_right,
-            size: 14.0,
-            color: AegisColors.textMuted,
-          ),
-        ],
+            Icon(
+              Icons.chevron_right,
+              size: 14.0,
+              color: AegisColors.textMuted,
+            ),
+          ],
+        ),
       ),
     );
   }

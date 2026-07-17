@@ -255,65 +255,45 @@ class _AutoSyncScreenState extends State<AutoSyncScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Last Sync',
-                          style: TextStyle(color: AegisColors.textSecondary, fontSize: 13.0),
-                        ),
-                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '2 min ago',
-                              style: TextStyle(
-                                color: AegisColors.neonGreen,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12.5,
-                              ),
+                              'Last Sync',
+                              style: TextStyle(color: AegisColors.textSecondary, fontSize: 13.0),
                             ),
-                            SizedBox(width: 6.0),
-                            Icon(
-                              Icons.check_circle_outline_rounded,
-                              color: AegisColors.neonGreen,
-                              size: 14.0,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  _buildDivider(),
-
-                  // Next sync tile
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Next Sync',
-                          style: TextStyle(color: AegisColors.textSecondary, fontSize: 13.0),
-                        ),
-                        Row(
-                          children: [
                             Text(
-                              'In 13 min',
+                              'N/A',
                               style: TextStyle(
                                 color: AegisColors.textSecondary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12.5,
                               ),
                             ),
-                            SizedBox(width: 6.0),
-                            Icon(
-                              Icons.access_time_rounded,
-                              color: AegisColors.textMuted,
-                              size: 14.0,
+                          ],
+                        ),
+                      ),
+                      _buildDivider(),
+
+                      // Next sync tile
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Next Sync',
+                              style: TextStyle(color: AegisColors.textSecondary, fontSize: 13.0),
+                            ),
+                            Text(
+                              'N/A',
+                              style: TextStyle(
+                                color: AegisColors.textSecondary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12.5,
+                              ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
                   ),
                 ],
               ),

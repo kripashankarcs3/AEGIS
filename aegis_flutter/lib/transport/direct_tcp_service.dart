@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import '../models/signal_packet.dart';
@@ -48,14 +49,7 @@ class DirectTcpService {
           timeout: const Duration(seconds: 5));
       debugPrint('🔌 DirectTCP: Connected to $sigId at $ip:$port');
       _sendHandshake(socket);
-      socket.listen(
-        (data) => _onData(socket, data, sigId),
-        onDone: () => _onDisconnected(sigId),
-        onError: (e) {
-          debugPrint('❌ DirectTCP: Socket error for $sigId: $e');
-          _onDisconnected(sigId);
-        },
-      );
+      _attachSocketReader(socket, sigId);
       _connections[sigId] = socket;
     } catch (e) {
       debugPrint('❌ DirectTCP: Failed to connect to $sigId: $e');
@@ -63,37 +57,94 @@ class DirectTcpService {
   }
 
   void _handleIncoming(Socket socket) {
-    final peerSigId = _PeerIdHolder();
+    String? peerSigId;
+    final buffer = <int>[];
     debugPrint(
         '🔌 DirectTCP: Incoming from ${socket.remoteAddress.address}:${socket.remotePort}');
     socket.listen(
       (data) {
-        final str = utf8.decode(data).trim();
-        if (str.isEmpty) return;
-        final handshake = _tryParseHandshake(str);
-        if (handshake != null) {
-          peerSigId.id = handshake;
-          _connections[handshake] = socket;
-          debugPrint('🔌 DirectTCP: Handshake from $handshake');
-          return;
-        }
-        if (peerSigId.id != null) {
-          _parseAndEmit(str, peerSigId.id!);
-        }
+        buffer.addAll(data);
+        _processBuffer(buffer, socket, (id) {
+          peerSigId = id;
+          _connections[id] = socket;
+          debugPrint('🔌 DirectTCP: Handshake from $id');
+        }, peerSigId);
       },
       onDone: () {
-        if (peerSigId.id != null) _onDisconnected(peerSigId.id!);
+        if (peerSigId != null) _onDisconnected(peerSigId!);
       },
       onError: (e) {
         debugPrint('❌ DirectTCP: Server socket error: $e');
-        if (peerSigId.id != null) _onDisconnected(peerSigId.id!);
+        if (peerSigId != null) _onDisconnected(peerSigId!);
       },
     );
   }
 
+  void _attachSocketReader(Socket socket, String peerSigId) {
+    final buffer = <int>[];
+    socket.listen(
+      (data) {
+        buffer.addAll(data);
+        _processBuffer(buffer, socket, (id) {
+          // Re-handshake (shouldn't happen for outgoing connections)
+        }, peerSigId);
+      },
+      onDone: () => _onDisconnected(peerSigId),
+      onError: (e) {
+        debugPrint('❌ DirectTCP: Socket error for $peerSigId: $e');
+        _onDisconnected(peerSigId);
+      },
+    );
+  }
+
+  /// Processes a byte buffer using length-prefixed framing.
+  /// Format: [4-byte length (big-endian)] [JSON payload bytes]
+  void _processBuffer(List<int> buffer, Socket socket,
+      void Function(String) onHandshake, String? knownPeerId) {
+    while (true) {
+      if (buffer.length < 4) break;
+      final length = (buffer[0] << 24) |
+          (buffer[1] << 16) |
+          (buffer[2] << 8) |
+          buffer[3];
+      if (buffer.length < 4 + length) break;
+      final msgBytes = buffer.sublist(4, 4 + length);
+      buffer.removeRange(0, 4 + length);
+      final str = utf8.decode(msgBytes);
+
+      final handshake = _tryParseHandshake(str);
+      if (handshake != null) {
+        onHandshake(handshake);
+        continue;
+      }
+      if (knownPeerId != null) {
+        try {
+          final json = jsonDecode(str);
+          if (json is Map && json['type'] != 'handshake') {
+            final packet =
+                SignalPacket.fromJson(json as Map<String, dynamic>);
+            _messageController.add(packet);
+            debugPrint('📨 DirectTCP: Packet from ${packet.from}');
+          }
+        } catch (e) {
+          debugPrint('❌ DirectTCP: Parse error: $e');
+        }
+      }
+    }
+  }
+
   void _sendHandshake(Socket socket) {
-    final msg = utf8.encode('{"type":"handshake","sigId":"$_mySigId"}\n');
-    socket.add(msg);
+    final json = '{"type":"handshake","sigId":"$_mySigId"}';
+    _sendMsg(socket, json);
+  }
+
+  void _sendMsg(Socket socket, String json) {
+    final bytes = utf8.encode(json);
+    final length = bytes.length;
+    final header = Uint8List(4)
+      ..buffer.asByteData().setInt32(0, length, Endian.big);
+    socket.add(header);
+    socket.add(bytes);
   }
 
   String? _tryParseHandshake(String str) {
@@ -106,36 +157,6 @@ class DirectTcpService {
     return null;
   }
 
-  void _parseAndEmit(String str, String peerSigId) {
-    for (final line in str.split('\n')) {
-      if (line.isEmpty) continue;
-      try {
-        final json = jsonDecode(line);
-        if (json is Map && json['type'] == 'handshake') continue;
-        final packet = SignalPacket.fromJson(json as Map<String, dynamic>);
-        _messageController.add(packet);
-        debugPrint('📨 DirectTCP: Packet from ${packet.from}');
-      } catch (e) {
-        debugPrint('❌ DirectTCP: Parse error: $e');
-      }
-    }
-  }
-
-  void _onData(Socket socket, List<int> data, String peerSigId) {
-    final str = utf8.decode(data).trim();
-    if (str.isEmpty) return;
-    final handshake = _tryParseHandshake(str);
-    if (handshake != null) {
-      if (handshake != peerSigId) {
-        _connections.remove(peerSigId);
-        _connections[handshake] = socket;
-        debugPrint('🔌 DirectTCP: Rebound handshake $peerSigId → $handshake');
-      }
-      return;
-    }
-    _parseAndEmit(str, peerSigId);
-  }
-
   void _onDisconnected(String peerSigId) {
     _connections.remove(peerSigId);
     debugPrint('🔌 DirectTCP: Disconnected from $peerSigId');
@@ -145,12 +166,11 @@ class DirectTcpService {
 
   Future<void> send(SignalPacket packet, {String? peerSigId}) async {
     final json = jsonEncode(packet.toJson());
-    final msg = utf8.encode('$json\n');
 
     if (peerSigId != null) {
       final socket = _connections[peerSigId];
       if (socket != null) {
-        socket.add(msg);
+        _sendMsg(socket, json);
         debugPrint('📤 DirectTCP: Sent to $peerSigId');
         return;
       }
@@ -160,7 +180,7 @@ class DirectTcpService {
 
     for (final entry in _connections.entries) {
       try {
-        entry.value.add(msg);
+        _sendMsg(entry.value, json);
         debugPrint('📤 DirectTCP: Sent to ${entry.key}');
       } catch (e) {
         debugPrint('❌ DirectTCP: Failed to send to ${entry.key}: $e');
@@ -179,8 +199,4 @@ class DirectTcpService {
     _server?.close();
     _messageController.close();
   }
-}
-
-class _PeerIdHolder {
-  String? id;
 }

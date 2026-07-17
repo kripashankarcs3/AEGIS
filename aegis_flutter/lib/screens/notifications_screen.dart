@@ -65,65 +65,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
               // 2. Notifications List
               Expanded(
-                child: ListView(
-                  children: [
-                    _buildNotificationTile(
-                      icon: Icons.add_rounded,
-                      iconBgColor: AegisColors.sosRed,
-                      title: 'Medical Help Needed',
-                      subtitle: 'Near Central Park',
-                      time: '2 min ago',
-                    ),
-                    _buildDivider(),
-                    _buildNotificationTile(
-                      icon: Icons.check_circle_rounded,
-                      iconBgColor: AegisColors.neonGreen,
-                      title: 'Food Available',
-                      subtitle: 'At Green Area',
-                      time: '15 min ago',
-                    ),
-                    _buildDivider(),
-                    _buildNotificationTile(
-                      titleIcon: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 3.0),
-                        decoration: const BoxDecoration(
-                          color: AegisColors.sosRed,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          'SOS',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 8.0),
-                        ),
-                      ),
-                      title: 'SOS Alert',
-                      subtitle: 'From 1.2 km away',
-                      time: '20 min ago',
-                    ),
-                    _buildDivider(),
-                    _buildNotificationTile(
-                      icon: Icons.chat_bubble_rounded,
-                      iconBgColor: AegisColors.electricBlue,
-                      title: 'New Message',
-                      subtitle: 'From Riya',
-                      time: '25 min ago',
-                    ),
-                    _buildDivider(),
-                    _buildNotificationTile(
-                      icon: Icons.battery_alert_rounded,
-                      iconBgColor: AegisColors.sosRed,
-                      title: 'Battery Low',
-                      subtitle: 'Your device battery is low',
-                      time: '30 min ago',
-                    ),
-                    _buildDivider(),
-                    _buildNotificationTile(
-                      icon: Icons.wifi_tethering_rounded,
-                      iconBgColor: AegisColors.violet,
-                      title: 'Network Congestion',
-                      subtitle: 'Some messages delayed',
-                      time: '35 min ago',
-                    ),
-                  ],
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.notifications_none_outlined, size: 56, color: AegisColors.textMuted),
+                      SizedBox(height: 16),
+                      Text('No notifications yet', style: TextStyle(color: AegisColors.textMuted, fontSize: 15, fontWeight: FontWeight.w500)),
+                      SizedBox(height: 8),
+                      Text('Notifications from mesh activity\nwill appear here', style: TextStyle(color: AegisColors.textDim, fontSize: 13), textAlign: TextAlign.center),
+                    ],
+                  ),
                 ),
               ),
             ],
