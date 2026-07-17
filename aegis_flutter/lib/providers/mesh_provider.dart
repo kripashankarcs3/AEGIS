@@ -9,7 +9,7 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show Platform;
+import 'dart:io' show File, Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -249,6 +249,23 @@ class MeshNotifier extends StateNotifier<MeshState> {
       appVersion: '1.0.0',
     );
 
+    // Load profile image and pass to beacon
+    try {
+      final imagePath = StorageService.getProfileImagePath();
+      if (imagePath != null) {
+        final file = File(imagePath);
+        if (await file.exists()) {
+          final bytes = await file.readAsBytes();
+          final base64Str = base64Encode(bytes);
+          if (base64Str.length <= 65536) {
+            _statusBeacon.setProfileImage(base64Str);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ Profile image load failed: $e');
+    }
+
     // ResourceManager uses constructor injection (meshRouter + selfId)
     _resourceManager = ResourceManager(
       meshRouter: _router,
@@ -304,6 +321,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
         String deviceName = '';
         String platform = '';
         String appVersion = '';
+        String? profileImageBase64;
         try {
           final info = jsonDecode(p.payload) as Map<String, dynamic>;
           status = info['status'] == 'ONLINE'
@@ -313,6 +331,8 @@ class MeshNotifier extends StateNotifier<MeshState> {
           deviceName = info['deviceName'] as String? ?? '';
           platform = info['platform'] as String? ?? '';
           appVersion = info['appVersion'] as String? ?? '';
+          final rawImage = info['profileImageBase64'] as String?;
+          profileImageBase64 = rawImage?.isNotEmpty == true ? rawImage : null;
         } catch (_) {
           status = p.payload == 'ONLINE' ? 'safe' : p.payload;
         }
@@ -330,6 +350,7 @@ class MeshNotifier extends StateNotifier<MeshState> {
           deviceName: deviceName,
           platform: platform,
           appVersion: appVersion,
+          profileImageBase64: profileImageBase64,
         );
         _ref.read(survivorProvider.notifier).updateFromIncoming(node);
       }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,6 +43,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (picked != null) {
       await StorageService.setProfileImagePath(picked.path);
       setState(() => _imagePath = picked.path);
+      // Update beacon with new profile image immediately
+      try {
+        final file = File(picked.path);
+        final bytes = await file.readAsBytes();
+        final base64Str = base64Encode(bytes);
+        if (base64Str.length <= 65536) {
+          ref
+              .read(meshProvider.notifier)
+              .statusBeacon
+              .setProfileImage(base64Str);
+        }
+      } catch (e) {
+        debugPrint('⚠️ Profile image beacon update failed: $e');
+      }
     }
   }
 
@@ -434,20 +449,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             onPressed: () => Navigator.of(ctx).pop(),
             child: const Text('Cancel'),
           ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (_) => const LoginJoinScreen(),
-                  ),
-                  (route) => false,
-                );
-              },
-              child: Text('Log Out', style: TextStyle(color: AegisColors.sosRed)),
-            ),
-          ],
-        ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (_) => const LoginJoinScreen(),
+                ),
+                (route) => false,
+              );
+            },
+            child: Text('Log Out', style: TextStyle(color: AegisColors.sosRed)),
+          ),
+        ],
+      ),
     );
   }
 }

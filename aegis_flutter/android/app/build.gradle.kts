@@ -21,10 +21,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.aegis.mesh.aegis_flutter"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -46,6 +43,12 @@ android {
     packaging {
         jniLibs {
             useLegacyPackaging = false
+            excludes += listOf(
+                "lib/armeabi-v7a/*.so",
+                "lib/x86/*.so",
+                "lib/x86_64/*.so",
+                "lib/riscv64/*.so",
+            )
         }
     }
 }
