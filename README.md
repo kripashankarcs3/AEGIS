@@ -392,7 +392,15 @@ SplashScreen → meshProvider.start() → OnboardingScreen (first run) → Login
 
 ---
 
-## 🎬 Demo Script (3 minutes)
+## � Demo Video
+
+[![AEGIS Demo Video](https://img.shields.io/badge/Watch%20Demo-Google%20Drive-blue?style=for-the-badge&logo=google-drive)](https://drive.google.com/file/d/15_2j4xSL6SI945vGSdr9kKQ6bZBKLYsh/view?usp=sharing)
+
+> Watch AEGIS in action — two Android devices communicating offline via mesh network with SOS alerts, chat, and resource sharing.
+
+---
+
+## �🎬 Demo Script (3 minutes)
 
 ### Setup
 - 2 Android phones with AEGIS installed
