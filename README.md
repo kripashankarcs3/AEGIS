@@ -264,7 +264,7 @@ Every device within mesh range:
 ## 📁 Project Structure
 
 ```
-aegis_flutter/
+AEGIS/
 ├── lib/
 │   ├── main.dart                  ← App entry point
 │   ├── app.dart                   ← Root widget, router setup
@@ -374,7 +374,6 @@ aegis_flutter/
 ## 🚀 Running the App
 
 ```bash
-cd aegis_flutter
 flutter pub get
 flutter run
 ```
